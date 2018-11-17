@@ -5,23 +5,23 @@ $global:Author = "YGO74"
 $global:virtualNetworks=@(
     New-Object -TypeName PsObject -Property @{
             Name="Ansible-lab_Network"
-            AddressPrefix="10.1.0.0/16"
+            AddressPrefix="10.4.0.0/16"
             Subnets=@(
                 New-Object -TypeName PsObject -Property @{
                     Name="Ansible-lab_Subnet_front"
-                    AddressPrefix="10.1.1.0/24"
+                    AddressPrefix="10.4.1.0/24"
                 }
                 New-Object -TypeName PsObject -Property @{
                     Name="Ansible-lab_Subnet_Services"
-                    AddressPrefix="10.1.3.0/24"
+                    AddressPrefix="10.4.3.0/24"
                 }
                 New-Object -TypeName PsObject -Property @{
                     Name="Ansible-lab_Subnet_back"
-                    AddressPrefix="10.1.2.0/24"
+                    AddressPrefix="10.4.2.0/24"
                 }
                 New-Object -TypeName PsObject -Property @{
                     Name="Ansible-lab_Subnet_admin"
-                    AddressPrefix="10.1.4.0/24"
+                    AddressPrefix="10.4.4.0/24"
                 }
             )
         }

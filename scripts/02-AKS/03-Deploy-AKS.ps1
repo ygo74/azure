@@ -1,0 +1,34 @@
+if ([String]::IsNullOrEmpty($PSScriptRoot)) {
+    $rootScriptPath = "D:\devel\github\devops-toolbox\cloud\azure\scripts\02-AKS"
+}
+else {
+    $rootScriptPath = $PSScriptRoot
+}    
+
+$ModulePath = "$rootScriptPath\..\..\powershell\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
+Import-Module $ModulePath -force
+
+$Credential = Get-Credential -Message "Type the name and password of the local administrator account."
+
+#Load Ansible lab configuration
+& "$rootScriptPath\00-Configuration.ps1"
+
+Set-ResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
+
+#Create Network Infrastrtcuture
+foreach($virtualNetwork in $virtualNetworks)
+{
+    Set-VirtualNetwork -ResourceGroupName $ResourceGroupName -Location $Location -Network $virtualNetwork
+}
+
+
+
+#Create AKS CLuster
+$existingCluster = Get-AzureRmResource -ResourceGroupName $ResourceGroupName -Name $aksClusterName -ErrorAction SilentlyContinue
+
+
+$aksClusterName = "myAKSCluster"
+az login
+az aks get-versions --location $Location
+
+az aks create --resource-group $ResourceGroupName --name $aksClusterName --node-count 1 --ssh-key-value (Get-Content "$env:USERPROFILE\.ssh\.azureuser.pub")
