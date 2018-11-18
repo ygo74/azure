@@ -6,9 +6,6 @@ New-AzureRmADServicePrincipal -ApplicationId $mesf_Application.ApplicationId -Pa
 
 New-AzureRmADServicePrincipal
 
-$password = "Y4Lw-^qbK!+KlD0:"
-
-
 $cred = Get-Credential -UserName $mesf_Application.ApplicationId 
 
 $currentContext = Get-AzureRmContext
@@ -23,7 +20,6 @@ Set-AzureRMContext -Subscription "MESF Powershell" -Name "MESF_Powershell"
 
 Connect-AzureRmAccount
 $mesf_Application = Get-AzureRmADApplication -IdentifierUri http://MESF_Powershell
-$password = "Y4Lw-^qbK!+KlD0:"
 $securePassword = ConvertTo-SecureString -Force -AsPlainText -String $password
 $cred = new-object -typename System.Management.Automation.PSCredential `
      -argumentlist $mesf_Application.ApplicationId, $SecurePassword

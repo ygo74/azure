@@ -24,11 +24,16 @@ foreach($virtualNetwork in $virtualNetworks)
 
 
 #Create AKS CLuster
-$existingCluster = Get-AzureRmResource -ResourceGroupName $ResourceGroupName -Name $aksClusterName -ErrorAction SilentlyContinue
-
-
 $aksClusterName = "myAKSCluster"
 az login
 az aks get-versions --location $Location
 
-az aks create --resource-group $ResourceGroupName --name $aksClusterName --node-count 1 --ssh-key-value (Get-Content "$env:USERPROFILE\.ssh\.azureuser.pub")
+$existingCluster = Get-AzureRmResource -ResourceGroupName $ResourceGroupName -Name $aksClusterName -ErrorAction SilentlyContinue
+if($null -eq $existingCluster)
+{
+    az aks create --resource-group $ResourceGroupName `
+                  --name $aksClusterName `
+                  --node-count 1 `
+                  --ssh-key-value (Get-Content "$env:USERPROFILE\.ssh\.azureuser.pub")
+                  
+}    
