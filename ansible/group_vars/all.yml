@@ -1,0 +1,7 @@
+test: ok
+
+location: 'westeurope'
+
+aks:
+  resource_group:  'AKS'
+  cluster_name:    'aksCluster'

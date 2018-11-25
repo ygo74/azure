@@ -2,16 +2,16 @@
 - hosts: localhost
   connection: local
   tasks:
-    - name: Create resource group
-      azure_rm_resourcegroup:
-        name: AKS3
-        location: westeurope
-        state: absent
-      with_items:
-      - AKS3
-      - Ansible-lab
-      - MC_AKS_myAKSCluster_westeurope
-      - AKS         
-      register: rg
+    # - name: Create resource group
+    #   azure_rm_resourcegroup:
+    #     name: AKS3
+    #     location: westeurope
+    #     state: absent
+    #   with_items:
+    #   - AKS3
+    #   - Ansible-lab
+    #   - MC_AKS_myAKSCluster_westeurope
+    #   - AKS         
+    #   register: rg
     - debug:
-        var: rg
+        var: aks
