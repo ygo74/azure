@@ -1,11 +1,11 @@
 if ([String]::IsNullOrEmpty($PSScriptRoot)) {
-    $rootScriptPath = "D:\devel\github\devops-toolbox\cloud\azure\scripts\02-AKS"
+    $rootScriptPath = "D:\devel\github\devops-toolbox\cloud\azure\aks\powershell"
 }
 else {
     $rootScriptPath = $PSScriptRoot
 }    
 
-$ModulePath = "$rootScriptPath\..\..\powershell\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
+$ModulePath = "$rootScriptPath\..\..\powershell\moddules\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
 Import-Module $ModulePath -force
 
 $Credential = Get-Credential -Message "Type the name and password of the local administrator account."
