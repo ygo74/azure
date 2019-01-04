@@ -5,7 +5,7 @@ else {
     $rootScriptPath = $PSScriptRoot
 }    
 
-$ModulePath = "$rootScriptPath\..\..\powershell\moddules\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
+$ModulePath = "$rootScriptPath\..\..\powershell\modules\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
 Import-Module $ModulePath -force
 
 $Credential = Get-Credential -Message "Type the name and password of the local administrator account."
