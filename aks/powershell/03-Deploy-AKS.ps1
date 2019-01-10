@@ -10,7 +10,7 @@ Import-Module $ModulePath -force
 
 $Credential = Get-Credential -Message "Type the name and password of the local administrator account."
 
-#Load Ansible lab configuration
+#Load AKS configuration
 & "$rootScriptPath\00-Configuration.ps1"
 
 Set-ResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location

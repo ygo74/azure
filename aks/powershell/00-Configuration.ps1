@@ -1,5 +1,5 @@
 $global:Location = "westeurope"
-$global:ResourceGroupName = "AKS2"
+$global:ResourceGroupName = "AKS"
 $global:Author = "YGO74"
 
 $global:virtualNetworks=@(

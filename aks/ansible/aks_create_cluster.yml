@@ -45,7 +45,7 @@
         
       agent_pool_profiles:
         - name: default
-          count: 2
+          count: 1
           vm_size: Standard_D2_v2
       tags:
         Environment: Production

@@ -1,11 +1,11 @@
 if ([String]::IsNullOrEmpty($PSScriptRoot)) {
-    $rootScriptPath = "D:\devel\Azure\git\microsvc\azure\scripts\01-ContinuousIntegration"
+    $rootScriptPath = "D:\devel\github\devops-toolbox\cloud\azure\aks\powershell"
 }
 else {
     $rootScriptPath = $PSScriptRoot
 }    
 
-$ModulePath = "$rootScriptPath\..\..\powershell\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
+$ModulePath = "$rootScriptPath\..\..\powershell\modules\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
 Import-Module $ModulePath -force
 
 
