@@ -26,7 +26,7 @@ $parameterFilePath="D:\devel\github\Azure-Samples\service-fabric-cluster-templat
 $templateFilePath="D:\devel\github\Azure-Samples\service-fabric-cluster-templates\5-VM-Windows-1-NodeTypes-Secure\AzureDeploy.json"
                     
                     
-New-AzureRmServiceFabricCluster -ResourceGroupName $resourceGroupName -Location $Location -KeyVaultResouceGroupName $vaultResourceGroupName -KeyVaultName $vaultName -CertificateOutputFolder $certOutputFolder -CertificatePassword $certpassword -CertificateSubjectName $CertSubjectName -OS $os -VmPassword $vmpassword -VmUserName $vmuser
+New-AzureRmServiceFabricCluster -Name "sfcluster1" -ResourceGroupName $resourceGroupName -Location $Location -KeyVaultResouceGroupName $vaultResourceGroupName -KeyVaultName $vaultName -CertificateOutputFolder $certOutputFolder -CertificatePassword $certpassword -CertificateSubjectName $CertSubjectName -OS $os -VmPassword $vmpassword -VmUserName $vmuser
 
 
 #-TemplateFile $templateFilePath -ParameterFile $parameterFilePath
