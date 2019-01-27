@@ -1,17 +1,17 @@
 if ([String]::IsNullOrEmpty($PSScriptRoot)) {
-    $rootScriptPath = "D:\devel\Azure\git\microsvc\azure\scripts\01-ContinuousIntegration"
+    $rootScriptPath = "D:\devel\github\devops-toolbox\cloud\azure\jenkins\powershell"
 }
 else {
     $rootScriptPath = $PSScriptRoot
 }    
 
-$ModulePath = "$rootScriptPath\..\..\powershell\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
+$ModulePath = "$rootScriptPath\..\..\powershell\modules\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
 Import-Module $ModulePath -force
-
-$Credential = Get-Credential -Message "Type the name and password of the local administrator account."
 
 #Load Ansible lab configuration
 & "$rootScriptPath\00-Configuration.ps1"
+
+$Credential = Get-Credential -Message "Type the name and password of the local administrator account."
 
 Set-ResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
 
@@ -20,7 +20,6 @@ foreach($virtualNetwork in $virtualNetworks)
 {
     Set-VirtualNetwork -ResourceGroupName $ResourceGroupName -Location $Location -Network $virtualNetwork
 }
-
 
 
 #Create Virtual Machines

@@ -3,15 +3,11 @@ Goal : Have Kubernetes cluster on Azure
 
 ## Deplowments
 ### Deploy with Ansible
-TODO
+ansible\aks_create_cluster.yml
 
 ### Deploy with Powershell
 
-## Operations
-### Connect to AKS
-TODO
-
-
+### Configure access from AKS to ACR
 ```powershell
 $AKS_RESOURCE_GROUP="AKS"
 $AKS_CLUSTER_NAME="aksCluster"
@@ -26,4 +22,14 @@ $registry = Get-AzureRmContainerRegistry -ResourceGroupName $AKS_RESOURCE_GROUP 
 
 # Create role assignment
 az role assignment create --assignee $CLIENT_ID --role Reader --scope $registry.Id
+```
+
+## Operations
+### Connect to AKS
+```powershell
+$aksClusterName    = "aksCluster"
+$ResourceGroupName = "AKS"
+az aks get-credentials --resource-group $ResourceGroupName  --name $aksClusterName  
+  
+az aks browse -g $ResourceGroupName -n $aksClusterName
 ```
