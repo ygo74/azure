@@ -3,7 +3,7 @@
 
 $projectRoot = Resolve-Path "$PSScriptRoot\.."
 $sourceRoot = [System.IO.Path]::Combine($PSScriptRoot, "MESF_Azure")
-$sourceRoot = $projectRoot 
+$sourceRoot = $projectRoot
 $moduleRoot = Split-Path (Resolve-Path "$projectRoot\*\*.psm1")
 $moduleName = Split-Path $moduleRoot -Leaf
 
@@ -12,7 +12,7 @@ Write-Verbose "Importing Functions"
 # Import everything in these folders
 foreach($folder in @('Models', 'Cross-Cutting','Core','Network','VirtualMachines','private\core','private\Network'))
 {
-    
+
     $root = [System.IO.Path]::Combine($sourceRoot, "MESF_Azure", $folder)
     if(Test-Path -Path $root)
     {
@@ -20,8 +20,10 @@ foreach($folder in @('Models', 'Cross-Cutting','Core','Network','VirtualMachines
         $files = Get-ChildItem -Path $root -Filter *.ps1
 
         # dot source each file
-        $files | where-Object{ $_.name -NotLike '*.Tests.ps1'} | 
-            ForEach-Object{Write-Verbose $_.name; . $_.FullName}
+        $files  | where-Object{ $_.name -NotLike '*.Tests.ps1'} `
+                | where-Object{ ($_.name -eq '01-Logger.ps1') -or `
+                                ($_.name -eq '02-AzureResource.ps1') } `
+                | ForEach-Object{Write-Verbose $_.name; . $_.FullName}
     }
 }
 

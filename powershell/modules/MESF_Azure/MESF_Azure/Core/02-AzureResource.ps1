@@ -1,18 +1,17 @@
+<#
+.Description
+Test if a Resource exist in your Azure workspace
+
+.Example
+Test-Resource -Name
+
+.Example
+
+.Notes
+The output is a Boolean
+#>
 function Test-Resource
 {
-    <#
-        .Description
-        Test if a Resource exist in your Azure workspace
-
-        .Example
-        Test-Resource -Name
-
-        .Example
-
-        .Notes
-        The output is a Boolean
-    #>
-#    [Diagnostics.CodeAnalysis.SuppressMessageAttribute( "PSAvoidDefaultValueForMandatoryParameter", "" )]
     [CmdletBinding( DefaultParameterSetName = 'Default', SupportsShouldProcess=$false )]
     [OutputType( [Boolean] )]
     param(
@@ -44,11 +43,11 @@ function Test-Resource
     {
         try
         {
-            $azResource = Get-AzureRmResource -ResourceType $ResourceType `
+            $azResource = Get-AzResource -ResourceType $ResourceType `
                                 -ResourceGroupName $ResourceGroupName `
                           | Where-Object {$_.ResourceName -eq $ResourceName}
 
-            return ($azResource -ne $null)                                
+            return ($null -ne $azResource)
         }
         catch
         {
@@ -84,14 +83,14 @@ function Set-ResourceGroup
     {
 
         #Create the resource group
-        $resourceGroup = Get-AzureRmResourceGroup -Name $resourceGroupName -Location $location -ErrorAction SilentlyContinue
+        $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName -Location $location -ErrorAction SilentlyContinue
 
         if ($null -eq $resourceGroup)
         {
             Trace-Message -Message ("Resource Group '{0}' doesn't exist, it will be created" -f $ResourceGroupName)
-            $resourceGroup = New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
+            $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location
         }
 
         $resourceGroup
     }
-}    
+}
