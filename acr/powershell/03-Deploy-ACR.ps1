@@ -25,3 +25,13 @@ $creds = Get-AzContainerRegistryCredential -Registry $registry
 $creds.Password | docker login $registry.LoginServer -u $creds.Username --password-stdin
 
 #Send image to registry
+docker tag microsoft/windowsservercore mesfcontainerregistry.azurecr.io/windowsservercore:latest
+docker tag ygo74/winrmenabled mesfcontainerregistry.azurecr.io/winrmenabled:latest
+
+docker push mesfcontainerregistry.azurecr.io/windowsservercore:latest
+docker push mesfcontainerregistry.azurecr.io/winrmenabled:latest
+
+docker rmi mesfcontainerregistry.azurecr.io/windowsservercore:latest
+docker rmi mesfcontainerregistry.azurecr.io/winrmenabled:latest
+
+docker run mesfcontainerregistry.azurecr.io/winrmenabled:latest
