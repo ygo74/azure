@@ -10,7 +10,7 @@ $moduleName = Split-Path $moduleRoot -Leaf
 Write-Verbose "Importing Functions"
 
 # Import everything in these folders
-foreach($folder in @('Models', 'Cross-Cutting','Core','Network','VirtualMachines','private\core','private\Network'))
+foreach($folder in @('Models', 'Cross-Cutting','Core','Network','paas','VirtualMachines','private\core','private\Network'))
 {
 
     $root = [System.IO.Path]::Combine($sourceRoot, "MESF_Azure", $folder)
@@ -22,6 +22,8 @@ foreach($folder in @('Models', 'Cross-Cutting','Core','Network','VirtualMachines
         # dot source each file
         $files  | where-Object{ $_.name -NotLike '*.Tests.ps1'} `
                 | where-Object{ ($_.name -eq '01-Logger.ps1') -or `
+                                ($_.name -eq '03-tools.ps1') -or `
+                                ($_.name -eq '01-containers.ps1') -or `
                                 ($_.name -eq '02-AzureResource.ps1') } `
                 | ForEach-Object{Write-Verbose $_.name; . $_.FullName}
     }

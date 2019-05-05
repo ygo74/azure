@@ -62,6 +62,7 @@ function Test-Resource
 
 function Set-ResourceGroup
 {
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
@@ -88,7 +89,8 @@ function Set-ResourceGroup
         if ($null -eq $resourceGroup)
         {
             Trace-Message -Message ("Resource Group '{0}' doesn't exist, it will be created" -f $ResourceGroupName)
-            $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location
+            $whatif = $PSBoundParameters.ContainsKey('WhatIf')
+            $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location -WhatIf:$whatif
         }
 
         $resourceGroup

@@ -18,13 +18,21 @@ __VSCode__ : "C:\Users\Administrator\.vscode\ansible-credentials.yml"
 ## Powershell Installation and configuration
 
 ### Installation
-New powershell module to use az : https://docs.microsoft.com/fr-fr/powershell/azure/install-az-ps?view=azps-1.8.0
+
+| Module          | Description                           | Source                    |
+|-----------------|---------------------------------------|---------------------------|
+| Az              | New powershell module to manage azure | https://docs.microsoft.com/fr-fr/powershell/azure/install-az-ps?view=azps-1.8.0 |
+| powershell-yaml | Serialize / Deserialize Yaml. Use to share ansible vars and powershell configuration | https://www.powershellgallery.com/packages/powershell-yaml |
+
+
 
 ```powershell
 #Install the new module
 Install-Module -Name Az -AllowClobber
 Get-InstalledModule -Name Az -AllVersions | select Name,Version
 Get-InstalledModule | ? {$_.Name -like 'Az*'} | select Name,Version
+
+Install-Module -Name powershell-yaml
 ```
 
 __Remove AzureRm modules :__

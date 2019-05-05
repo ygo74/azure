@@ -2,6 +2,20 @@ test: ok
 
 location: 'westeurope'
 
+registries:
+  - name:              'mesfContainerRegistry'
+    resourceGroupName: 'ACR'
+    location:          'westeurope'
+    enableAdminUser:   true
+    sku:               'Basic'
+  - name:              'mesfContainerRegistry2'
+    resourceGroupName: 'ACR'
+    location:          'westeurope'
+    enableAdminUser:   false
+    sku:               'Basic'
+
+
+
 aks:
   resource_group:  'AKS'
   cluster_name:    'aksCluster'

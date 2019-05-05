@@ -1,3 +1,21 @@
+[CmdletBinding(SupportsShouldProcess=$true)]
+param(
+    [Parameter(Mandatory = $false, Position = 0)]
+    [ValidateScript({Test-Path -Path $_ -PathType Container})]
+    [string]
+    $InventoryPath = "..\..\ansible\group_vars"
+)
+
+#Resolve Inventory directory
+$fullConfigurationFilePath = Resolve-Path -Path $InventoryPath
+
+#Load yaml files from inventory directory
+$inventoryVars = @{}
+Get-ChildItem -Path $fullConfigurationFilePath.Path -Include "*.yml","*.yaml" -Recurse | ForEach-Object {
+    $vars = ConvertFrom-Yaml -Yaml ((Get-Content -Path $_.FullName) -join("`n"))
+    $inventoryVars += $vars
+}
+
 if ([String]::IsNullOrEmpty($PSScriptRoot)) {
     $rootScriptPath = "D:\devel\github\devops-toolbox\cloud\azure\acr\powershell"
 }
@@ -8,12 +26,27 @@ else {
 $ModulePath = "$rootScriptPath\..\..\powershell\modules\MESF_Azure\MESF_Azure\MESF_Azure.psd1"
 Import-Module $ModulePath -force
 
-#$Credential = Get-Credential -Message "Type the name and password of the local administrator account."
+$whatif = $PSBoundParameters.ContainsKey('WhatIf')
 
-#Load configuration
-& "$rootScriptPath\00-Configuration.ps1"
 
-Set-ResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
+foreach ($registry in $inventoryVars.registries)
+{
+
+    #Ensure ResourceGroup exists
+    $resourceParams = @{
+        ResourceGroupName = $registry.ResourceGroupName
+        Location          = $registry.Location
+        Whatif            = $whatif
+    }
+    $azResourceGroup = Set-ResourceGroup @resourceParams
+
+    #Create
+    $azRegistry = Set-ContainerRegistry -Registry $registry -WhatIf:$whatif
+
+    $azRegistry
+}
+
+return
 
 $registry = New-AzContainerRegistry -ResourceGroupName $ResourceGroupName `
                                     -Name $RegistryName `
