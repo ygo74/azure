@@ -1,6 +1,8 @@
 # Azure Container Registry : ACR
 Goal : Docker image repository
 
+Microsoft documentation : https://docs.microsoft.com/fr-fr/azure/container-registry/
+
 ## Deployment
 ### Deploy with Ansible
 TODO
