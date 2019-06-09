@@ -52,7 +52,7 @@ Function Trace-EndFunction
     if ($Verbose)
     {
         $Message = "End"
-        if ($watcher -ne $null)
+        if ($null -ne $watcher)
         {
            $watcher.Stop();
            $message += " => Completion Time : $($watcher.Elapsed)"

@@ -14,8 +14,10 @@ registries:
     enableAdminUser:   false
     sku:               'Basic'
 
-
-
 aks:
   resource_group:  'AKS'
   cluster_name:    'aksCluster'
+
+vault:
+  resourceGroupName: 'CommonVault'
+  name:              'mesfVault'

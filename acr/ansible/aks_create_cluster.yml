@@ -2,11 +2,6 @@
   hosts: localhost
   connection: local
   vars:
-    # resource_group: myResourceGroup
-    # location: eastus
-    # aks_name: myAKSCluster
-    username: azureuser
-    ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDNGcO1DqGmrA7l53di7659x4SJCzAt8bla7cgixfhuRStZWyKmULmzf2SNjuDT6e7quNzLzlucfm5E5Yi9S98kRX5MwIzM/8vQdM7Sh78CMsIPSCEdXJ1xoBGXAVMJszMwddbDQSxqsmezXTbSTDxUbQVChOGpJioaCEwUi5KqzgGJXcGAqmNZw1bC3UQ7fur5UBoeuEEpBfyi8AYGcDm5v3u2UHvA1Tcwl6ZnvFEYjc5JaD1SUJNSUP3gD7nH5LKhmVeVkebp724iTvlucEFdfKuC5/BkhI3VM/IgZJZmRep9RLeyYonVjNYewyhgYMWrrwB0cPDeWlDazUFtbZU5 azureuser"
     client_id: "{{ lookup('env','AZURE_CLIENT_ID') }}"
     client_secret: "{{ lookup('env','AZURE_SECRET') }}"
 
@@ -16,56 +11,18 @@
 
   - name: Create resource group
     azure_rm_resourcegroup:
-      name:     "{{ aks.resource_group }}"
-      location: "{{ location }}"
+      name:     "{{ item.resourceGroupName }}"
+      location: "{{ item.location }}"
+    with_items:
+    - "{{ registries }}"
 
   - name: Create an azure container registry
     azure_rm_containerregistry:
-      name: mesfContainerRegistry
-      location: "{{ location }}"
-      resource_group: "{{ aks.resource_group }}"
-      state: present
-      admin_user_enabled: true
-      sku: Premium
-
-  - name: Create a managed Azure Container Services (AKS) cluster
-    azure_rm_aks:
-      name:             "{{ aks.cluster_name }}"
-      location:         "{{ location }}"
-      resource_group:   "{{ aks.resource_group }}"
-      dns_prefix:       "{{ aks.cluster_name }}"
-
-      linux_profile:
-        admin_username: "{{ username }}"
-        ssh_key:        "{{ ssh_key }}"
-
-      service_principal:
-        client_id:      "{{ client_id }}"
-        client_secret:  "{{ client_secret }}"
-
-      agent_pool_profiles:
-        - name: default
-          count: 2
-          vm_size: Standard_D2_v2
-      tags:
-        Environment: Production
-
-  - block:
-    - name: Retrieve AKS facts
-      azure_rm_aks_facts:
-        name:             "{{ aks.cluster_name }}"
-        resource_group:   "{{ aks.resource_group }}"
-      register: aks_data
-
-    - name: display aks_data
-      debug:
-        var: aks_data
-    tags:
-    - query_aks_data
-
-  - name: Create a public ip address
-    azure_rm_publicipaddress:
-      resource_group: "MC_AKS_aksCluster_westeurope"
-      name: jenkins-aks
-      allocation_method: Static
-      domain_name: jenkins-ci-01
+      name:               "{{ item.name                                 }}"
+      location:           "{{ item.location                             }}"
+      resource_group:     "{{ item.resourceGroupName                    }}"
+      state:              "{{ item.state           | default('present') }}"
+      admin_user_enabled: "{{ item.enableAdminUser | default(false)     }}"
+      sku:                "{{ item.sku             | defaul('Basic')    }}"
+    with_items:
+    - "{{ registries }}"
