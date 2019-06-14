@@ -1,14 +1,14 @@
 Function New-KeyFile
 {
     [cmdletbinding(DefaultParameterSetName="none")]
-    Param( 
+    Param(
         [Parameter(Mandatory=$true,ValueFromPipeline=$false)]
-        [ValidateScript({Test-Path $_ -PathType Container})] 
-        [String] 
+        [ValidateScript({Test-Path $_ -PathType Container})]
+        [String]
         $Path,
 
         [Parameter(Mandatory=$true,ValueFromPipeline=$false)]
-        [String] 
+        [String]
         $KeyfileName,
 
         [switch]
@@ -31,7 +31,7 @@ Function New-KeyFile
         $KeyFilePath = Join-Path -Path $Path -ChildPath $KeyfileName
 
         if (-not(Test-Path -Path $KeyFilePath -PathType Leaf) -or $Force)
-        {   
+        {
             if ($Force)
             {
                 Trace-Message "Force keyfile creation"
@@ -40,14 +40,14 @@ Function New-KeyFile
 
             $Key | out-file $KeyFilePath
             Trace-Message "Key File '$KeyFilePath' has been created"
-        }            
+        }
     }
 }
 
-Function Add-ServicePrincipalToContext
+Function Add-MESFServicePrincipalToContext
 {
     [cmdletbinding(DefaultParameterSetName="none")]
-    Param( 
+    Param(
         [Parameter(Mandatory=$true,ValueFromPipeline=$false)]
         [PsObject]
         $ServicePrincipal
@@ -58,9 +58,9 @@ Function Add-ServicePrincipalToContext
         if ($script:MESF_AzureContext.ServicePrincipals.ContainsKey($ServicePrincipal.ApplicationName))
         {
             Trace-Message -Message ("Update service principal for application '{0}'" -f $ServicePrincipal.ApplicationName)
-            $script:MESF_AzureContext.ServicePrincipals[$ServicePrincipal.ApplicationName] = $ServicePrincipal            
+            $script:MESF_AzureContext.ServicePrincipals[$ServicePrincipal.ApplicationName] = $ServicePrincipal
         }
-        else 
+        else
         {
             Trace-Message -Message ("Add new service principal for application '{0}'" -f $ServicePrincipal.ApplicationName)
             $script:MESF_AzureContext.ServicePrincipals.Add($ServicePrincipal.ApplicationName, $ServicePrincipal)
@@ -70,10 +70,10 @@ Function Add-ServicePrincipalToContext
     }
 }
 
-Function Add-UserToContext
+Function Add-MESFUserToContext
 {
     [cmdletbinding(DefaultParameterSetName="none")]
-    Param( 
+    Param(
         [Parameter(Mandatory=$true,ValueFromPipeline=$false)]
         [PsObject]
         $User
@@ -86,12 +86,60 @@ Function Add-UserToContext
             Trace-Message -Message ("Update user '{0}'" -f $User.UserPrincipalName)
             $script:MESF_AzureContext.Users[$User.UserPrincipalName] = $User
         }
-        else 
+        else
         {
             Trace-Message -Message ("Add new user '{0}'" -f $User.UserPrincipalName)
             $script:MESF_AzureContext.Users.Add($User.UserPrincipalName, $User)
         }
 
         Save-MESFAzureContext
+    }
+}
+
+Function Get-MESFServicePrincipalFromContext
+{
+    [cmdletbinding(DefaultParameterSetName="none")]
+    Param(
+        [Parameter(Mandatory=$true,ValueFromPipeline=$false)]
+        [String]
+        $ApplicationName
+    )
+    Process
+    {
+        Assert-MESFAzureContext
+        if ($script:MESF_AzureContext.ServicePrincipals.ContainsKey($ApplicationName))
+        {
+            Trace-Message -Message ("Get service principal for application '{0}'" -f $ApplicationName)
+            write-output $script:MESF_AzureContext.ServicePrincipals[$ApplicationName]
+        }
+        else
+        {
+            Trace-Message -Message ("Service principal for application '{0}' doesn't exist" -f $ApplicationName)
+            return $null
+        }
+    }
+}
+
+Function Get-MESFUserFromContext
+{
+    [cmdletbinding(DefaultParameterSetName="none")]
+    Param(
+        [Parameter(Mandatory=$true,ValueFromPipeline=$false)]
+        [String]
+        $Name
+    )
+    Process
+    {
+        Assert-MESFAzureContext
+        if ($script:MESF_AzureContext.Users.ContainsKey($Name))
+        {
+            Trace-Message -Message ("Get User '{0}'" -f $Name)
+            write-output $script:MESF_AzureContext.Users[$Name]
+        }
+        else
+        {
+            Trace-Message -Message ("User '{0}' doesn't exist" -f $Name)
+            return $null
+        }
     }
 }

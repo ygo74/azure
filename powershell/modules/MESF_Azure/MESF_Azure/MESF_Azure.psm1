@@ -22,6 +22,8 @@ foreach($folder in @('Models', 'Cross-Cutting','Core','Network','paas','VirtualM
         # dot source each file
         $files  | where-Object{ $_.name -NotLike '*.Tests.ps1'} `
                 | where-Object{ ($_.name -eq '01-Logger.ps1') -or `
+                                ($_.name -eq '01-context.ps1') -or `
+                                ($_.name -eq '02-Security.ps1') -or `
                                 ($_.name -eq '03-tools.ps1') -or `
                                 ($_.name -eq '01-containers.ps1') -or `
                                 ($_.name -eq '02-AzureResource.ps1') } `

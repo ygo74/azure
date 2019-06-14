@@ -38,24 +38,24 @@ Function Register-MESFAzureServicePrincipal
 
         #Create The application
         $identifierUris = ("http://azure/{0}" -f $Application).ToLower()
-        $azureApplication = Get-AzureRmADApplication -DisplayName $Application -ErrorAction SilentlyContinue
+        $azureApplication = Get-AzADApplication -DisplayName $Application -ErrorAction SilentlyContinue
         if ($null -eq $azureApplication)
         {
             Trace-Message -Message ("Create new Application '{0}' with identifierUris '{1}'" -f $Application, $identifierUris)
-            $azureApplication = New-AzureRmADApplication -DisplayName $Application -IdentifierUris $identifierUris
+            $azureApplication = New-AzADApplication -DisplayName $Application -IdentifierUris $identifierUris
         }
 
         #Create The Service principal Name
-        $azureServicePrincipal = Get-AzureRmADServicePrincipal -ApplicationId $azureApplication -ErrorAction SilentlyContinue
+        $azureServicePrincipal = Get-AzADServicePrincipal -ApplicationId $azureApplication -ErrorAction SilentlyContinue
         if ($null -eq $azureServicePrincipal)
         {
             Trace-Message -Message ("Create new ServicePrincipal for application '{0}'" -f $Application)
 
-            $azureServicePrincipal = New-AzureRmADServicePrincipal -ApplicationId $azureApplication.ApplicationId `
+            $azureServicePrincipal = New-AzADServicePrincipal -ApplicationId $azureApplication.ApplicationId `
                                    -Password securePassword
 
             #Save the service Principal Name data
-            Add-ServicePrincipalToContext -ServicePrincipal $servicePrincipal
+            Add-MESFServicePrincipalToContext -ServicePrincipal $servicePrincipal
         }
 
         #return the Azure service Principal Name
@@ -113,17 +113,17 @@ Function Register-MESFAzureUser
         }
 
         #Create The user
-        $azureUser = Get-AzureRmADUser -UserPrincipalName $UserPrincipalName -ErrorAction SilentlyContinue
+        $azureUser = Get-AzADUser -UserPrincipalName $UserPrincipalName -ErrorAction SilentlyContinue
         if ($null -eq $azureUser)
         {
             Trace-Message -Message ("Create new User '{0}' with DisplayName '{1}'" -f $UserPrincipalName, $DisplayName)
-            $azureUser = New-AzureRmADUser -UserPrincipalName $UserPrincipalName `
+            $azureUser = New-AzADUser -UserPrincipalName $UserPrincipalName `
                              -MailNickname $Name `
                              -DisplayName $DisplayName -Password $securePassword `
                              -ErrorAction Stop
 
             #Save the service Principal Name data
-            Add-UserToContext -User $user
+            Add-MESFUserToContext -User $user
         }
 
         #return the Azure service Principal Name
@@ -131,7 +131,20 @@ Function Register-MESFAzureUser
     }
 }
 
-
+function Get-MESFClearPAssword
+{
+    param(
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [System.Security.SecureString]
+        $Password
+    )
+    process
+    {
+        $UnsecurePassword = (New-Object PSCredential "user",$Password).GetNetworkCredential().Password
+        $UnsecurePassword
+    }
+}
+<#
 Function Get-UserCredential
 {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "")]
@@ -254,3 +267,4 @@ Function Register-UserCredential
 }
 
 
+#>
