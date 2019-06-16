@@ -12,7 +12,17 @@ Function Register-MESFAzureServicePrincipal
     Param(
         [Parameter(Mandatory=$true,ValueFromPipeline=$false, Position=0)]
         [String]
-        $Application
+        $ApplicationName,
+
+        [Parameter(Mandatory=$false,ValueFromPipeline=$false, Position=1)]
+        [Switch]
+        $SynchronizeAzureVault,
+
+        [Parameter(Mandatory=$false,ValueFromPipeline=$false, Position=2)]
+        [Switch]
+        $ResetPassword
+
+
     )
     begin
     {
@@ -32,30 +42,48 @@ Function Register-MESFAzureServicePrincipal
         $securePassword = ConvertTo-SecureString -Force -AsPlainText -String $password
 
         $servicePrincipal = New-Object -TypeName PSObject -Property @{
-            ApplicationName = $Application
+            ApplicationName = $ApplicationName
             Password = $securePassword
         }
 
         #Create The application
-        $identifierUris = ("http://azure/{0}" -f $Application).ToLower()
-        $azureApplication = Get-AzADApplication -DisplayName $Application -ErrorAction SilentlyContinue
+        $identifierUris = ("http://azure/{0}" -f $ApplicationName).ToLower()
+        $azureApplication = Get-AzADApplication -DisplayName $ApplicationName -ErrorAction SilentlyContinue
         if ($null -eq $azureApplication)
         {
-            Trace-Message -Message ("Create new Application '{0}' with identifierUris '{1}'" -f $Application, $identifierUris)
-            $azureApplication = New-AzADApplication -DisplayName $Application -IdentifierUris $identifierUris
+            Trace-Message -Message ("Create new Application '{0}' with identifierUris '{1}'" -f $ApplicationName, $identifierUris) -InvocationMethod $MyInvocation.MyCommand
+            $azureApplication = New-AzADApplication -DisplayName $ApplicationName -IdentifierUris $identifierUris -ErrorAction Stop
         }
 
         #Create The Service principal Name
-        $azureServicePrincipal = Get-AzADServicePrincipal -ApplicationId $azureApplication -ErrorAction SilentlyContinue
+        $azureServicePrincipal = Get-AzADServicePrincipal -ApplicationId $azureApplication.ApplicationId -ErrorAction SilentlyContinue
         if ($null -eq $azureServicePrincipal)
         {
-            Trace-Message -Message ("Create new ServicePrincipal for application '{0}'" -f $Application)
+            Trace-Message -Message ("Create new ServicePrincipal for application '{0}'" -f $ApplicationName) -InvocationMethod $MyInvocation.MyCommand
+
+            $credentials = New-Object Microsoft.Azure.Commands.ActiveDirectory.PSADPasswordCredential -Property @{
+                StartDate=Get-Date;
+                EndDate=Get-Date -Year 2024;
+                Password=$password
+            }
 
             $azureServicePrincipal = New-AzADServicePrincipal -ApplicationId $azureApplication.ApplicationId `
-                                   -Password securePassword
+                                                              -PasswordCredential $credentials
 
             #Save the service Principal Name data
-            Add-MESFServicePrincipalToContext -ServicePrincipal $servicePrincipal
+            Set-MESFServicePrincipalToContext -ServicePrincipal $servicePrincipal
+        }
+        else {
+            if ($ResetPassword) {
+                Trace-Message -Message ("Reset ServicePrincipal password for application '{0}'" -f $ApplicationName)  -InvocationMethod $MyInvocation.MyCommand
+                Remove-AzADSpCredential -ObjectId $azureServicePrincipal.Id -Force
+                $newSpCredential = New-AzADSpCredential -ObjectId $azureServicePrincipal.Id -EndDate (Get-Date -Year 2024)
+
+                $servicePrincipal.Password = $newSpCredential.Secret
+
+                #Save the service Principal Name data
+                Set-MESFServicePrincipalToContext -ServicePrincipal $servicePrincipal
+            }
         }
 
         #return the Azure service Principal Name
@@ -123,7 +151,7 @@ Function Register-MESFAzureUser
                              -ErrorAction Stop
 
             #Save the service Principal Name data
-            Add-MESFUserToContext -User $user
+            Set-MESFUserToContext -User $user
         }
 
         #return the Azure service Principal Name
@@ -144,6 +172,93 @@ function Get-MESFClearPAssword
         $UnsecurePassword
     }
 }
+
+
+Function Remove-MESFAzureServicePrincipal
+{
+    [cmdletbinding(DefaultParameterSetName="none")]
+    Param(
+        [Parameter(Mandatory=$true,ValueFromPipeline=$false, Position=0)]
+        [String]
+        $ApplicationName
+    )
+    begin
+    {
+        $watch = Trace-StartFunction -InvocationMethod $MyInvocation.MyCommand
+    }
+    end
+    {
+        Trace-EndFunction -InvocationMethod $MyInvocation.MyCommand -watcher $watch
+    }
+    Process
+    {
+
+        #try to retrieve the application
+        $azureApplication = Get-AzADApplication -DisplayName $ApplicationName -ErrorAction SilentlyContinue
+
+        if ($null -ne $azureApplication)
+        {
+            #remove the principal
+            $azureServicePrincipal = Get-AzADServicePrincipal -ApplicationId $azureApplication.ApplicationId -ErrorAction SilentlyContinue
+            if ($null -ne $azureServicePrincipal)
+            {
+                Trace-Message -Message ("Remove ServicePrincipal for application '{0}'" -f $ApplicationName) -InvocationMethod $MyInvocation.MyCommand
+                Remove-AzADServicePrincipal -ObjectId $azureServicePrincipal.Id -Force
+            }
+
+            #remove application
+            Trace-Message -Message ("Remove application '{0}'" -f $ApplicationName) -InvocationMethod $MyInvocation.MyCommand
+            Remove-AzADApplication -ObjectId $azureApplication.ObjectId -Force
+
+            #remove from context
+            Remove-MESFServicePrincipalFromContext -ApplicationName $ApplicationName
+        }
+    }
+}
+
+function Sync-MESFAzureVault
+{
+    param(
+        [Parameter(Mandatory=$true, Position=0)]
+        [String]
+        $Name,
+
+        [Parameter(Mandatory=$true, Position=0)]
+        [String]
+        $VaultName,
+
+        [Parameter(Mandatory=$true, Position=2)]
+        [ValidateSet("ServicePrincipal","User")]
+        [String]
+        $ObjectType
+
+    )
+    begin
+    {
+        $watch = Trace-StartFunction -InvocationMethod $MyInvocation.MyCommand
+    }
+    end
+    {
+        Trace-EndFunction -InvocationMethod $MyInvocation.MyCommand -watcher $watch
+    }
+    process
+    {
+        switch($ObjectType){
+            "ServicePrincipal" { $localvaultObject = Get-MESFServicePrincipalFromContext -ApplicationName $Name }
+            "User" {$localvaultObject = Get-MESFUserFromContext -Name $Name}
+        }
+
+        if ($null -eq $localvaultObject)
+        {
+            throw "$Name doesn't exist in the localVault"
+        }
+
+        Set-AzKeyVaultSecret -VaultName $VaultName -Name $Name -SecretValue  $localvaultObject.Password -ErrorAction Stop
+    }
+}
+
+
+
 <#
 Function Get-UserCredential
 {

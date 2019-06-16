@@ -41,27 +41,27 @@ function Initialize-MESFAzureWorkspace
         #Create Folder if doesn't exists
         if (-not (Test-Path -Path $LocalSecureVaultPath -PathType Container))
         {
-            Trace-Message "Create new directory : '$LocalSecureVaultPath'"
+            Trace-Message "Create new directory : '$LocalSecureVaultPath'"  -InvocationMethod $MyInvocation.MyCommand
             New-Item -Path $LocalSecureVaultPath -ItemType Directory | Out-Null
-            Trace-Message "New directory '$LocalSecureVaultPath' created"
+            Trace-Message "New directory '$LocalSecureVaultPath' created"  -InvocationMethod $MyInvocation.MyCommand
         }
 
         #Create the MESF_AzureContext for the first usage
         $contextFilePath = [System.IO.Path]::Combine($LocalSecureVaultPath, $ContextFileName)
         if (-not (Test-Path -Path $contextFilePath -PathType Leaf))
         {
-            Trace-Message "Create new context File : '$contextFilePath'"
+            Trace-Message "Create new context File : '$contextFilePath'"  -InvocationMethod $MyInvocation.MyCommand
             $script:MESF_AzureContext = @{
                 Users=@{}
                 ServicePrincipals=@{}
-            }    
+            }
 
             $script:MESF_AzureContext | export-CliXml -Path $contextFilePath
-            Trace-Message "New Contex file '$contextFilePath' created"
+            Trace-Message "New Contex file '$contextFilePath' created"  -InvocationMethod $MyInvocation.MyCommand
         }
         else
         {
-            Trace-Message "Load Contex file '$contextFilePath'"
+            Trace-Message "Load Contex file '$contextFilePath'"  -InvocationMethod $MyInvocation.MyCommand
             $script:MESF_AzureContext = Import-CliXml -Path $contextFilePath
         }
     }
@@ -87,12 +87,12 @@ function Assert-MESFAzureContext
         #If Workspace doesn't exist , we will creat eit for the first use
         if ($null -eq $script:MESF_AzureContext)
         {
-            Trace-Message "First load of Contex file '$contextFilePath'"
+            Trace-Message "First load of Contex file '$contextFilePath'"  -InvocationMethod $MyInvocation.MyCommand
 
             $localSecureVaultPath = "$($ENV:USERPROFILE)\.mesf_azure"
             $contextFileName = "MESF_Context.xml"
             Initialize-MESFAzureWorkspace -LocalSecureVaultPath $localSecureVaultPath `
-                                          -ContextFileName $contextFileName    
+                                          -ContextFileName $contextFileName
 
             if ($null -eq $script:MESF_AzureContext)
             {
@@ -126,7 +126,7 @@ function Save-MESFAzureContext
             $contextFileName = "MESF_Context.xml"
             $contextFilePath = [System.IO.Path]::Combine($LocalSecureVaultPath, $ContextFileName)
 
-            Trace-Message "Save Contex file '$contextFilePath'"
+            Trace-Message "Save Contex file '$contextFilePath'"  -InvocationMethod $MyInvocation.MyCommand
             $script:MESF_AzureContext | export-CliXml -Path $contextFilePath
         }
         else
