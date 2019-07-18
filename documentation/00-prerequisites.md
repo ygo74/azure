@@ -64,6 +64,16 @@ __VSCode__ : "C:\Users\Administrator\.vscode\ansible-credentials.yml"
 
 ## Powershell MESF modules Development configuration
 
+1. Register the MESF Module folder in the PSModulePath
+```Powershell
+# Get current value
+$CurrentValue = [Environment]::GetEnvironmentVariable("PSModulePath", "Machine")
+
+# Modify current value with your folder
+[Environment]::SetEnvironmentVariable("PSModulePath", $CurrentValue + ";D:\devel\github\devops-toolbox\cloud\azure\powershell\modules\MESF_Azure", "Machine")
+```
+
+:warning: Restart your development editor or powershell session
 
 ## Declare Variables
 * a Resource Group : AKS

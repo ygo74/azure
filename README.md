@@ -8,6 +8,9 @@ As we don't like to write the same code / configuration in different files, the 
 * Shared configuration files
 * A powershell module which uses these configuration files and acts as a wrapper for idempotence operations on Standard Azure command
 
+## Setup environment
+1. [Prerequisites](documentation/00-prerequisites.md)
+
 ## Azure features
 ## Built-in Azure features deployment and Operations
 
@@ -15,7 +18,7 @@ As we don't like to write the same code / configuration in different files, the 
 |---------------|-------------|
 | [Azure Container Registry](acr/README.md) | Azure Container Registry allows you to build, store, and manage images for all types of container deployments |
 | [Azure Kubernetes Service](aks/readme.md) | |
-| [Service Fabric](service fabric/README.md) | |
+| [Service Fabric](service%20fabric/README.md) | |
 | [Vault](vault/README.md) | |
 
 ## Custom Deployment
