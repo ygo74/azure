@@ -13,7 +13,7 @@ $Credential = Get-Credential -Message "Type the name and password of the local a
 #Load AKS configuration
 & "$rootScriptPath\00-Configuration.ps1"
 
-Set-ResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
+Set-MESFAzResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
 
 #Create Network Infrastrtcuture
 foreach($virtualNetwork in $virtualNetworks)

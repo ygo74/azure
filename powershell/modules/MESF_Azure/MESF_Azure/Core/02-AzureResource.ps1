@@ -60,7 +60,7 @@ function Test-Resource
 
 
 
-function Set-ResourceGroup
+function Set-MESFAzResourceGroup
 {
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(

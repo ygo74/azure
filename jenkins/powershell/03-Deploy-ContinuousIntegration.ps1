@@ -13,7 +13,7 @@ Import-Module $ModulePath -force
 
 $Credential = Get-Credential -Message "Type the name and password of the local administrator account."
 
-Set-ResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
+Set-MESFAzResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
 
 #Create Network Infrastrtcuture
 foreach($virtualNetwork in $virtualNetworks)

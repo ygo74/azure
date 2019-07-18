@@ -53,6 +53,14 @@ Function Register-MESFAzureServicePrincipal
         {
             Trace-Message -Message ("Create new Application '{0}' with identifierUris '{1}'" -f $ApplicationName, $identifierUris) -InvocationMethod $MyInvocation.MyCommand
             $azureApplication = New-AzADApplication -DisplayName $ApplicationName -IdentifierUris $identifierUris -ErrorAction Stop
+            $azureApplicationCredential = New-AzADAppCredential -ApplicationId $azureApplication.ApplicationId -Password $securePassword -EndDate (Get-Date -Year 2024)
+        }
+        else {
+            if ($ResetPassword) {
+                Trace-Message -Message ("Reset Application password for application '{0}'" -f $ApplicationName)  -InvocationMethod $MyInvocation.MyCommand
+                Remove-AzADAppCredential -ApplicationId $azureApplication.ApplicationId -Force
+                New-AzADAppCredential -ApplicationId $azureApplication.ApplicationId -Password $securePassword -EndDate (Get-Date -Year 2024)
+            }
         }
 
         #Create The Service principal Name

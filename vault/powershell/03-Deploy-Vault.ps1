@@ -34,18 +34,24 @@ $resourceParams = @{
     Location          = $inventoryVars.location
     Whatif            = $whatif
 }
-$azResourceGroup = Set-ResourceGroup @resourceParams
+$azResourceGroup = Set-MESFAzResourceGroup @resourceParams
 
-#Create the Vault and enable it for deployment
-New-AzureRmKeyVault -Name $inventoryVars.vault.name `
-                    -ResourceGroupName $inventoryVars.vault.resourceGroupName `
-                    -Location $inventoryVars.location `
-                    -EnabledForDeployment
+$currentVault = Get-AzKeyVault -VaultName $inventoryVars.vault.name `
+                               -ResourceGroupName $azResourceGroup.ResourceGroupName
 
-#Create a secret value and retrieve it
-$secretvalue = ConvertTo-SecureString 'Pa$$w0rd' -AsPlainText -Force
-Set-AzureKeyVaultSecret -VaultName $VaultName -Name 'SQLPassword' -SecretValue $secretvalue
+if ($null -eq $currentVault)
+{
+    #Create the Vault and enable it for deployment
+    New-AzKeyVault -Name $inventoryVars.vault.name `
+                -ResourceGroupName $azResourceGroup.ResourceGroupName `
+                -Location $azResourceGroup.Location `
+                -EnabledForDeployment
 
-(get-azurekeyvaultsecret -vaultName $VaultName -name "SQLPassword").SecretValueText
+    $currentVault = Get-AzKeyVault -VaultName $inventoryVars.vault.name `
+                                   -ResourceGroupName $azResourceGroup.ResourceGroupName
+
+}
+
+$currentVault
 
 

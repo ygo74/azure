@@ -12,7 +12,7 @@ Import-Module $ModulePath -force
 #Load Ansible lab configuration
 & "$rootScriptPath\00-Configuration.ps1"
 
-Set-ResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
+Set-MESFAzResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
 
 foreach($virtualNetwork in $virtualNetworks)
 {

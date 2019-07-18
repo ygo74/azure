@@ -21,3 +21,8 @@ aks:
 vault:
   resourceGroupName: 'CommonVault'
   name:              'mesfVault'
+
+serviceprincipals:
+  ut_automation:
+    applicationName: 'ut_automation'
+    roleName:        'Contributor'

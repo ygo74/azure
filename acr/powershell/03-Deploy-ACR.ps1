@@ -38,7 +38,7 @@ foreach ($registry in $inventoryVars.registries)
         Location          = $registry.Location
         Whatif            = $whatif
     }
-    $azResourceGroup = Set-ResourceGroup @resourceParams
+    $azResourceGroup = Set-MESFAzResourceGroup @resourceParams
 
     #Create
     $azRegistry = Set-ContainerRegistry -Registry $registry -WhatIf:$whatif

@@ -13,7 +13,7 @@ Import-Module $ModulePath -force
 & "$rootScriptPath\00-Configuration.ps1"
 
 #Ensure ResourceGroup exist for the Vault
-Set-ResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
+Set-MESFAzResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location
 
 
 $CertSubjectName="sfcluster1.westeurope.cloudapp.azure.com"
