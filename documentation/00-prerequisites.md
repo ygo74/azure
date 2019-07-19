@@ -73,7 +73,8 @@ $CurrentValue = [Environment]::GetEnvironmentVariable("PSModulePath", "Machine")
 [Environment]::SetEnvironmentVariable("PSModulePath", $CurrentValue + ";D:\devel\github\devops-toolbox\cloud\azure\powershell\modules\MESF_Azure", "Machine")
 ```
 
-[:warning:] __Restart your development editor or powershell session__
+> :warning:  
+> __Restart your development editor or powershell session__
 
 ## Declare Variables
 * a Resource Group : AKS

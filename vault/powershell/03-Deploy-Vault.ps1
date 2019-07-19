@@ -6,25 +6,11 @@ param(
     $InventoryPath = "..\..\ansible\group_vars"
 )
 
-#Resolve Inventory directory
-$fullConfigurationFilePath = Resolve-Path -Path $InventoryPath
+#Load Module
+Import-Module MESF_Azure
 
 #Load yaml files from inventory directory
-$inventoryVars = @{}
-Get-ChildItem -Path $fullConfigurationFilePath.Path -Include "*.yml","*.yaml" -Recurse | ForEach-Object {
-    $vars = ConvertFrom-Yaml -Yaml ((Get-Content -Path $_.FullName) -join("`n"))
-    $inventoryVars += $vars
-}
-
-if ([String]::IsNullOrEmpty($PSScriptRoot)) {
-    $rootScriptPath = "D:\devel\github\devops-toolbox\cloud\azure\acr\powershell"
-}
-else {
-    $rootScriptPath = $PSScriptRoot
-}
-
-$ModulePath = "$rootScriptPath\..\..\powershell\modules\MESF_Azure\MESF_Azure\MESF_Azure.psd1"
-Import-Module $ModulePath -force
+$inventoryVars = Import-MESFAnsibleInventory -InventoryPath $InventoryPath
 
 $whatif = $PSBoundParameters.ContainsKey('WhatIf')
 
