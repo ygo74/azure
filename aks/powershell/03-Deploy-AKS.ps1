@@ -3,9 +3,9 @@ if ([String]::IsNullOrEmpty($PSScriptRoot)) {
 }
 else {
     $rootScriptPath = $PSScriptRoot
-}    
+}
 
-$ModulePath = "$rootScriptPath\..\..\powershell\modules\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
+$ModulePath = "$rootScriptPath\..\..\powershell\modules\MESF_Azure\MESF_Azure\MESF_Azure.psd1"
 Import-Module $ModulePath -force
 
 $Credential = Get-Credential -Message "Type the name and password of the local administrator account."
@@ -18,7 +18,7 @@ Set-MESFAzResourceGroup -ResourceGroupName $ResourceGroupName -Location $Locatio
 #Create Network Infrastrtcuture
 foreach($virtualNetwork in $virtualNetworks)
 {
-    Set-VirtualNetwork -ResourceGroupName $ResourceGroupName -Location $Location -Network $virtualNetwork
+    Set-MESFAzResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location -Network $virtualNetwork
 }
 
 
@@ -35,5 +35,5 @@ if($null -eq $existingCluster)
                   --name $aksClusterName `
                   --node-count 1 `
                   --ssh-key-value (Get-Content "$env:USERPROFILE\.ssh\.azureuser.pub")
-                  
-}    
+
+}

@@ -25,6 +25,7 @@ foreach($folder in @('Models', 'Cross-Cutting','Core','Network','paas','VirtualM
                                 ($_.name -eq '01-context.ps1') -or `
                                 ($_.name -eq '02-Security.ps1') -or `
                                 ($_.name -eq '03-AnsibleInventory.ps1') -or `
+                                ($_.name -eq '01-VirtualNetwork.ps1') -or `
                                 ($_.name -eq '03-tools.ps1') -or `
                                 ($_.name -eq '01-containers.ps1') -or `
                                 ($_.name -eq '02-AzureResource.ps1') } `

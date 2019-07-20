@@ -3,9 +3,9 @@ if ([String]::IsNullOrEmpty($PSScriptRoot)) {
 }
 else {
     $rootScriptPath = $PSScriptRoot
-}    
+}
 
-$ModulePath = "$rootScriptPath\..\..\powershell\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
+$ModulePath = "$rootScriptPath\..\..\powershell\MESF_Azure\MESF_Azure\MESF_Azure.psd1"
 Import-Module $ModulePath -force
 
 
@@ -16,7 +16,7 @@ Set-MESFAzResourceGroup -ResourceGroupName $ResourceGroupName -Location $Locatio
 
 foreach($virtualNetwork in $virtualNetworks)
 {
-    Set-VirtualNetwork -ResourceGroupName $ResourceGroupName -Location $Location -Network $virtualNetwork
+    Set-MESFAzResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location -Network $virtualNetwork
 }
 
 # foreach($PublicIpKey in $PublicIps.Keys)
@@ -29,7 +29,7 @@ foreach($virtualNetwork in $virtualNetworks)
 foreach($virtualMachine in $virtualMachines)
 {
         Set-VirtualMachine -ResourceGroupName $ResourceGroupName -Location $Location -VirtualMachine $virtualMachine
-}    
+}
 
 #Remove-AzureRmResourceGroup -Name $ResourceGroupName
 
@@ -50,8 +50,8 @@ foreach($virtualMachine in $virtualMachines)
 # sudo pip install pyOpenSSL
 
 $Vm2Extensions = @(
-        $AzureRmVMExtensionsLinux.PythonPackager, 
-        $AzureRmVMExtensionsLinux.Ansible, 
+        $AzureRmVMExtensionsLinux.PythonPackager,
+        $AzureRmVMExtensionsLinux.Ansible,
         $AzureRmVMExtensionsLinux.AnsibleWindowsRequirement)
 $PublicSettings = '{"commandToExecute": "' + ($Vm2Extensions -join ';') + '"}'
 Set-AzureRmVMExtension -ExtensionName "Ansible" -ResourceGroupName $ResourceGroupName -VMName "AnsibleController" `
@@ -64,9 +64,9 @@ $PublicSettings = '{"commandToExecute": "' + ($Vm1Extensions -join ';') + '"}'
 Set-AzureRmVMExtension -ExtensionName "WinRmActivation" -ResourceGroupName $ResourceGroupName -VMName "MssqlDefault" `
 -Publisher "Microsoft.Compute" -ExtensionType "CustomScriptExtension" -TypeHandlerVersion 1.9 `
 -SettingString $PublicSettings -Location $location
-  
+
 
 #winrm basic
-# winrm set winrm/config/client/auth @{Basic="true"} 
-# winrm set winrm/config/service/auth @{Basic="true"} 
+# winrm set winrm/config/client/auth @{Basic="true"}
+# winrm set winrm/config/service/auth @{Basic="true"}
 # winrm set winrm/config/service @{AllowUnencrypted="true"}

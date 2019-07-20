@@ -3,9 +3,9 @@ if ([String]::IsNullOrEmpty($PSScriptRoot)) {
 }
 else {
     $rootScriptPath = $PSScriptRoot
-}    
+}
 
-$ModulePath = "$rootScriptPath\..\..\powershell\modules\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
+$ModulePath = "$rootScriptPath\..\..\powershell\modules\MESF_Azure\MESF_Azure\MESF_Azure.psd1"
 Import-Module $ModulePath -force
 
 #Load Ansible lab configuration
@@ -18,7 +18,7 @@ Set-MESFAzResourceGroup -ResourceGroupName $ResourceGroupName -Location $Locatio
 #Create Network Infrastrtcuture
 foreach($virtualNetwork in $virtualNetworks)
 {
-    Set-VirtualNetwork -ResourceGroupName $ResourceGroupName -Location $Location -Network $virtualNetwork
+    Set-MESFAzResourceGroup -ResourceGroupName $ResourceGroupName -Location $Location -Network $virtualNetwork
 }
 
 
@@ -27,10 +27,10 @@ foreach($virtualMachine in $virtualMachines)
 {
         Set-VirtualMachine -ResourceGroupName $ResourceGroupName -Location $Location `
                            -VirtualMachine $virtualMachine -Credential $Credential
-        
+
         Set-VirtualMachineExtension -ResourceGroupName $ResourceGroupName -Location $location `
-                                    -VirtualMachine $virtualMachine                           
-}    
+                                    -VirtualMachine $virtualMachine
+}
 
 #Create Application Gateway
 Import-Module $ModulePath -force
@@ -75,14 +75,14 @@ Set-ApplicationGateway @gatewaySettings
 #                  -Name "jenkins-ci" `
 #                  -Alias "jenkins-ci-01" `
 #                  -VirtualMachineNames "ci-lx-master"
-                 
+
 
 $rules = Get-NetworkRuleDefinition -property $Global:FirewallDefaultRules.allowSsh
 
 #Start Security Group
 $securityGroup = New-AzureRmNetworkSecurityGroup -Name "test" `
                 -ResourceGroupName $ResourceGroupName -Location $Location `
-                -SecurityRules $rules 
+                -SecurityRules $rules
 
 Set-NetworkSecurityGroup -ResourceGroupName $ResourceGroupName -Location $location `
                          -Name "NetworkSecurity" `

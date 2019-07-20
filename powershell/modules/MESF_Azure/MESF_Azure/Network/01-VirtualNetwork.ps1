@@ -1,19 +1,19 @@
 #peering 2 vnet : https://docs.microsoft.com/fr-fr/azure/virtual-network/tutorial-connect-virtual-networks-portal
 #DNS : https://docs.microsoft.com/fr-fr/azure/dns/
 
-Function Set-VirtualNetwork
+function Set-MESFAzVirtualNetwork
 {
     [cmdletbinding(DefaultParameterSetName="none")]
     param(
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
-    
+
         [Parameter(Mandatory=$true)]
         [string]$Location,
-    
+
         [Parameter(Mandatory=$true)]
         [Object]$Network
-    
+
     )
     begin
     {
@@ -31,9 +31,9 @@ Function Set-VirtualNetwork
 
         #Retrieve current configuration
         Trace-Message -Message ("Try to retrieve Virtual Network '{0}' in resourceGroup '{1}'" -f $Network.Name, $ResourceGroupName)
-        $vnet = Get-AzureRmVirtualNetwork   -Name $Network.Name `
-                                            -ResourceGroupName $resourceGroupName `
-                                            -ErrorAction SilentlyContinue
+        $vnet = Get-AzVirtualNetwork   -Name $Network.Name `
+                                       -ResourceGroupName $resourceGroupName `
+                                       -ErrorAction SilentlyContinue
 
         if ($null -ne $vnet)
         {
@@ -42,22 +42,22 @@ Function Set-VirtualNetwork
             #Add subnet Objects if required
             #Todo : Can be better to do with intersection
             $Network.Subnets | ForEach-Object {
-                
+
                 $newSubnet = $_
                 $existingSubnet = ($vnet.Subnets | Where-Object {$_.Name -eq $newSubnet.Name})
 
 
                 if ($existingSubnet -eq $null)
                 {
-                    Add-AzureRmVirtualNetworkSubnetConfig -Name $newSubnet.Name `
-                                                        -VirtualNetwork $vnet `
-                                                        -AddressPrefix $newSubnet.AddressPrefix
+                    Add-AzVirtualNetworkSubnetConfig -Name $newSubnet.Name `
+                                                     -VirtualNetwork $vnet `
+                                                     -AddressPrefix $newSubnet.AddressPrefix
 
 
                 }
             }
 
-            Set-AzureRmVirtualNetwork -VirtualNetwork $vnet
+            Set-AzVirtualNetwork -VirtualNetwork $vnet
         }
         else
         {
@@ -65,20 +65,20 @@ Function Set-VirtualNetwork
             Trace-Message -Message ("Virtual Network '{0}' in resourceGroup '{1}' doesn't exist, it will be created" -f $Network.Name, $ResourceGroupName)
             $subnets=@()
             $Network.Subnets | ForEach-Object {
-                $subnet = New-AzureRmVirtualNetworkSubnetConfig -Name $_.Name `
-                                                                -AddressPrefix $_.AddressPrefix
+                $subnet = New-AzVirtualNetworkSubnetConfig -Name $_.Name `
+                                                           -AddressPrefix $_.AddressPrefix
 
-                $subnets += $subnet                                                     
+                $subnets += $subnet
             }
 
-            $vnet = New-AzureRmVirtualNetwork -Name $Network.Name -ResourceGroupName $resourceGroupName `
-                                        -Location $location `
-                                        -AddressPrefix $Network.AddressPrefix `
-                                        -Subnet $subnets
+            $vnet = New-AzVirtualNetwork -Name $Network.Name -ResourceGroupName $resourceGroupName `
+                                         -Location $location `
+                                         -AddressPrefix $Network.AddressPrefix `
+                                         -Subnet $subnets
 
         }
 
-        Write-Output $vnet                                  
+        Write-Output $vnet
    }
 }
 
@@ -88,10 +88,10 @@ Function Get-NetworkSubNet
     param(
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
-    
+
         [Parameter(Mandatory=$true)]
         [string]$Location,
-    
+
         [Parameter(Mandatory=$true)]
         [String]$NetworkName,
 
@@ -110,11 +110,11 @@ Function Get-NetworkSubNet
     }
     Process
     {
-        $vnet = Get-AzureRmVirtualNetwork -Name $NetworkName -ResourceGroupName $ResourceGroupName
+        $vnet = Get-AzVirtualNetwork -Name $NetworkName -ResourceGroupName $ResourceGroupName
 
-        $subnet = Get-AzureRmVirtualNetworkSubnetConfig -Name $SubnetName -VirtualNetwork $vnet
+        $subnet = Get-AzVirtualNetworkSubnetConfig -Name $SubnetName -VirtualNetwork $vnet
 
         Write-Output $subnet
-        
+
     }
 }

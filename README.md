@@ -10,16 +10,17 @@ As we don't like to write the same code / configuration in different files, the 
 
 ## Setup environment
 1. [Prerequisites](documentation/00-prerequisites.md)
+2. [Module MESF Azure features](documentation/01-mesf_azure.md)
 
 ## Azure features
 ## Built-in Azure features deployment and Operations
 
 | Azure feature | Description |
 |---------------|-------------|
-| [Azure Container Registry](acr/README.md) | Azure Container Registry allows you to build, store, and manage images for all types of container deployments |
-| [Azure Kubernetes Service](aks/readme.md) | |
-| [Service Fabric](service%20fabric/README.md) | |
-| [Vault](vault/README.md) | |
+| [Azure Container Registry](acr) | Azure Container Registry allows you to build, store, and manage images for all types of container deployments |
+| [Azure Kubernetes Service](aks) | |
+| [Service Fabric](service%20fabric) | |
+| [Vault](vault) | |
 
 ## Custom Deployment
 | Deployment Model | Description |
