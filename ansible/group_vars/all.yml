@@ -15,6 +15,12 @@ registries:
 aks:
   resource_group:  'AKS'
   cluster_name:    'aksCluster'
+  virtual_network:
+    Name:          "ContinuousIntegration_Network"
+    AddressPrefix: "10.2.0.0/16"
+    Subnets:
+      - Name:          "Front"
+        AddressPrefix: "10.2.1.0/24"
 
 vault:
   resourceGroupName: 'CommonVault'
@@ -32,8 +38,8 @@ debug_values:
     Name:              "debug_virtualnetwork"
     AddressPrefix:     "10.5.0.0/16"
     Subnets:
-    - Name: "debug_virtualnetwork_front"
-      AddressPrefix: "10.5.1.0/24"
-    - Name: "debug_virtualnetwork_back"
-      AddressPrefix: "10.5.2.0/24"
+      - Name:          "debug_virtualnetwork_front"
+        AddressPrefix: "10.5.1.0/24"
+      - Name:          "debug_virtualnetwork_back"
+        AddressPrefix: "10.5.2.0/24"
 

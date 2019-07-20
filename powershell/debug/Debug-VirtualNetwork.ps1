@@ -22,8 +22,8 @@ Enable-MESF_AzureDebug
 
 try {
     Set-MESFAzVirtualNetwork -ResourceGroupName $azResourceGroup.ResourceGroupName `
-    -Location $azResourceGroup.Location `
-    -Network $inventoryVars.debug_values.virtual_network
+                             -Location $azResourceGroup.Location `
+                             -Network $inventoryVars.debug_values.virtual_network
 
     Remove-AzResourceGroup -Id $azResourceGroup.ResourceId
 }
