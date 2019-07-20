@@ -1,14 +1,20 @@
-if ([String]::IsNullOrEmpty($PSScriptRoot)) {
-    $rootScriptPath = "D:\devel\github\devops-toolbox\cloud\azure\aks\powershell"
-}
-else {
-    $rootScriptPath = $PSScriptRoot
-}    
+[CmdletBinding(SupportsShouldProcess=$true)]
+param(
+    [Parameter(Mandatory = $false, Position = 0)]
+    [ValidateScript({Test-Path -Path $_ -PathType Container})]
+    [string]
+    $InventoryPath = "..\..\ansible\group_vars"
+)
 
-$ModulePath = "$rootScriptPath\..\..\powershell\modules\MESF_Azure\MESF_Azure\MESF_Azure.psd1" 
-Import-Module $ModulePath -force
+# Load Module
+Import-Module MESF_Azure
 
+# Load yaml files from inventory directory
+$inventoryVars = Import-MESFAnsibleInventory -InventoryPath $InventoryPath
 
-& "$rootScriptPath\00-Configuration.ps1"
+$whatif = $PSBoundParameters.ContainsKey('WhatIf')
 
-Remove-AzureRmResourceGroup -Name $ResourceGroupName -Force
+$whatif
+
+# Remove Resource Group
+Remove-AzResourceGroup -Name $inventoryVars.aks.resource_group -Force
