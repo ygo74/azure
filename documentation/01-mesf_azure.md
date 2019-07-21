@@ -10,7 +10,17 @@ This module brings the idempotent features on top of the Microsoft Azure powersh
 1. Register-MESFAzureServicePrincipal  
    Create application and service principal based on the application name.  
    The password is automatically generated and saved in the local vault.  
-   You can also reset the password with the switch ResetPassword
+   You can also reset the password with the switch ResetPassword.  
+
+   ```Powershell
+   # ----------------------------------------------------
+   # Register MESF Credential
+   # ----------------------------------------------------
+   Import-Module MESF_Azure -Force
+   Enable-MESF_AzureDebug
+   Register-MESFAzureServicePrincipal -Application TestPassword
+   Register-MESFAzureServicePrincipal -Application TestPassword -ResetPassword
+   ```
 
 2. Get-MESFClearPAssword  
    Decrypt password from a SecureString password
@@ -21,7 +31,7 @@ This module brings the idempotent features on top of the Microsoft Azure powersh
 
 4. Sync-MESFAzureVault  
    Synchronize Azure vault with local vault.  
-   > :warning:  
+   > :warning: Limitations  
    > It doesn't remove user.
 
 
