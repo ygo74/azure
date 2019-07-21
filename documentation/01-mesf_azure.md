@@ -7,6 +7,23 @@ This module brings the idempotent features on top of the Microsoft Azure powersh
 ## Idempotent feature on top of the Microsoft Azure powershell modules
 
 ## Local vault management
+1. Register-MESFAzureServicePrincipal  
+   Create application and service principal based on the application name.  
+   The password is automatically generated and saved in the local vault.  
+   You can also reset the password with the switch ResetPassword
+
+2. Get-MESFClearPAssword  
+   Decrypt password from a SecureString password
+
+3. Remove-MESFAzureServicePrincipal  
+   Remove application and service principal based on the application name.  
+   Remove also the service principal from the local vault
+
+4. Sync-MESFAzureVault  
+   Synchronize Azure vault with local vault.  
+   > :warning:  
+   > It doesn't remove user.
+
 
 ## Ansible inventory sharing
 ```Powershell
