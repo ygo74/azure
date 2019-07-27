@@ -25,10 +25,10 @@ foreach($virtualNetwork in $virtualNetworks)
 #Create Virtual Machines
 foreach($virtualMachine in $virtualMachines)
 {
-        Set-VirtualMachine -ResourceGroupName $ResourceGroupName -Location $Location `
+        Set-MESFAzVM -ResourceGroupName $ResourceGroupName -Location $Location `
                            -VirtualMachine $virtualMachine -Credential $Credential
 
-        Set-VirtualMachineExtension -ResourceGroupName $ResourceGroupName -Location $location `
+        Set-MESFAzVMExtension -ResourceGroupName $ResourceGroupName -Location $location `
                                     -VirtualMachine $virtualMachine
 }
 

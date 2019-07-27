@@ -22,13 +22,13 @@ foreach($virtualNetwork in $virtualNetworks)
 # foreach($PublicIpKey in $PublicIps.Keys)
 # {
 #     $publicIp = $PublicIps[$PublicIpKey]
-#     Set-PublicIP -ResourceGroupName $ResourceGroupName -Location $location `
+#     Set-MESFAzPublicIpAddress -ResourceGroupName $ResourceGroupName -Location $location `
 #                  -Name $publicIp.Name -Alias $publicIp.Alias
 # }
 
 foreach($virtualMachine in $virtualMachines)
 {
-        Set-VirtualMachine -ResourceGroupName $ResourceGroupName -Location $Location -VirtualMachine $virtualMachine
+        Set-MESFAzVM -ResourceGroupName $ResourceGroupName -Location $Location -VirtualMachine $virtualMachine
 }
 
 #Remove-AzureRmResourceGroup -Name $ResourceGroupName

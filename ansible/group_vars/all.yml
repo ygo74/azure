@@ -33,8 +33,9 @@ serviceprincipals:
 
 
 debug_values:
+  resourceGroupName: 'debug_values'
   virtual_network:
-    resourceGroupName: 'ut_virtualnetwork'
+    resourceGroupName: 'debug_virtualnetwork'
     Name:              "debug_virtualnetwork"
     AddressPrefix:     "10.5.0.0/16"
     Subnets:
@@ -42,4 +43,30 @@ debug_values:
         AddressPrefix: "10.5.1.0/24"
       - Name:          "debug_virtualnetwork_back"
         AddressPrefix: "10.5.2.0/24"
+  public_ip:
+    resourceGroupName: 'debug_public_ip'
+    alias:             'debugip'
+    name:              'debugip_publicaddress'
+  network_interace:
+    resourceGroupName: 'debug_network_interace'
+    name:              'debug_network_interface'
+  vm:
+    resourceGroupName: 'debug_vm'
+    virtual_machine:
+      Name:           "MssqlDefault"
+      ComputerName:   "win-mssql-1"
+      Size:           "Standard_DS1_v2"
+      Type:           "Windows"
+      Publisher:      "MicrosoftWindowsServer"
+      Offer:          "WindowsServer"
+      #skus="2012-R2-Datacenter-smalldisk"
+      skus:           "2016-Datacenter-smalldisk"
+      StorageType:    "Standard_LRS"
+      DiskName:       "Vm1_Disk"
+      DiskSize:       40
+      NetworkName:    "debug_virtualnetwork"
+      SubnetName:     "debug_virtualnetwork_front"
+      EnablePublicIp: true
+
+
 

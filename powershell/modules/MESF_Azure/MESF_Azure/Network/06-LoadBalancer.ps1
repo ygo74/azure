@@ -1,13 +1,13 @@
 Function Set-LoadBalancer
 {
     [cmdletbinding(DefaultParameterSetName="none")]
-    Param( 
+    Param(
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
-    
+
         [Parameter(Mandatory=$true)]
         [string]$Location,
-    
+
         [Parameter(Mandatory=$true)]
         [String]$Name,
 
@@ -31,13 +31,13 @@ Function Set-LoadBalancer
     {
 
 
-        $publicIp = Set-PublicIP -ResourceGroupName $ResourceGroupName -Location $location `
+        $publicIp = Set-MESFAzPublicIpAddress -ResourceGroupName $ResourceGroupName -Location $location `
                                 -Name  ("{0}-PublicIP" -f $Name) `
                                 -Alias $Alias
 
         $loadBalancerIp = New-AzureRmLoadBalancerFrontendIpConfig -Name ('{0}-FrontEndPool' -f $Name) `
                                 -PublicIpAddress $publicIp
-                        
+
         $bepool = New-AzureRmLoadBalancerBackendAddressPoolConfig -Name ('{0}-BackEndPool' -f $Name)
 
         $probe = New-AzureRmLoadBalancerProbeConfig -Name ('{0}-HealthProbe' -f $Name) `
@@ -52,10 +52,10 @@ Function Set-LoadBalancer
                                     -Location $location -FrontendIpConfiguration $loadBalancerIp `
                                     -BackendAddressPool $bepool `
                                     -Probe $probe -LoadBalancingRule $rule -Sku Basic
-        
+
         foreach($virtualMachine in $VirtualMachineNames)
         {
-            $vm = Get-AzureRmVM -Name $virtualMachine -ResourceGroupName $ResourceGroupName                               
+            $vm = Get-AzureRmVM -Name $virtualMachine -ResourceGroupName $ResourceGroupName
 
             $nicresource = Get-AzureRmResource -ResourceId $vm.NetworkProfile.NetworkInterfaces[0].Id
 
@@ -65,7 +65,7 @@ Function Set-LoadBalancer
             $nicInterface.IpConfigurations[0].LoadBalancerBackendAddressPools = $bepool
             Set-AzureRmNetworkInterface -NetworkInterface $nicInterface
         }
-        
+
         Write-Output $lb
     }
 }
@@ -74,13 +74,13 @@ Function Set-LoadBalancer
 Function Set-ApplicationGateway
 {
     [cmdletbinding(DefaultParameterSetName="none")]
-    Param( 
+    Param(
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
-    
+
         [Parameter(Mandatory=$true)]
         [string]$Location,
-    
+
         [Parameter(Mandatory=$true)]
         [String]$Name,
 
@@ -136,13 +136,13 @@ Function Set-ApplicationGateway
         $AliasFQDN = "{0}.{1}.cloudapp.azure.com" -f $Alias, $Location
 
         $appgw = Get-AzureRmApplicationGateway -Name $Name -ResourceGroupName $ResourceGroupName -ErrorAction SilentlyContinue
-        
+
         if ($null -eq $appgw)
         {
 
-            Trace-Message "Application Gateway '$Name' doesn't exist, it will be created"    
+            Trace-Message "Application Gateway '$Name' doesn't exist, it will be created"
             #Create public ip for the gateway
-            $gatewayPublicIp = Set-PublicIP -ResourceGroupName $ResourceGroupName -Location $Location `
+            $gatewayPublicIp = Set-MESFAzPublicIpAddress -ResourceGroupName $ResourceGroupName -Location $Location `
                                             -Name ("{0}_PublicIP" -f $Name) `
                                             -AllocationMethod Dynamic `
                                             -Alias $Alias
@@ -167,7 +167,7 @@ Function Set-ApplicationGateway
         }
         else {
 
-            Trace-Message "Application Gateway '$Name' already exists, it will be updated"    
+            Trace-Message "Application Gateway '$Name' already exists, it will be updated"
             $frontendIPConfiguration = Get-AzureRmApplicationGatewayFrontendIPConfig -Name ("{0}_frontendConfigIP" -f $Name) `
                                                                                      -ApplicationGateway $appgw
 
@@ -221,7 +221,7 @@ Function Set-ApplicationGateway
                                                                      -BackendHttpSettings $backendHttpSettings `
                                                                      -ApplicationGateway $appgw
 
-                                                                         
+
         if ($appgw -eq $null)
         {
             # Create the application gateway
@@ -240,9 +240,9 @@ Function Set-ApplicationGateway
                 HttpListeners                 = $applicationlistener
                 RequestRoutingRules           = $applicationRule
                 Probes                        = $probe
-                Sku                           = $sku 
+                Sku                           = $sku
             }
-            
+
             if ($null -ne $certificate)
             {
                 $gatewaySettings.Add("SslCertificates", $certificate)
@@ -255,6 +255,6 @@ Function Set-ApplicationGateway
             $appgw = Set-AzureRmApplicationGateway -ApplicationGateway $appgw
         }
 
-        Write-Output $appgw                                            
+        Write-Output $appgw
     }
-}    
+}

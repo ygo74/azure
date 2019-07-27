@@ -1,18 +1,18 @@
-Function Set-PublicIP
+Function Set-MESFAzPublicIpAddress
 {
     [cmdletbinding(DefaultParameterSetName="none")]
-    Param( 
+    Param(
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
-    
+
         [Parameter(Mandatory=$true)]
         [string]$Location,
-    
+
         [Parameter(Mandatory=$true)]
         [String]$Name,
 
         [Parameter(Mandatory=$false)]
-        [String]$Alias,
+        [String]$DomainNameLabel,
 
         [ValidateSet("Static", "Dynamic")]
         [Parameter(Mandatory=$false)]
@@ -32,15 +32,15 @@ Function Set-PublicIP
     {
 
 
-        Trace-Message -Message ("Try to retrieve Public IP '{0}' in resourceGroup '{1}'" -f $Name, $ResourceGroupName)
-        $publicIp = Get-AzureRmPublicIpAddress -Name $Name `
-                                               -ResourceGroupName $ResourceGroupName `
-                                               -ErrorAction SilentlyContinue
-                                               
+        Trace-Message -Message ("Try to retrieve Public IP '{0}' in resourceGroup '{1}'" -f $Name, $ResourceGroupName) -InvocationMethod $MyInvocation.MyCommand
+        $publicIp = Get-AzPublicIpAddress -Name $Name `
+                                          -ResourceGroupName $ResourceGroupName `
+                                          -ErrorAction SilentlyContinue
+
 
         if ($null -eq $publicIp)
         {
-            Trace-Message -Message ("Public IP '{0}' in resourceGroup '{1}' doesn't exist, it will be created" -f $Name, $ResourceGroupName)
+            Trace-Message -Message ("Public IP '{0}' in resourceGroup '{1}' doesn't exist, it will be created" -f $Name, $ResourceGroupName) -InvocationMethod $MyInvocation.MyCommand
 
             if ($null -eq $IdleTimeoutInMinutes)
             {
@@ -51,19 +51,19 @@ Function Set-PublicIP
                 Name = $Name
                 ResourceGroupName = $ResourceGroupName
                 Location = $Location
-                AllocationMethod = $AllocationMethod                
+                AllocationMethod = $AllocationMethod
                 IdleTimeoutInMinutes = $IdleTimeoutInMinutes
             }
 
-            if (![String]::IsNullOrEmpty($Alias))
+            if (![String]::IsNullOrEmpty($DomainNameLabel))
             {
-                $publicIpParams.Add("DomainNameLabel", $Alias)
+                $publicIpParams.Add("DomainNameLabel", $DomainNameLabel)
             }
 
-            $publicIp = New-AzureRmPublicIpAddress @publicIpParams -ErrorAction Stop
+            $publicIp = New-AzPublicIpAddress @publicIpParams -ErrorAction Stop
         }
 
         write-output $publicIp
 
-    }        
+    }
 }

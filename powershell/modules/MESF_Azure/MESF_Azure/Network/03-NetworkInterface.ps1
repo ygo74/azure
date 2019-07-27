@@ -1,19 +1,19 @@
-function Set-NetworkInterface
+function Set-MESFAzNetworkInterface
 {
     [cmdletbinding(DefaultParameterSetName="none")]
-    Param( 
+    Param(
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
-    
+
         [Parameter(Mandatory=$true)]
         [string]$Location,
 
         [Parameter(Mandatory=$true)]
         [string]$Name,
 
-        [Parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        [Microsoft.Azure.Commands.Network.Models.PSSubnet]$Subnet,
-        
+        [Parameter(Mandatory=$true)]
+        [String]$SubnetId,
+
         [Parameter(Mandatory=$false)]
         [string]$PublicIpAddressId,
 
@@ -32,11 +32,11 @@ function Set-NetworkInterface
     Process
     {
         Trace-Message -Message ("Try to retrieve Network Interface '{0}' in resourceGroup '{1}'" -f $Name, $ResourceGroupName)
-        $nic = Get-AzureRmNetworkInterface  -Name $Name `
-                                            -ResourceGroupName $ResourceGroupName `
-                                            -ErrorAction SilentlyContinue
+        $nic = Get-AzNetworkInterface  -Name $Name `
+                                       -ResourceGroupName $ResourceGroupName `
+                                       -ErrorAction SilentlyContinue
 
-        if ($nic -eq $null)
+        if ($null -eq $nic)
         {
 
             Trace-Message -Message ("Network Interface '{0}' in resourceGroup '{1}' doesn't exist, it will be created" -f $Name, $ResourceGroupName)
@@ -44,21 +44,21 @@ function Set-NetworkInterface
                 Name = $Name
                 ResourceGroupName = $ResourceGroupName
                 Location = $Location
-                SubnetId = $Subnet.Id
-            }
-            
-            if (![String]::IsNullOrEmpty($PublicIpAddressId))
-            {
-               $networkInterfacesDefinition.Add("PublicIpAddressId", $PublicIpAddressId) 
+                SubnetId = $SubnetId
             }
 
-            $nic = New-AzureRmNetworkInterface @networkInterfacesDefinition
+            if (![String]::IsNullOrEmpty($PublicIpAddressId))
+            {
+               $networkInterfacesDefinition.Add("PublicIpAddressId", $PublicIpAddressId)
+            }
+
+            $nic = New-AzNetworkInterface @networkInterfacesDefinition
         }
         else {
-            if ($nic.IpConfigurations[0].Subnet.Id -ne $Subnet.Id)
+            if ($nic.IpConfigurations[0].Subnet.Id -ne $SubnetId)
             {
-                Trace-Message -Message ("Network Interface '{0}' in resourceGroup '{1}' will move to subnet {2}" -f $Name, $ResourceGroupName, $Subnet.Id)
-                $nic.IpConfigurations[0].Subnet.Id = $Subnet.Id    
+                Trace-Message -Message ("Network Interface '{0}' in resourceGroup '{1}' will move to subnet {2}" -f $Name, $ResourceGroupName, $SubnetId)
+                $nic.IpConfigurations[0].Subnet.Id = $SubnetId
             }
 
             if (($nic.IpConfigurations[0].PublicIpAddressId -ne $PublicIpAddressId) `
@@ -68,9 +68,9 @@ function Set-NetworkInterface
                 $nic.IpConfigurations[0].PublicIpAddress.Id = $PublicIpAddressId
             }
 
-            Set-AzureRmNetworkInterface -NetworkInterface $nic | Out-Null            
+            Set-AzNetworkInterface -NetworkInterface $nic | Out-Null
         }
 
         Write-Output $nic
     }
-}    
+}

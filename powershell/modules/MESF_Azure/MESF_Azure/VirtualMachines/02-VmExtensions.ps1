@@ -11,16 +11,16 @@ $Global:AzureRmVMExtensionsWindows=@{
 }
 
 
-Function Set-VirtualMachineExtension
+Function Set-MESFAzVMExtension
 {
     [cmdletbinding(DefaultParameterSetName="none")]
-    Param( 
+    Param(
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
-    
+
         [Parameter(Mandatory=$true)]
         [string]$Location,
-    
+
         [Parameter(Mandatory=$true)]
         [Object]$VirtualMachine
 
@@ -38,34 +38,34 @@ Function Set-VirtualMachineExtension
     {
         if ($null -eq $VirtualMachine.Extensions)
         {
-            return $null        
+            return $null
         }
         switch($virtualMachine.Type)
         {
             "linux"
             {
-                Set-VirtualMachineLinuxExtension -ResourceGroupName $ResourceGroupName -Location $Location `
-                   -VirtualMachine $VirtualMachine 
+                Set-MESFAzVMLinuxExtension -ResourceGroupName $ResourceGroupName -Location $Location `
+                   -VirtualMachine $VirtualMachine
             }
             "windows"
             {
-                Set-VirtualMachineWindowsExtension -ResourceGroupName $ResourceGroupName -Location $Location `
-                   -VirtualMachine $VirtualMachine 
+                Set-MESFAzVMWindowsExtension -ResourceGroupName $ResourceGroupName -Location $Location `
+                   -VirtualMachine $VirtualMachine
             }
-        }            
+        }
     }
-}            
+}
 
-Function Set-VirtualMachineLinuxExtension
+Function Set-MESFAzVMLinuxExtension
 {
     [cmdletbinding(DefaultParameterSetName="none")]
-    Param( 
+    Param(
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
-    
+
         [Parameter(Mandatory=$true)]
         [string]$Location,
-    
+
         [Parameter(Mandatory=$true)]
         [Object]$VirtualMachine
 
@@ -81,36 +81,36 @@ Function Set-VirtualMachineLinuxExtension
     }
     Process
     {
-        $existingExtension = Get-AzureRmVMExtension -ResourceGroupName $ResourceGroupName `
+        $existingExtension = Get-AzVMExtension -ResourceGroupName $ResourceGroupName `
                                 -VMName $virtualMachine.Name -Name "Custom-$($virtualMachine.Name)"
-        
+
         if ($null -ne $existingExtension)
         {
             return $existingExtension
-        }                              
+        }
 
         $PublicSettings = '{"commandToExecute": "' + ($virtualMachine.Extensions.Values -join ';') + '"}'
 
         Trace-Message $PublicSettings
 
-        Set-AzureRmVMExtension -ExtensionName "Custom-$($virtualMachine.Name)" -ResourceGroupName $ResourceGroupName `
-           -VMName $virtualMachine.Name -Publisher "Microsoft.Azure.Extensions" `
-           -ExtensionType "CustomScript" -TypeHandlerVersion 2.0 `
-           -SettingString $PublicSettings -Location $location
+        Set-AzVMExtension -ExtensionName "Custom-$($virtualMachine.Name)" -ResourceGroupName $ResourceGroupName `
+                          -VMName $virtualMachine.Name -Publisher "Microsoft.Azure.Extensions" `
+                          -ExtensionType "CustomScript" -TypeHandlerVersion 2.0 `
+                          -SettingString $PublicSettings -Location $location
 
     }
-}            
+}
 
-Function Set-VirtualMachineWindowsExtension
+Function Set-MESFAzVMWindowsExtension
 {
     [cmdletbinding(DefaultParameterSetName="none")]
-    Param( 
+    Param(
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
-    
+
         [Parameter(Mandatory=$true)]
         [string]$Location,
-    
+
         [Parameter(Mandatory=$true)]
         [Object]$VirtualMachine
 
@@ -128,20 +128,20 @@ Function Set-VirtualMachineWindowsExtension
     {
         foreach($extensionKey in $virtualMachine.Extensions.Keys)
         {
-            $existingExtension = Get-AzureRmVMExtension -ResourceGroupName $ResourceGroupName `
-                                    -VMName $virtualMachine.Name -Name $extensionKey
-            
+            $existingExtension = Get-AzVMExtension -ResourceGroupName $ResourceGroupName `
+                                                   -VMName $virtualMachine.Name -Name $extensionKey
+
             if ($null -eq $existingExtension)
             {
                 $PublicSettings = '{"commandToExecute": "' + $virtualMachine.Extensions[$extensionKey]  + '"}'
                 Trace-Message $PublicSettings
 
-                Set-AzureRmVMExtension -ExtensionName $extensionKey -ResourceGroupName $ResourceGroupName `
-                   -VMName $virtualMachine.Name -Publisher "Microsoft.Compute" `
-                   -ExtensionType "CustomScriptExtension" -TypeHandlerVersion 1.9 `
-                   -SettingString $PublicSettings -Location $location                               
+                Set-AzVMExtension -ExtensionName $extensionKey -ResourceGroupName $ResourceGroupName `
+                                  -VMName $virtualMachine.Name -Publisher "Microsoft.Compute" `
+                                  -ExtensionType "CustomScriptExtension" -TypeHandlerVersion 1.9 `
+                                  -SettingString $PublicSettings -Location $location
             }
-        }                                                
+        }
 
     }
-}            
+}

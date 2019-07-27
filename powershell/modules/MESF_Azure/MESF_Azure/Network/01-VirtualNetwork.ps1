@@ -82,7 +82,7 @@ function Set-MESFAzVirtualNetwork
    }
 }
 
-Function Get-NetworkSubNet
+Function Get-MESFAzVirtualNetworkSubnetConfig
 {
     [cmdletbinding(DefaultParameterSetName="none")]
     param(
@@ -110,9 +110,9 @@ Function Get-NetworkSubNet
     }
     Process
     {
-        $vnet = Get-AzVirtualNetwork -Name $NetworkName -ResourceGroupName $ResourceGroupName
+        $vnet = Get-AzVirtualNetwork -Name $NetworkName -ResourceGroupName $ResourceGroupName -ErrorAction Stop
 
-        $subnet = Get-AzVirtualNetworkSubnetConfig -Name $SubnetName -VirtualNetwork $vnet
+        $subnet = Get-AzVirtualNetworkSubnetConfig -Name $SubnetName -VirtualNetwork $vnet -ErrorAction Stop
 
         Write-Output $subnet
 
