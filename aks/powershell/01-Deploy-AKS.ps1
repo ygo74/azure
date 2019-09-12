@@ -39,9 +39,14 @@ $existingCluster = Get-AzResource -ResourceGroupName $azResourceGroup.ResourceGr
 # az aks get-versions --location $Location
 if($null -eq $existingCluster)
 {
+    # v1.13.10 : rbac is enabled by default. if no rbac option is --disable-rbac
     az aks create --resource-group $azResourceGroup.ResourceGroupName `
                   --name $inventoryVars.aks.cluster_name `
                   --node-count 1 `
-                  --ssh-key-value (Get-Content "$env:USERPROFILE\.ssh\.azureuser.pub")
+                  --ssh-key-value (Get-Content "$env:USERPROFILE\.ssh\.azureuser.pub") `
+                  --enable-addons http_application_routing
+
+    # Set rights for dashboard
+    kubectl create clusterrolebinding kubernetes-dashboard -n kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
 
 }

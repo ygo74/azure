@@ -11,7 +11,14 @@ TODO
 
 ## Operations
 ### Connect to ACR
-TODO
+az acr login --name mesfContainerRegistry
+
+### Push images
+```powershell
+docker tag geolocationapi:dev  mesfcontainerregistry.azurecr.io/huntergames/geolocationapi
+docker push mesfcontainerregistry.azurecr.io/huntergames/geolocationapi
+```
+
 
 ### List images in the repository
 az acr repository list -n mesfContainerRegistry  

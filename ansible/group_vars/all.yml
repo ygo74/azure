@@ -1,4 +1,4 @@
-location: 'westeurope'
+location: 'francecentral'
 
 registries:
   - name:              'mesfContainerRegistry'
