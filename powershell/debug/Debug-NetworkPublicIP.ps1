@@ -1,5 +1,5 @@
 # ----------------------------------------------------
-# Create Virtual Network
+# Create Public IP
 # ----------------------------------------------------
 Import-Module MESF_Azure -Force
 Enable-MESF_AzureDebug
