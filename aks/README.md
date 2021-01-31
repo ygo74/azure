@@ -31,6 +31,9 @@ az role assignment create --assignee $CLIENT_ID --role Reader --scope $registry.
 $aksClusterName    = "aksCluster"
 $ResourceGroupName = "AKS"
 az aks get-credentials --resource-group $ResourceGroupName  --name $aksClusterName  
-  
+
+# Full access to dashboard : Not recommended. TODO Check for best practices
+kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+
 az aks browse -g $ResourceGroupName -n $aksClusterName
 ```

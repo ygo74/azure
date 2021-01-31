@@ -1,0 +1,8 @@
+```powershell
+
+Get-AzVMImagePublisher -Location westeurope | ? {$_.PublisherName -eq 'Redhat'}
+
+Get-AzVMImageOffer -Location westeurope -PublisherName redhat
+
+Get-AzVMImageSku -Location westeurope -PublisherName redhat -Offer RHEL
+```

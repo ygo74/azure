@@ -15,6 +15,7 @@ registries:
 aks:
   resource_group:  'AKS'
   cluster_name:    'aksCluster'
+  node_vm_size:    'Standard_D3_v2'
   virtual_network:
     Name:          "ContinuousIntegration_Network"
     AddressPrefix: "10.2.0.0/16"
@@ -69,4 +70,6 @@ debug_values:
       EnablePublicIp: true
 
 
-
+linux_vm:
+  resource_group:  'Linux_vms'
+  location:        'francecentral'

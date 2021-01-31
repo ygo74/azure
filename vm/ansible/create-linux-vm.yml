@@ -1,0 +1,21 @@
+- name: Create Linux VM
+  hosts: localhost
+  connection: local
+  vars:
+    # resource_group: myResourceGroup
+    # location: eastus
+    # aks_name: myAKSCluster
+    username: azureuser
+    ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDNGcO1DqGmrA7l53di7659x4SJCzAt8bla7cgixfhuRStZWyKmULmzf2SNjuDT6e7quNzLzlucfm5E5Yi9S98kRX5MwIzM/8vQdM7Sh78CMsIPSCEdXJ1xoBGXAVMJszMwddbDQSxqsmezXTbSTDxUbQVChOGpJioaCEwUi5KqzgGJXcGAqmNZw1bC3UQ7fur5UBoeuEEpBfyi8AYGcDm5v3u2UHvA1Tcwl6ZnvFEYjc5JaD1SUJNSUP3gD7nH5LKhmVeVkebp724iTvlucEFdfKuC5/BkhI3VM/IgZJZmRep9RLeyYonVjNYewyhgYMWrrwB0cPDeWlDazUFtbZU5 azureuser"
+    client_id: "{{ lookup('env','AZURE_CLIENT_ID') }}"
+    client_secret: "{{ lookup('env','AZURE_SECRET') }}"
+
+  tasks:
+  - debug:
+      var: linux_vm
+
+  - name: Create resource group
+    azure_rm_resourcegroup:
+      name:     "{{ linux_vm.resource_group }}"
+      location: "{{ linux_vm.location }}"
+
