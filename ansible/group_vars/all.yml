@@ -73,3 +73,17 @@ debug_values:
 linux_vm:
   resource_group:  'Linux_vms'
   location:        'francecentral'
+  virtual_network:
+    name:              "Linux_vms_virtualnetwork"
+    address_prefix:     "10.5.0.0/16"
+    subnets:
+      - name:          "Linux_vms_virtualnetwork_front"
+        address_prefix: "10.5.1.0/24"
+  vms:
+    lxtest1:
+      name:            'lxtest1'
+      image_offer:     'RHEL'
+      image_publisher: 'redhat'
+      image_sku:       '7.3'
+      image_version:   'latest'
+

@@ -1,6 +1,8 @@
 - name: Create Linux VM
   hosts: localhost
   connection: local
+  collections:
+    - azure.azcollection
   vars:
     # resource_group: myResourceGroup
     # location: eastus
@@ -19,3 +21,74 @@
       name:     "{{ linux_vm.resource_group }}"
       location: "{{ linux_vm.location }}"
 
+
+  - name: Create virtual network
+    azure_rm_virtualnetwork:
+      resource_group:   '{{ linux_vm.resource_group }}'
+      name:             '{{ linux_vm.virtual_network.name }}'
+      address_prefixes: '{{ linux_vm.virtual_network.address_prefix }}'
+
+  - name: Add subnet
+    azure_rm_subnet:
+      resource_group:  '{{ linux_vm.resource_group }}'
+      name:            '{{ linux_vm.virtual_network.subnets[0].name }}'
+      address_prefix:  '{{ linux_vm.virtual_network.subnets[0].address_prefix }}'
+      virtual_network: '{{ linux_vm.virtual_network.name }}'
+
+
+  - name: Create public IP address
+    azure_rm_publicipaddress:
+      resource_group:    '{{ linux_vm.resource_group }}'
+      allocation_method: Static
+      name:              '{{ linux_vm.vms.lxtest1.name }}_publicIp'
+    register: output_ip_address
+
+  - name: Dump public IP for VM which will be created
+    debug:
+      msg: "The public IP is {{ output_ip_address.state.ip_address }}."
+
+  - name: Create Network Security Group that allows SSH
+    azure_rm_securitygroup:
+      resource_group: '{{ linux_vm.resource_group }}'
+      name:           'allow_ssh'
+      rules:
+        - name: SSH
+          protocol: Tcp
+          destination_port_range: 22
+          access: Allow
+          priority: 1001
+          direction: Inbound
+
+  - name: Create virtual network interface card
+    azure_rm_networkinterface:
+      resource_group:  '{{ linux_vm.resource_group }}'
+      name:            '{{ linux_vm.vms.lxtest1.name }}_nic'
+      virtual_network: '{{ linux_vm.virtual_network.name }}'
+      subnet:          '{{ linux_vm.virtual_network.subnets[0].name }}'
+      public_ip_name:  '{{ linux_vm.vms.lxtest1.name }}_publicIp'
+      security_group:  'allow_ssh'
+
+
+  - name: Create VM
+    azure_rm_virtualmachine:
+      resource_group: '{{ linux_vm.resource_group }}'
+      name:           '{{ linux_vm.vms.lxtest1.name }}'
+      vm_size: Standard_DS1_v2
+      admin_username: azureuser
+      ssh_password_enabled: false
+      ssh_public_keys:
+        - path: /home/azureuser/.ssh/authorized_keys
+          key_data: '{{ ssh_key }}'
+      network_interfaces: '{{ linux_vm.vms.lxtest1.name }}_nic'
+      image:
+        offer:     '{{ linux_vm.vms.lxtest1.image_offer }}'
+        publisher: '{{ linux_vm.vms.lxtest1.image_publisher }}'
+        sku:       '{{ linux_vm.vms.lxtest1.image_sku }}'
+        version:   '{{ linux_vm.vms.lxtest1.image_version }}'
+      managed_disk_type: Standard_LRS
+      data_disks:
+        - lun: 0
+          disk_size_gb: 32
+          managed_disk_type: Standard_LRS
+    tags:
+      - new_vm

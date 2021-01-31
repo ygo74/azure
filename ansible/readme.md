@@ -13,6 +13,10 @@ pip install 'ansible'
 
 pip install  -r https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
 
+
+ansible-galaxy collection install azure.azcollection
+ansible-galaxy collection install community.general
+
 ## Prerequisites
 
 * Update Workspace Settings : 
@@ -27,3 +31,13 @@ azure:
   AZURE_TENANT:          ''
 
 
+vi ~/.azure/credentials
+[default]
+subscription_id=<your-subscription_id>
+client_id=<security-principal-appid>
+secret=<security-principal-password>
+tenant=<security-principal-tenant>
+
+Get-AzSubscription
+$x = Get-MESFServicePrincipalFromContext -ApplicationName Ansible-Automation
+Get-MESFClearPAssword -Password $x.Password
