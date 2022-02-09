@@ -1,1 +1,3 @@
 my_venv/
+debug/
+**/00-Get-BearerToken.ps1
