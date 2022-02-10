@@ -33,3 +33,6 @@ gem "wdm", "~> 0.1.1", :platforms => [:mingw, :x64_mingw, :mswin]
 gem "github-pages", "~> 223", group: :jekyll_plugins
 
 gem "webrick", "~> 1.7"
+
+# https://robbinespu.gitlab.io/posts/jekyll-unable-load-eventmachine/
+gem 'eventmachine', '1.2.7', git: 'https://github.com/eventmachine/eventmachine.git', tag: 'v1.2.7'
