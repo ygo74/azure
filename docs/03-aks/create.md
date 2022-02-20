@@ -63,12 +63,16 @@ kubectl get nodes
     # Install standard Kubernetes dashboard
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended.yaml
 
+    # Full access to dashboard : Not recommended. TODO Check for best practices
+    # TODO : Check if required
+    # kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+
     # Enable from local Uri
     kubectl proxy
 
     ```
 
-  Dashboard uri : <http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/>
+    Dashboard uri : <http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/>
 
 ## Link to Azure Container Registry
 
