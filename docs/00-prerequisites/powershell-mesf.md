@@ -1,13 +1,52 @@
-# Module MESF Azure features
+---
+layout: default
+title: Install Powershell MESF
+parent: Prerequisites
+nav_order: 4
+has_children: false
+---
 
 This module brings the idempotent features on top of the Microsoft Azure powershell modules. It also has specific features that you can use or not but help me to my research :  
+
 * Local vault management
 * Ansible inventory sharing
 
-## Idempotent feature on top of the Microsoft Azure powershell modules
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
+## Dependencies
+
+| Module          | Description                           | Source                    |
+|-----------------|---------------------------------------|---------------------------|
+| Az              | New powershell module to manage azure | https://docs.microsoft.com/fr-fr/powershell/azure/install-az-ps?view=azps-1.8.0 |
+| powershell-yaml | Serialize / Deserialize Yaml. Use to share ansible vars and powershell configuration | https://www.powershellgallery.com/packages/powershell-yaml |
+
+
+## Powershell MESF modules Development configuration
+
+1. Register the MESF Module folder in the PSModulePath
+
+    ```Powershell
+    # Get current value
+    $CurrentValue = [Environment]::GetEnvironmentVariable("PSModulePath", "Machine")
+
+    # Modify current value with your folder
+    [Environment]::SetEnvironmentVariable("PSModulePath", $CurrentValue + ";D:\devel\github\devops-toolbox\cloud\azure\powershell\modules\MESF_Azure", "Machine")
+    ```
+
+> :warning:  
+> __Restart your development editor or powershell session__
 
 ## Local vault management
+
 1. Register-MESFAzureServicePrincipal  
+
    Create application and service principal based on the application name.  
    The password is automatically generated and saved in the local vault.  
    You can also reset the password with the switch ResetPassword.  
@@ -23,19 +62,22 @@ This module brings the idempotent features on top of the Microsoft Azure powersh
    ```
 
 2. Get-MESFClearPAssword  
+
    Decrypt password from a SecureString password
 
 3. Remove-MESFAzureServicePrincipal  
+
    Remove application and service principal based on the application name.  
    Remove also the service principal from the local vault
 
 4. Sync-MESFAzureVault  
+
    Synchronize Azure vault with local vault.  
    > :warning: Limitations  
    > It doesn't remove user.
 
-
 ## Ansible inventory sharing
+
 ```Powershell
 # Load Inventory vars
 $inventoryPath = (Get-Module MESF_Azure).ModuleBase

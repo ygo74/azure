@@ -1,3 +1,10 @@
+---
+layout: default
+title: VMs Management
+nav_order: 2
+has_children: true
+---
+
 ```powershell
 
 Get-AzVMImagePublisher -Location westeurope | ? {$_.PublisherName -eq 'Redhat'}
