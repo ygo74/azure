@@ -1,9 +1,9 @@
 $queryLocation = "westeurope"
 
-Get-AzureRmVMImagePublisher -Location $queryLocation
-Get-AzureRmVMExtensionImageType -Location $queryLocation -PublisherName "Canonical"
-Get-AzureRmVMExtensionImage -Location $queryLocation -PublisherName "Canonical"
+Get-AzVMImagePublisher -Location $queryLocation
+Get-AzVMExtensionImageType -Location $queryLocation -PublisherName "Canonical"
+Get-AzVMExtensionImage -Location $queryLocation -PublisherName "Canonical"
 
-Get-AzureRmVmImagePublisher -Location $queryLocation | `
-Get-AzureRmVMExtensionImageType | `
-Get-AzureRmVMExtensionImage | Select-Object Type, Version
+Get-AzVMImagePublisher -Location $queryLocation | `
+Get-AzVMExtensionImageType | `
+Get-AzVMExtensionImage | Select-Object Type, Version
