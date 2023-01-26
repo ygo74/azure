@@ -1,6 +1,8 @@
 - name: Create Azure Kubernetes Service
   hosts: localhost
   connection: local
+  collections:
+    - azure.azcollection
   vars:
     # resource_group: myResourceGroup
     # location: eastus
@@ -9,25 +11,32 @@
     ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDNGcO1DqGmrA7l53di7659x4SJCzAt8bla7cgixfhuRStZWyKmULmzf2SNjuDT6e7quNzLzlucfm5E5Yi9S98kRX5MwIzM/8vQdM7Sh78CMsIPSCEdXJ1xoBGXAVMJszMwddbDQSxqsmezXTbSTDxUbQVChOGpJioaCEwUi5KqzgGJXcGAqmNZw1bC3UQ7fur5UBoeuEEpBfyi8AYGcDm5v3u2UHvA1Tcwl6ZnvFEYjc5JaD1SUJNSUP3gD7nH5LKhmVeVkebp724iTvlucEFdfKuC5/BkhI3VM/IgZJZmRep9RLeyYonVjNYewyhgYMWrrwB0cPDeWlDazUFtbZU5 azureuser"
     client_id: "{{ lookup('env','AZURE_CLIENT_ID') }}"
     client_secret: "{{ lookup('env','AZURE_SECRET') }}"
-  
+
+    registry: '{{ registries[1] }}'
+
   tasks:
   - debug:
       var: aks
 
   - name: Create resource group
-    azure_rm_resourcegroup:
+    azure.azcollection.azure_rm_resourcegroup:
       name:     "{{ aks.resource_group }}"
       location: "{{ location }}"
+      state: present
+
+
 
   - name: Create an azure container registry
     azure_rm_containerregistry:
-      name: mesfContainerRegistry
-      location: "{{ location }}"
-      resource_group: "{{ aks.resource_group }}"
+      name: '{{ registry.name }}'
+      location: '{{ registry.location }}'
+      resource_group: '{{ registry.resource_group }}'
       state: present
       admin_user_enabled: true
       sku: Premium
-  
+
+  - fail:
+
   - name: Create a managed Azure Container Services (AKS) cluster
     azure_rm_aks:
       name:             "{{ aks.cluster_name }}"
@@ -42,7 +51,7 @@
       service_principal:
         client_id:      "{{ client_id }}"
         client_secret:  "{{ client_secret }}"
-        
+
       agent_pool_profiles:
         - name: default
           count: 1
@@ -52,16 +61,16 @@
 
   - block:
     - name: Retrieve AKS facts
-      azure_rm_aks_facts:
+      azure.azcollection.azure_rm_aks_info:
         name:             "{{ aks.cluster_name }}"
         resource_group:   "{{ aks.resource_group }}"
       register: aks_data
-  
+
     - name: display aks_data
       debug:
-        var: aks_data    
+        var: aks_data
     tags:
-    - query_aks_data        
+    - query_aks_data
 
   - name: Create a public ip address
     azure_rm_publicipaddress:

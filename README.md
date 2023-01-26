@@ -9,11 +9,13 @@ As we don't like to write the same code / configuration in different files, the 
 * A powershell module which uses these configuration files and acts as a wrapper for idempotence operations on Standard Azure command
 
 ## Setup environment
+
 1. [Prerequisites](documentation/00-prerequisites.md)
 2. [Module MESF Azure features](documentation/01-mesf_azure.md)
 
 ## Azure features
-## Built-in Azure features deployment and Operations
+
+### Built-in Azure features deployment and Operations
 
 | Azure feature | Description |
 |---------------|-------------|
@@ -22,7 +24,8 @@ As we don't like to write the same code / configuration in different files, the 
 | [Service Fabric](service%20fabric) | |
 | [Vault](vault) | |
 
-## Custom Deployment
+### Custom Deployment
+
 | Deployment Model | Description |
 |------------------|-------------|
 | [jenkins](jenkins) | |

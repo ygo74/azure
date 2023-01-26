@@ -16,8 +16,10 @@ has_children: false
 </details>
 
 ## Create Cluster
+{: .text-blue-300 }
 
 ## Init Credential
+{: .text-blue-300 }
 
 ```powershell
 az aks get-credentials --resource-group $azResourceGroup.ResourceGroupName `
@@ -28,6 +30,7 @@ kubectl get nodes
 ```
 
 ## Sanity check cluster creation
+{: .text-blue-300 }
 
 1. Deploy test application
 
@@ -49,6 +52,7 @@ kubectl get nodes
     ```
 
 ## Dashboard access
+{: .text-blue-300 }
 
 1. Azure dashboard
 
@@ -75,8 +79,12 @@ kubectl get nodes
     Dashboard uri : <http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/>
 
 ## Link to Azure Container Registry
+{: .text-blue-300 }
 
-:warning: ACR and AKS should be in the same location
+{: .warning-title }
+> Deployment location
+>
+> ACR and AKS should be in the same location
 
 ```powershell
 $AKS_RESOURCE_GROUP="AKS"

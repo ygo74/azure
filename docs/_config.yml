@@ -31,11 +31,12 @@ github_username:  ygo74
 
 # Build settings
 # theme: minima
-remote_theme: pmarsceill/just-the-docs
+remote_theme: just-the-docs/just-the-docs@v0.4.0.rc3
 plugins:
   - jekyll-remote-theme # add this line to the plugins list if you already have one
   - jekyll-menus
-  - jekyll-feed
+  - jemoji
+  - jekyll-avatar
 
 # Exclude from processing.
 # The following items will not be processed, by default.
@@ -99,3 +100,41 @@ heading_anchors: true
 
 # color_scheme: dark
 
+callouts:
+  admonition:
+    # title:
+    color: grey-lt
+  attention:
+    title: Attention
+    color: purple
+  caution:
+    title: Caution
+    color: yellow
+  custom:
+    title: Custom
+    color: pink
+    opacity: 0.3
+  danger:
+    title: Danger
+    color: red
+  error:
+    title: Error
+    color: red
+  highlight:
+    color: yellow
+    opacity: 0.5
+  hint:
+    title: Hint
+    color: grey-dk
+  important:
+    title: Important
+    color: green
+  note:
+    title: Note
+    color: blue
+  tip:
+    title: Tip
+    color: grey-dk
+  warning:
+    title: Warning
+    color: red

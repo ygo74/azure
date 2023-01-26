@@ -19,7 +19,7 @@ https://docs.microsoft.com/fr-fr/powershell/azure/create-azure-service-principal
 * Powershell :
 
     ```powershell
-    Get-AzureRmADServicePrincipal
+    Get-AzADServicePrincipal
     ```
 
 ## Create Service Principal for Ansible Automation
@@ -27,8 +27,8 @@ https://docs.microsoft.com/fr-fr/powershell/azure/create-azure-service-principal
 1. ***Create an application***
 
     ```powershell
-    New-AzureRmADApplication -DisplayName Ansible-Automation -IdentifierUris http://azure/ansible
-    $application = Get-AzureRmADApplication -DisplayName Ansible-Automation
+    New-AzADApplication -DisplayName Ansible-Automation -IdentifierUris http://azure/ansible
+    $application = Get-AzADApplication -DisplayName Ansible-Automation
     ```
 
 2. ***Create a Service Principal***
@@ -37,17 +37,17 @@ https://docs.microsoft.com/fr-fr/powershell/azure/create-azure-service-principal
     Add-Type -Assembly System.Web
     $password = [System.Web.Security.Membership]::GeneratePassword(16,3)
     $securePassword = ConvertTo-SecureString -Force -AsPlainText -String $password
-    New-AzureRmADServicePrincipal -ApplicationId $application.ApplicationId -Password $securePassword
+    New-AzADServicePrincipal -ApplicationId $application.ApplicationId -Password $securePassword
 
-    $svcPrincipal = Get-AzureRmADServicePrincipal -DisplayName Ansible-Automation
+    $svcPrincipal = Get-AzADServicePrincipal -DisplayName Ansible-Automation
     $svcPrincipal |fl *
     ```
 
 3. ***Assign Contributor permission to All the subscription***
 
     ```powershell
-    $subscriptionId=Get-AzureRmSubscription | select-object -ExpandProperty Id
-    New-AzureRmRoleAssignment  -ObjectId $svcPrincipal.Id  -RoleDefinitionName Contributor -Scope "/subscriptions/$subscriptionId"
+    $subscriptionId=Get-AzSubscription | select-object -ExpandProperty Id
+    New-AzRoleAssignment  -ObjectId $svcPrincipal.Id  -RoleDefinitionName Contributor -Scope "/subscriptions/$subscriptionId"
     ```
 
 ## Create Service Principal for Jenkins to Access to ACR

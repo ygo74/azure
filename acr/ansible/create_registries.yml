@@ -1,0 +1,27 @@
+- name: Create Azure Container registries
+  hosts: localhost
+  connection: local
+
+  tasks:
+  - debug:
+      var: registries
+
+  - name: Create resource group
+    azure_rm_resourcegroup:
+      name:     "{{ item.resource_group }}"
+      location: "{{ item.location }}"
+      force_delete_nonempty: yes
+      # state:    absent
+    with_items:
+    - "{{ registries }}"
+
+  - name: Create an azure container registry
+    azure_rm_containerregistry:
+      name:               "{{ item.name                                    }}"
+      location:           "{{ item.location                                }}"
+      resource_group:     "{{ item.resource_group                          }}"
+      state:              "{{ item.state              | default('present') }}"
+      admin_user_enabled: "{{ item.admin_user_enabled | default(false)     }}"
+      sku:                "{{ item.sku                | default('Basic')   }}"
+    with_items:
+    - "{{ registries }}"

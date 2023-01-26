@@ -1,16 +1,17 @@
 location: 'francecentral'
 
 registries:
-  - name:              'mesfContainerRegistry'
-    resourceGroupName: 'ACR'
-    location:          'westeurope'
-    enableAdminUser:   true
-    sku:               'Basic'
-  - name:              'mesfContainerRegistry2'
-    resourceGroupName: 'ACR'
-    location:          'westeurope'
-    enableAdminUser:   false
-    sku:               'Basic'
+  # - name:               'mesfContainerRegistry'
+  #   resource_group:     'ACR'
+  #   location:           'francecentral'
+  #   sku:                'Basic'
+  #   admin_user_enabled: true
+
+  - name:               'iasbootstrap'
+    resource_group:     'bootstrap'
+    location:           'francecentral'
+    sku:                'Basic'
+    admin_user_enabled: true
 
 aks:
   resource_group:  'AKS'
