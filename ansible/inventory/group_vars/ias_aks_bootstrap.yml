@@ -1,0 +1,76 @@
+---
+# -----------------------------------------------------------------------------
+# IAS Aks bootstrap variables
+# -----------------------------------------------------------------------------
+
+# Ansible connection
+ansible_connection: local
+ansible_python_interpreter: '/usr/local/bin/python'
+
+# cluster information
+location: 'francecentral'
+service_principal_name: Ansible-Automation
+cluster_name: aksbootstrap
+resource_group: rg-aks-bootstrap-networking-spoke
+virtual_network_name: vnet-spoke
+subnet_name: cluster-nodes-subnet
+
+# vault
+vault:
+  resource_group: CommonVault
+  name: mesfVault
+
+# Networks
+virtual_networks:
+  - resource_group: rg-aks-bootstrap-networking-hub
+    name: vnet-hub
+    address_prefixes: 10.200.0.0/24
+    subnets:
+      - name: firewall-subnet
+        address_prefix: 10.200.0.0/26
+      - name: gateway-subnet
+        address_prefix: 10.200.0.64/27
+      - name: bastion-subnet
+        address_prefix: 10.200.0.128/26
+  - resource_group: rg-aks-bootstrap-networking-spoke
+    name: vnet-spoke
+    address_prefixes: 10.240.0.0/16
+    subnets:
+      - name: cluster-nodes-subnet
+        address_prefix: 10.240.0.0/22
+      - name: cluster-services-subnet
+        address_prefix: 10.240.4.0/28
+      - name: application-gateway-subnet
+        address_prefix: 10.240.5.0/24
+      - name: private-links-subnet
+        address_prefix: 10.240.4.32/28
+
+registries:
+  # - name:               'mesfContainerRegistry'
+  #   resource_group:     'ACR'
+  #   location:           'francecentral'
+  #   sku:                'Basic'
+  #   admin_user_enabled: true
+
+  - name:               'iasbootstrap'
+    resource_group:     'bootstrap'
+    location:           'francecentral'
+    sku:                'Basic'
+    admin_user_enabled: true
+
+aks:
+  resource_group:  'bootstrap'
+  cluster_name:    'aksCluster'
+  node_vm_size:    'Standard_D3_v2'
+  virtual_network:
+    Name:          "ContinuousIntegration_Network"
+    AddressPrefix: "10.2.0.0/16"
+    Subnets:
+      - Name:          "Front"
+        AddressPrefix: "10.2.1.0/24"
+
+serviceprincipals:
+  ut_automation:
+    applicationName: 'ut_automation'
+    roleName:        'Contributor'
+

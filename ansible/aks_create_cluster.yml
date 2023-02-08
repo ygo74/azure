@@ -1,0 +1,161 @@
+- name: Create Azure Kubernetes Service
+  hosts: aks
+  collections:
+    - azure.azcollection
+  vars:
+    # resource_group: myResourceGroup
+    # location: eastus
+    # aks_name: myAKSCluster
+    username: azureuser
+    ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDNGcO1DqGmrA7l53di7659x4SJCzAt8bla7cgixfhuRStZWyKmULmzf2SNjuDT6e7quNzLzlucfm5E5Yi9S98kRX5MwIzM/8vQdM7Sh78CMsIPSCEdXJ1xoBGXAVMJszMwddbDQSxqsmezXTbSTDxUbQVChOGpJioaCEwUi5KqzgGJXcGAqmNZw1bC3UQ7fur5UBoeuEEpBfyi8AYGcDm5v3u2UHvA1Tcwl6ZnvFEYjc5JaD1SUJNSUP3gD7nH5LKhmVeVkebp724iTvlucEFdfKuC5/BkhI3VM/IgZJZmRep9RLeyYonVjNYewyhgYMWrrwB0cPDeWlDazUFtbZU5 azureuser"
+
+    registry: '{{ registries[0] }}'
+
+
+    client_id:     '{{ lookup("ansible.builtin.env", "AZURE_CLIENT_ID") }}'
+    client_secret: '{{ lookup("ansible.builtin.env", "AZURE_SECRET") }}'
+    tenant_id:     '{{ lookup("ansible.builtin.env", "AZURE_TENANT") }}'
+
+
+  tasks:
+
+    # - name: Create a workspace with backup enabled
+    #   azure_rm_loganalyticsworkspace:
+    #     resource_group: '{{ vault.resource_group }}'
+    #     name: myLogAnalyticsWorkspace
+    #     # sku: standard
+
+    # - fail:
+
+    - debug:
+        var: vault
+
+    # ---------------------------------------------------------------------------
+    # Create virtual networks
+    # ---------------------------------------------------------------------------
+    - name: Create virtual networks
+      include_tasks: ./tasks/networks/advirtual_network_create.yml
+
+      loop: '{{ virtual_networks }}'
+
+      loop_control:
+        loop_var: virtual_network
+        label: '{{ virtual_network.name }}'
+
+    # ---------------------------------------------------------------------------
+    # Get secret value for AKS principal
+    # ---------------------------------------------------------------------------
+    - name: Get secret value for AKS principal
+      import_tasks: ./tasks/vault/vault_secret_get.yml
+      vars:
+        _vaul_resource_group: '{{ vault.resource_group }}'
+        _vaul_name:           '{{ vault.name }}'
+        _vaul_secret_name:    '{{ service_principal_name }}'
+
+    - name: Register secret value
+      set_fact:
+        aks_service_principal_secret_value: '{{ _vaul_secret_info.secrets[0].secret }}'
+      no_log: true
+
+    # ---------------------------------------------------------------------------
+    # Check resource group and acr exists
+    # ---------------------------------------------------------------------------
+    - name: Get resource group info
+      azure_rm_resourcegroup_info:
+        name:     '{{ resource_group }}'
+      register: _resource_group_info
+
+    - name: Assert resource group exists
+      assert:
+        that:
+          - _resource_group_info.resourcegroups | length > 0
+        fail_msg: "Missing resource group {{ resource_group }}"
+
+    - name: Get registry info
+      azure_rm_containerregistry_info:
+        name:           '{{ registry.name }}'
+        resource_group: '{{ registry.resource_group }}'
+      register: _registry_info
+
+    - name: Assert registry exists
+      assert:
+        that:
+          - _registry_info.registries | length > 0
+        fail_msg: "Missing registry {{ registry.name }} in resource group {{ registry.resource_group }}"
+
+
+    # ---------------------------------------------------------------------------
+    # Create a managed Azure Container Services (AKS) cluster
+    # ---------------------------------------------------------------------------
+    - name: List supported kubernetes version from Azure
+      azure_rm_aksversion_info:
+        location: "{{ location }}"
+      register: _aks_versions_info
+
+    - name: Get facts of specific subnet
+      azure_rm_subnet_info:
+        resource_group:       '{{ resource_group }}'
+        virtual_network_name: '{{ virtual_network_name }}'
+        name:                 '{{ subnet_name }}'
+      register: _subnet_info
+      vars:
+        _virtual_network: '{{ virtual_networks | selectattr("name", "equalto", virtual_network_name) | list | first }}'
+        _subnet:          '{{ _virtual_network.subnets | selectattr("name", "equalto", subnet_name)  | list | first   }}'
+
+    - name: Assert subnet exists
+      assert:
+        that:
+          - _subnet_info.subnets | length > 0
+        fail_msg: >-
+          Missing subnet {{ subnet_name }} in virtual network {{ virtual_network_name }} in resource group {{ resource_group }}
+
+    - name: Create a managed Azure Container Services (AKS) cluster
+      azure_rm_aks:
+        name:               '{{ cluster_name }}'
+        location:           '{{ location }}'
+        resource_group:     '{{ resource_group }}'
+        dns_prefix:         '{{ cluster_name }}'
+        kubernetes_version: "{{ _aks_versions_info.azure_aks_versions[-1] }}"
+
+        linux_profile:
+          admin_username: "{{ username }}"
+          ssh_key:        "{{ ssh_key }}"
+
+        # service_principal:
+        #   client_id:      "{{ client_id }}"
+        #   client_secret:  "{{ client_secret }}"
+
+        agent_pool_profiles:
+          - name: default
+            count: 1
+            vm_size: Standard_D2_v2
+            vnet_subnet_id: '{{ _subnet_info.subnets[0].id }}'
+            mode: System
+        node_resource_group: 'rg-aks-{{ cluster_name }}-node'
+        enable_rbac: yes
+        network_profile:
+          load_balancer_sku: standard
+        tags:
+          Environment: Production
+
+    - block:
+      - name: Retrieve AKS facts
+        azure.azcollection.azure_rm_aks_info:
+          name:             '{{ cluster_name }}'
+          resource_group:   '{{ resource_group }}'
+        register: aks_data
+
+      - name: display aks_data
+        debug:
+          var: aks_data
+      tags:
+      - query_aks_data
+
+    - fail:
+
+    - name: Create a public ip address
+      azure_rm_publicipaddress:
+        resource_group: "{{ aks.resource_group }}"
+        name: jenkins-aks
+        allocation_method: Static
+        domain_name: jenkins-ci-01

@@ -1,0 +1,34 @@
+---
+# -----------------------------------------------------------------------------
+# Create registry :
+# - Create resource group
+# - Create registry
+# -----------------------------------------------------------------------------
+- name: acr_create_registry - Create registry
+  block:
+
+    - name: acr_create_registry - Assert mandatory variables
+      assert:
+        that:
+          - registry_name is defined
+          - resource_group is defined
+
+        fail_msg: "Missing mandatory variables"
+
+    - name: acr_create_registry - Create resource group
+      azure_rm_resourcegroup:
+        name:     '{{ resource_group }}'
+        location: '{{ location }}'
+        # force_delete_nonempty: yes
+        # state:    absent
+
+    - name: acr_create_registry - Create registry
+      azure_rm_containerregistry:
+        name:               '{{ registry_name }}'
+        location:           '{{ location }}'
+        resource_group:     '{{ resource_group }}'
+        admin_user_enabled: '{{ admin_user_enabled | default(false)     }}'
+        sku:                '{{ sku                | default("Basic")   }}'
+
+  tags:
+    - acr

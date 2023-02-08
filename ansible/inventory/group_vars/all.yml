@@ -1,39 +1,4 @@
-location: 'francecentral'
-
-registries:
-  # - name:               'mesfContainerRegistry'
-  #   resource_group:     'ACR'
-  #   location:           'francecentral'
-  #   sku:                'Basic'
-  #   admin_user_enabled: true
-
-  - name:               'iasbootstrap'
-    resource_group:     'bootstrap'
-    location:           'francecentral'
-    sku:                'Basic'
-    admin_user_enabled: true
-
-aks:
-  resource_group:  'AKS'
-  cluster_name:    'aksCluster'
-  node_vm_size:    'Standard_D3_v2'
-  virtual_network:
-    Name:          "ContinuousIntegration_Network"
-    AddressPrefix: "10.2.0.0/16"
-    Subnets:
-      - Name:          "Front"
-        AddressPrefix: "10.2.1.0/24"
-
-vault:
-  resourceGroupName: 'CommonVault'
-  name:              'mesfVault'
-
-serviceprincipals:
-  ut_automation:
-    applicationName: 'ut_automation'
-    roleName:        'Contributor'
-
-
+---
 debug_values:
   resourceGroupName: 'debug_values'
   virtual_network:

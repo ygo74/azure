@@ -1,0 +1,97 @@
+- name: Remove Azure Kubernetes Service
+  hosts: aks
+  collections:
+    - azure.azcollection
+  vars:
+    # resource_group: myResourceGroup
+    # location: eastus
+    # aks_name: myAKSCluster
+    username: azureuser
+    ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDNGcO1DqGmrA7l53di7659x4SJCzAt8bla7cgixfhuRStZWyKmULmzf2SNjuDT6e7quNzLzlucfm5E5Yi9S98kRX5MwIzM/8vQdM7Sh78CMsIPSCEdXJ1xoBGXAVMJszMwddbDQSxqsmezXTbSTDxUbQVChOGpJioaCEwUi5KqzgGJXcGAqmNZw1bC3UQ7fur5UBoeuEEpBfyi8AYGcDm5v3u2UHvA1Tcwl6ZnvFEYjc5JaD1SUJNSUP3gD7nH5LKhmVeVkebp724iTvlucEFdfKuC5/BkhI3VM/IgZJZmRep9RLeyYonVjNYewyhgYMWrrwB0cPDeWlDazUFtbZU5 azureuser"
+
+    registry: '{{ registries[0] }}'
+
+
+    client_id:     '{{ lookup("ansible.builtin.env", "AZURE_CLIENT_ID") }}'
+    client_secret: '{{ lookup("ansible.builtin.env", "AZURE_SECRET") }}'
+    tenant_id:     '{{ lookup("ansible.builtin.env", "AZURE_TENANT") }}'
+
+
+  tasks:
+
+    # - name: Create a workspace with backup enabled
+    #   azure_rm_loganalyticsworkspace:
+    #     resource_group: '{{ vault.resource_group }}'
+    #     name: myLogAnalyticsWorkspace
+    #     # sku: standard
+
+    # - fail:
+
+    - debug:
+        var: vault
+
+    - name: Remove resource group
+      azure_rm_resourcegroup:
+        name:     'NetworkWatcherRG'
+        location: 'westeurope'
+        force_delete_nonempty: true
+        state: absent
+
+    - name: Remove resource group
+      azure_rm_resourcegroup:
+        name:     'DefaultResourceGroup-PAR'
+        location: 'francecentral'
+        force_delete_nonempty: true
+        state: absent
+
+    - name: Remove resource group
+      azure_rm_resourcegroup:
+        name:     'bootstrap'
+        location: 'francecentral'
+        force_delete_nonempty: true
+        state: absent
+
+    - name: Remove resource group
+      azure_rm_resourcegroup:
+        name:     '{{ virtual_network.resource_group }}'
+        location: '{{ virtual_network.location | default(location) }}'
+        force_delete_nonempty: true
+        state: absent
+
+      loop: '{{ virtual_networks }}'
+
+      loop_control:
+        loop_var: virtual_network
+        label: '{{ virtual_network.resource_group }}'
+
+    - fail:
+
+    - name: Create a managed Azure Container Services (AKS) cluster
+      azure_rm_aks:
+        name:               '{{ cluster_name }}'
+        location:           '{{ location }}'
+        resource_group:     '{{ resource_group }}'
+        dns_prefix:         '{{ cluster_name }}'
+        kubernetes_version: "{{ _aks_versions_info.azure_aks_versions[-1] }}"
+
+        linux_profile:
+          admin_username: "{{ username }}"
+          ssh_key:        "{{ ssh_key }}"
+
+        # service_principal:
+        #   client_id:      "{{ client_id }}"
+        #   client_secret:  "{{ client_secret }}"
+
+        agent_pool_profiles:
+          - name: default
+            count: 1
+            vm_size: Standard_D2_v2
+            vnet_subnet_id: '{{ _subnet_info.subnets[0].id }}'
+            mode: System
+        node_resource_group: 'rg-aks-{{ cluster_name }}-node'
+        enable_rbac: yes
+        network_profile:
+          load_balancer_sku: standard
+        tags:
+          Environment: Production
+

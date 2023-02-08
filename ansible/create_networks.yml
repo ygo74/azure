@@ -1,0 +1,25 @@
+---
+# -----------------------------------------------------------------------------
+#
+# -----------------------------------------------------------------------------
+- name: Create Network
+  hosts: all
+  # connection: local
+  collections:
+    - azure.azcollection
+  vars:
+
+
+  tasks:
+    - debug:
+        var: virtual_networks
+
+    - name: Create virtual networks
+      include_tasks: ./tasks/networks/advirtual_network_create.yml
+
+      loop: '{{ virtual_networks }}'
+
+      loop_control:
+        loop_var: virtual_network
+        label: '{{ virtual_network.name }}'
+

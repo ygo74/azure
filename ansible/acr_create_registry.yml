@@ -1,0 +1,16 @@
+- name: Create Azure Container registry
+  hosts: acr
+
+  tasks:
+
+    - name: Display registry variables
+      debug:
+        msg:
+          - "name:               {{ registry_name }}"
+          - "location:           {{ location }}"
+          - "ressource group:    {{ resource_group }}"
+          - "admin user enabled: {{ admin_user_enabled | default('N/A') }}"
+          - "sku:                {{ sku | default('N/A')   }}"
+
+    - name: Create registry
+      import_tasks: ./tasks/acr/registry_create.yml

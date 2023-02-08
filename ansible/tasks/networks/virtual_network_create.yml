@@ -1,0 +1,46 @@
+---
+# -----------------------------------------------------------------------------
+# Add virtual network :
+# - Create resource group
+# - Create Virtual network
+# - Add subnets
+# -----------------------------------------------------------------------------
+
+- name: Add virtual network
+  block:
+
+    - name: Add virtual network - Assert mandatory variables
+      assert:
+        that:
+          - virtual_network is defined
+          - virtual_network.name is defined
+          - virtual_network.resource_group is defined
+          - virtual_network.address_prefixes is defined
+
+        fail_msg: "Missing mandatory variables"
+
+    - name: "Create resource group {{ virtual_network.resource_group }}"
+      azure_rm_resourcegroup:
+        name:     '{{ virtual_network.resource_group }}'
+        location: '{{ virtual_network.location | default(location) }}'
+
+    - name: "Create virtual network {{ virtual_network.name }}"
+      azure_rm_virtualnetwork:
+        resource_group:   '{{ virtual_network.resource_group }}'
+        name:             '{{ virtual_network.name }}'
+        address_prefixes: '{{ virtual_network.address_prefixes }}'
+
+    - name: Add subnet
+      azure_rm_subnet:
+        resource_group:  '{{ virtual_network.resource_group }}'
+        name:            '{{ subnet.name }}'
+        address_prefix:  '{{ subnet.address_prefix }}'
+        virtual_network: '{{ virtual_network.name }}'
+
+      loop: '{{ virtual_network.subnets }}'
+      loop_control:
+        loop_var: subnet
+        label: '{{ subnet.name }} with address {{ subnet.address_prefix  }}'
+
+  tags:
+    - virtual_network

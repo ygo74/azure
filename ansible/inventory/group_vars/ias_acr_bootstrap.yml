@@ -1,0 +1,15 @@
+---
+# -----------------------------------------------------------------------------
+# IAS Aks bootstrap variables
+# -----------------------------------------------------------------------------
+
+# Ansible connection
+ansible_connection: local
+ansible_python_interpreter: '/usr/local/bin/python'
+
+# registry information
+location: 'francecentral'
+registry_name: aksbootstrap
+resource_group: rg-acr-bootstrap
+admin_user_enabled: true
+sku: Basic

@@ -1,0 +1,37 @@
+---
+# -----------------------------------------------------------------------------
+# Create vault
+# -----------------------------------------------------------------------------
+- name: vault_create - Create vault
+  block:
+
+    - name: vault_create - Assert mandatory values are defined
+      assert:
+        that:
+          - _vaul_resource_group is defined
+          - _vaul_name is defined
+          - tenant_id is defined
+          - client_id is defined
+      fail_msg: Missing mandatory values
+
+    - name: Create key vault instance
+      azure_rm_keyvault:
+        resource_group: '{{ _vaul_resource_group }}'
+        vault_name:     '{{ _vaul_name }}'
+        enabled_for_deployment: yes
+        vault_tenant: "{{ tenant_id }}"
+        sku:
+          family: A
+          name: standard
+        access_policies:
+          - tenant_id: "{{ tenant_id }}"
+            object_id: "{{ client_id }}"
+            secrets:
+              - get
+              - list
+              - set
+              - delete
+
+
+  tags:
+    - vault

@@ -45,3 +45,12 @@ tenant=<security-principal-tenant>
 Get-AzSubscription
 $x = Get-MESFServicePrincipalFromContext -ApplicationName Ansible-Automation
 Get-MESFClearPAssword -Password $x.Password
+
+## deploy with ansible
+
+```bash
+cd .\cloud\azure\ansible
+docker run --rm -it -v C:\Users\Administrator\azure_config_ansible.cfg:/root/.azure/credentials -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
+
+ansible-playbook create_networks.yml -i inventory/ -l ias_aks_bootstrap
+```
