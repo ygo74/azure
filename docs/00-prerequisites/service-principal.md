@@ -50,6 +50,13 @@ https://docs.microsoft.com/fr-fr/powershell/azure/create-azure-service-principal
     New-AzRoleAssignment  -ObjectId $svcPrincipal.Id  -RoleDefinitionName Contributor -Scope "/subscriptions/$subscriptionId"
     ```
 
+4. **Show service principal**
+
+    `` bash
+    az ad sp list --display-name Ansible-Automation --query [].appId -o tsv
+    ```
+
+
 ## Create Service Principal for Jenkins to Access to ACR
 
 Goal : Have a service principal to allow Jenkins to communicate with ACR
