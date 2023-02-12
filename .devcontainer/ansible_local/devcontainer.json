@@ -2,5 +2,23 @@
     "build":
     {
         "dockerfile": "DockerFile"
-    }
+    },
+
+    "customizations": {
+		"vscode": {
+            //extensions
+			"extensions": [
+				"redhat.ansible",
+				"shardulm94.trailing-spaces",
+				"donjayamanne.githistory",
+				"ms-azuretools.vscode-docker",
+                "davidanson.vscode-markdownlint"
+			],
+            "settings": {
+                "files.trimTrailingWhitespace": false
+            }
+		}
+	}
+
+    
 }
