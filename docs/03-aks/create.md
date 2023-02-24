@@ -18,20 +18,31 @@ has_children: false
 ## Create Cluster
 {: .text-blue-300 }
 
-1. deploy with ansible
+### Deploy with ansible
+{: .text-blue-200 }
 
-    ```bash
-    cd .\cloud\azure\ansible
-    # Mount azure credentials
-    docker run --rm -it -v C:\Users\Administrator\azure_config_ansible.cfg:/root/.azure/credentials -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
+```bash
+cd .\cloud\azure\ansible
+# Mount azure credentials
+docker run --rm -it -v C:\Users\Administrator\azure_config_ansible.cfg:/root/.azure/credentials -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
 
-    # Use environment file
-    docker run --rm -it --env-file C:\Users\Administrator\azure_credentials  -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
+# Use environment file
+docker run --rm -it --env-file C:\Users\Administrator\azure_credentials  -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
 
-    ansible-playbook aks_create_cluster.yml -i inventory/
-    ```
+ansible-playbook aks_create_cluster.yml -i inventory/
+```
+
+### Deploy with powershell
+{: .text-blue-200 }
+
+``` powershell
+cd .\cloud\azure\powershell
+
+& .\scripts\aks\01-Deploy-AKS.ps1  
+```
 
 ## Get cluster credentials
+{: .text-blue-300 }
 
 ``` powershell
 # Attach using acr-name
@@ -46,8 +57,15 @@ kubectl get nodes
 ```
 
 ## Cluster configuration
+{: .text-blue-300 }
 
 ### additional configuration
+{: .text-blue-200 }
+
+{: .warning-title }
+> Deployment location
+>
+> ACR and AKS should be in the same location
 
 ``` powershell
 # Attach using acr-name
@@ -56,20 +74,19 @@ $resourceGroup = "rg-aks-bootstrap-networking-spoke"
 $acrName       = "aksbootstrap"
 
 az aks update -n $aksName -g $resourceGroup  --attach-acr $acrName --enable-managed-identity
+
+az aks check-acr --resource-group $resourceGroup --name $aksName --acr $acrName
 ```
 
 ### Standard Kubernetes dashboard
+{: .text-blue-200 }
 
 TODO See Kubernetes doc
 
 
-## Link to Azure Container Registry
-{: .text-blue-300 }
+### Grant AKS service identity to virtual network
+{: .text-blue-200 }
 
-{: .warning-title }
-> Deployment location
->
-> ACR and AKS should be in the same location
 
 ```powershell
 $AKS_RESOURCE_GROUP="AKS"
