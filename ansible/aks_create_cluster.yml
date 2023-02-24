@@ -34,13 +34,35 @@
     # Create virtual networks
     # ---------------------------------------------------------------------------
     - name: Create virtual networks
-      include_tasks: ./tasks/networks/advirtual_network_create.yml
+      include_tasks: ./tasks/networks/virtual_network_create.yml
 
       loop: '{{ virtual_networks }}'
 
       loop_control:
         loop_var: virtual_network
         label: '{{ virtual_network.name }}'
+
+    - name: Create virtual network peering from vnet-hub to vnet-spoke
+      azure_rm_virtualnetworkpeering:
+        resource_group: rg-aks-bootstrap-networking-hub
+        virtual_network: vnet-hub
+        name: np-to-vnet-spoke
+        remote_virtual_network:
+          resource_group: rg-aks-bootstrap-networking-spoke
+          name: vnet-spoke
+        allow_virtual_network_access: true
+        allow_forwarded_traffic: true
+
+    - name: Create virtual network peering from vnet-spoke to vnet-hub
+      azure_rm_virtualnetworkpeering:
+        resource_group: rg-aks-bootstrap-networking-spoke
+        virtual_network: vnet-spoke
+        name: np-to-vnet-hub
+        remote_virtual_network:
+          resource_group: rg-aks-bootstrap-networking-hub
+          name: vnet-hub
+        allow_virtual_network_access: true
+        allow_forwarded_traffic: true
 
     # ---------------------------------------------------------------------------
     # Get secret value for AKS principal
@@ -135,6 +157,7 @@
         enable_rbac: yes
         network_profile:
           load_balancer_sku: standard
+          network_plugin: azure
         tags:
           Environment: Production
 
@@ -151,11 +174,44 @@
       tags:
       - query_aks_data
 
-    - fail:
-
     - name: Create a public ip address
       azure_rm_publicipaddress:
-        resource_group: "{{ aks.resource_group }}"
-        name: jenkins-aks
+        resource_group:    'rg-aks-bootstrap-networking-hub'
+        name:              pi-inventory-gateway
         allocation_method: Static
-        domain_name: jenkins-ci-01
+        domain_name:       inventory
+        sku: Standard
+      tags:
+        - gateway
+
+    # - name: Create instance of Application Gateway by looking up virtual network and subnet
+    #   azure_rm_appgateway:
+    #     resource_group: rg-aks-bootstrap-networking-hub
+    #     name: ag-aks
+    #     sku:
+    #       name: standard_small
+    #       tier: standard
+    #       capacity: 2
+    #     gateway_ip_configurations:
+    #       - subnet:
+    #           name: gateway-subnet
+    #           virtual_network_name: vnet-hub
+    #         name: app_gateway_ip_config
+    #     frontend_ip_configurations:
+    #       - public_ip_address: 'pi-inventory-gateway'
+    #         name: appGatewayFrontendIP
+    #     frontend_ports:
+    #       - port: 90
+    #         name: ag_frontend_port
+    #     backend_address_pools:
+    #       - backend_addresses:
+    #           - ip_address: 10.0.128.129
+    #         name: test_backend_address_pool
+    #     backend_http_settings_collection:
+    #       - port: 80
+    #         protocol: http
+    #         cookie_based_affinity: enabled
+    #         name: sample_appgateway_http_settings
+    #   tags:
+    #     - gateway
+

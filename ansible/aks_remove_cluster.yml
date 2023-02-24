@@ -64,34 +64,3 @@
         loop_var: virtual_network
         label: '{{ virtual_network.resource_group }}'
 
-    - fail:
-
-    - name: Create a managed Azure Container Services (AKS) cluster
-      azure_rm_aks:
-        name:               '{{ cluster_name }}'
-        location:           '{{ location }}'
-        resource_group:     '{{ resource_group }}'
-        dns_prefix:         '{{ cluster_name }}'
-        kubernetes_version: "{{ _aks_versions_info.azure_aks_versions[-1] }}"
-
-        linux_profile:
-          admin_username: "{{ username }}"
-          ssh_key:        "{{ ssh_key }}"
-
-        # service_principal:
-        #   client_id:      "{{ client_id }}"
-        #   client_secret:  "{{ client_secret }}"
-
-        agent_pool_profiles:
-          - name: default
-            count: 1
-            vm_size: Standard_D2_v2
-            vnet_subnet_id: '{{ _subnet_info.subnets[0].id }}'
-            mode: System
-        node_resource_group: 'rg-aks-{{ cluster_name }}-node'
-        enable_rbac: yes
-        network_profile:
-          load_balancer_sku: standard
-        tags:
-          Environment: Production
-

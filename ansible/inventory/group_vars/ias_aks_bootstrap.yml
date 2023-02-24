@@ -52,8 +52,8 @@ registries:
   #   sku:                'Basic'
   #   admin_user_enabled: true
 
-  - name:               'iasbootstrap'
-    resource_group:     'bootstrap'
+  - name:               'aksbootstrap'
+    resource_group:     'rg-acr-bootstrap'
     location:           'francecentral'
     sku:                'Basic'
     admin_user_enabled: true

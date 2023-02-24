@@ -18,65 +18,50 @@ has_children: false
 ## Create Cluster
 {: .text-blue-300 }
 
-## Init Credential
-{: .text-blue-300 }
+1. deploy with ansible
 
-```powershell
-az aks get-credentials --resource-group $azResourceGroup.ResourceGroupName `
-                       --name $inventoryVars.aks.cluster_name
+    ```bash
+    cd .\cloud\azure\ansible
+    # Mount azure credentials
+    docker run --rm -it -v C:\Users\Administrator\azure_config_ansible.cfg:/root/.azure/credentials -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
 
+    # Use environment file
+    docker run --rm -it --env-file C:\Users\Administrator\azure_credentials  -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
+
+    ansible-playbook aks_create_cluster.yml -i inventory/
+    ```
+
+## Get cluster credentials
+
+``` powershell
+# Attach using acr-name
+$aksName       = "aksbootstrap"
+$resourceGroup = "rg-aks-bootstrap-networking-spoke"
+
+az aks get-credentials --name $aksName --resource-group $resourceGroup
+
+# check if access is well configured
 kubectl get nodes
 
 ```
 
-## Sanity check cluster creation
-{: .text-blue-300 }
+## Cluster configuration
 
-1. Deploy test application
+### additional configuration
 
-    ```powershell
+``` powershell
+# Attach using acr-name
+$aksName       = "aksbootstrap"
+$resourceGroup = "rg-aks-bootstrap-networking-spoke"
+$acrName       = "aksbootstrap"
 
-    kubectl apply -f .\aks\resources\application_samples.yml
+az aks update -n $aksName -g $resourceGroup  --attach-acr $acrName --enable-managed-identity
+```
 
-    kubectl get pods
+### Standard Kubernetes dashboard
 
-    kubectl get service azure-vote-front --watch
+TODO See Kubernetes doc
 
-    ```
-
-2. Remove test application
-
-    ```powershell
-    kubectl delete -f .\aks\resources\application_samples.yml
-
-    ```
-
-## Dashboard access
-{: .text-blue-300 }
-
-1. Azure dashboard
-
-    ```powershell
-
-    az aks browse --name MyManagedCluster --resource-group MyResourceGroup
-    ```
-
-2. Standard Kubernetes dashboard
-
-    ```powershell
-    # Install standard Kubernetes dashboard
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-
-    # Full access to dashboard : Not recommended. TODO Check for best practices
-    # TODO : Check if required
-    # kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
-
-    # Enable from local Uri
-    kubectl proxy
-
-    ```
-
-    Dashboard uri : <http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/>
 
 ## Link to Azure Container Registry
 {: .text-blue-300 }
