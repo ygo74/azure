@@ -23,7 +23,7 @@ has_children: false
 
     ```powershell
 
-    kubectl apply -f .\aks\resources\application_samples.yml
+    kubectl apply -f .\resources\aks\application_samples.yml
 
     kubectl get pods
 

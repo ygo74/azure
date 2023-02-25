@@ -1,0 +1,13 @@
+
+stages:
+  - stage: deploy_aks
+    displayName: Deploy AKS Bootstrap
+
+    jobs:
+      - job: create_cluster
+        displayName: Create Aks Bootstrap
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          - script: echo hello from Linux

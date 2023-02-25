@@ -88,7 +88,15 @@ TODO See Kubernetes doc
 {: .text-blue-200 }
 
 
-```powershell
+``` powershell
+$aksName       = "aksbootstrap"
+$resourceGroup = "rg-aks-bootstrap-networking-spoke"
+
+# Get the id of the service principal configured for AKS
+$aks_identity= $(az identity show -n aksbootstrap-agentpool -g rg-aks-aksbootstrap-node --query "id" --output tsv)
+
+
+
 $AKS_RESOURCE_GROUP="AKS"
 $ACR_RESOURCE_GROUP="ACR"
 $AKS_CLUSTER_NAME="aksCluster"
