@@ -15,6 +15,15 @@ variables:
   # Get Ansible-Autmation secret
   - group: azure_automation
 
+  - name: aksName
+    value: aksbootstrap
+
+  - name: acrName
+    value: aksbootstrap
+
+  - name: resourceGroup
+    value: rg-aks-bootstrap-networking-spoke
+
 stages:
   - stage: deploy_aks
     displayName: Deploy AKS Bootstrap
@@ -41,3 +50,22 @@ stages:
               AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
               AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
               AZURE_SECRET: $(Ansible-Automation)
+
+      - job: configure_cluster
+        displayName: Configure Aks Bootstrap
+        dependsOn:
+          - create_cluster
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Visual Studio Enterprise (62177529-73f0-4e11-a584-5d3526dc6999)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az aks update -n $(aksName) -g $(resourceGroup) --attach-acr $(acrName) --enable-managed-identity
+              addSpnToEnvironment: true
+              useGlobalConfig: true
