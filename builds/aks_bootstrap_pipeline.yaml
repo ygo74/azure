@@ -11,3 +11,12 @@ stages:
 
         steps:
           - script: echo hello from Linux
+
+          - task: ms-vscs-rm.vss-services-ansible.ansible-task.Ansible@0
+            displayName: 'Create cluster'
+            inputs:
+              playbookPathOnAgentMachine: aks_create_cluster.yml
+              inventoriesAgentMachine: file
+              inventoryFileOnAgentMachine: inventory
+              args: '-e test=xxx'
+              workingDirectory: ansible
