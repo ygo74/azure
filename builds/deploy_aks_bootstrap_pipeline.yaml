@@ -9,6 +9,7 @@ resources:
     image: aksbootstrap.azurecr.io/ansible_azure:dev
     endpoint: aksbootstrap
 
+trigger: none
 
 variables:
   # Get Ansible-Autmation secret

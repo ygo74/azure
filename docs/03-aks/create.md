@@ -49,7 +49,7 @@ cd .\cloud\azure\powershell
 $aksName       = "aksbootstrap"
 $resourceGroup = "rg-aks-bootstrap-networking-spoke"
 
-az aks get-credentials --name $aksName --resource-group $resourceGroup
+az aks get-credentials --name $aksName --resource-group $resourceGroup --overwrite-existing 
 
 # check if access is well configured
 kubectl get nodes
@@ -83,20 +83,29 @@ az aks check-acr --resource-group $resourceGroup --name $aksName --acr $acrName
 
 TODO See Kubernetes doc
 
-
 ### Grant AKS service identity to virtual network
 {: .text-blue-200 }
 
-
 ``` powershell
+# Get Aks Identity
 $aksName       = "aksbootstrap"
 $resourceGroup = "rg-aks-bootstrap-networking-spoke"
 
-# Get the id of the service principal configured for AKS
-$aks_identity= $(az identity show -n aksbootstrap-agentpool -g rg-aks-aksbootstrap-node --query "id" --output tsv)
+$aksIdentity = $(az aks show --resource-group $resourceGroup --name $aksName --query "identity.principalId" -o tsv)
 
+# Assign network contributor to AKS Identity on resource group Hub
+$aksName       = "aksbootstrap"
+$resourceGroup = "rg-aks-bootstrap-networking-hub"
 
+$resourceGroupId = $(az group show -n $resourceGroup --query "id" -o tsv)
 
+az role assignment list --scope $resourceGroupId
+az role assignment create --assignee $aksIdentity --scope $resourceGroupId --role "Network Contributor"
+```
+
+### Grant AKS service To ACR (Deprecated)
+
+``` powershell
 $AKS_RESOURCE_GROUP="AKS"
 $ACR_RESOURCE_GROUP="ACR"
 $AKS_CLUSTER_NAME="aksCluster"
@@ -115,9 +124,12 @@ $registry = Get-AzContainerRegistry -ResourceGroupName $ACR_RESOURCE_GROUP -name
 # az role assignment create --assignee $CLIENT_ID --role Reader --scope $registry.Id
 #>
 
+# [2022-02-09T05:43:29Z] Checking ACR location matches cluster location: FAILED
+# [2022-02-09T05:43:29Z] ACR location 'westeurope' does not match your cluster location 'francecentral'. This may result in slow image pulls and extra cost.
+
+# replaced by
 az aks update --resource-group $AKS_RESOURCE_GROUP --name $AKS_CLUSTER_NAME --attach-acr $ACR_NAME
 
 az aks check-acr --resource-group $AKS_RESOURCE_GROUP --name $AKS_CLUSTER_NAME --acr $ACR_HOSTNAME
-# [2022-02-09T05:43:29Z] Checking ACR location matches cluster location: FAILED
-# [2022-02-09T05:43:29Z] ACR location 'westeurope' does not match your cluster location 'francecentral'. This may result in slow image pulls and extra cost.
+
 ```

@@ -17,18 +17,18 @@ As we don't like to write the same code / configuration in different files, the 
 
 ### Built-in Azure features deployment and Operations
 
-| Azure feature | Description |
-|---------------|-------------|
-| [Azure Container Registry](acr) | Azure Container Registry allows you to build, store, and manage images for all types of container deployments |
-| [Azure Kubernetes Service](aks) | |
-| [Service Fabric](service%20fabric) | |
-| [Vault](vault) | |
+| Azure feature | Description | Status |
+|---------------|-------------| ------ |
+| [Azure Container Registry](acr) | Azure Container Registry allows you to build, store, and manage images for all types of container deployments | |
+| [Azure Kubernetes Service](aks) | Deploy AKS | [![Build Status](https://dev.azure.com/ygo74/iac/_apis/build/status/aksBootsrap%20-%20Deployment?branchName=master)](https://dev.azure.com/ygo74/iac/_build/latest?definitionId=30&branchName=master) |
+| [Service Fabric](service%20fabric) | | |
+| [Vault](vault) | | |
 
 ### Custom Deployment
 
 | Deployment Model | Description |
 |------------------|-------------|
-| [jenkins](jenkins) | |
+| [jenkins](jenkins) | | |
 
 
 

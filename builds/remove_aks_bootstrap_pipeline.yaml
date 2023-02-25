@@ -1,0 +1,43 @@
+---
+# -----------------------------------------------------------------------------
+# Deploy AKS Bootstrap to support Inventory infrastructure
+# -----------------------------------------------------------------------------
+resources:
+  containers:
+  # Container image with ansible and azure collection installed
+  - container: ansible_az
+    image: aksbootstrap.azurecr.io/ansible_azure:dev
+    endpoint: aksbootstrap
+
+trigger: none
+
+variables:
+  # Get Ansible-Autmation secret
+  - group: azure_automation
+
+stages:
+  - stage: remove_aks
+    displayName: Remove AKS Bootstrap
+
+    jobs:
+      - job: remove_cluster
+        displayName: remove Aks Bootstrap
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        container: ansible_az
+
+        steps:
+
+          - task: Bash@3
+            inputs:
+                targetType: 'inline'
+                workingDirectory: ansible
+                script: |
+                  ansible-playbook aks_remove_cluster.yml -i inventory/ -e ansible_python_interpreter=/usr/bin/python3
+            displayName: 'Remove cluster'
+            env:
+              AZURE_TENANT: $(TenantId)
+              AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
+              AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
+              AZURE_SECRET: $(Ansible-Automation)

@@ -22,16 +22,6 @@ vault:
 
 # Networks
 virtual_networks:
-  - resource_group: rg-aks-bootstrap-networking-hub
-    name: vnet-hub
-    address_prefixes: 10.200.0.0/24
-    subnets:
-      - name: firewall-subnet
-        address_prefix: 10.200.0.0/26
-      - name: gateway-subnet
-        address_prefix: 10.200.0.64/27
-      - name: bastion-subnet
-        address_prefix: 10.200.0.128/26
   - resource_group: rg-aks-bootstrap-networking-spoke
     name: vnet-spoke
     address_prefixes: 10.240.0.0/16
@@ -44,6 +34,16 @@ virtual_networks:
         address_prefix: 10.240.5.0/24
       - name: private-links-subnet
         address_prefix: 10.240.4.32/28
+  - resource_group: rg-aks-bootstrap-networking-hub
+    name: vnet-hub
+    address_prefixes: 10.200.0.0/24
+    subnets:
+      - name: firewall-subnet
+        address_prefix: 10.200.0.0/26
+      - name: gateway-subnet
+        address_prefix: 10.200.0.64/27
+      - name: bastion-subnet
+        address_prefix: 10.200.0.128/26
 
 registries:
   # - name:               'mesfContainerRegistry'
