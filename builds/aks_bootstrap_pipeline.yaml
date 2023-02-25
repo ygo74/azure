@@ -7,7 +7,7 @@ resources:
   # Container image with ansible and azure collection installed
   - container: ansible_az
     image: aksbootstrap.azurecr.io/ansible_azure:dev
-    endpoint:
+    endpoint: aksbootstrap
 
 
 variables:
