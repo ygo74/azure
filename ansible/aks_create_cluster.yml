@@ -170,9 +170,36 @@
 
       - name: display aks_data
         debug:
-          var: aks_data
+          var: aks_data.aks[0].identity.principalId
+
+
+      - name: Get facts for hub resource group
+        azure_rm_resourcegroup_info:
+          name: '{{ resource_group_hub }}'
+        register: rg_hub_data
+
+      - name: display rg_hub_data
+        debug:
+          var: rg_hub_data
+
+      - name: Get Role Definition by name
+        azure_rm_roledefinition_info:
+          scope: '{{ rg_hub_data.resourcegroups[0].id }}'
+          role_name: Network Contributor
+        register: role_definition_data
+
+      - name: display role_definition_data
+        debug:
+          var: role_definition_data
+
+      - name: Grant AKS to Network Contributor on hub resource group
+        azure_rm_roleassignment:
+          scope: '{{ rg_hub_data.resourcegroups[0].id }}'
+          assignee_object_id: '{{ aks_data.aks[0].identity.principalId }}'
+          role_definition_id: '{{ role_definition_data.roledefinitions[0].id }}'
+
       tags:
-      - query_aks_data
+      - grant
 
     - name: Create a public ip address
       azure_rm_publicipaddress:

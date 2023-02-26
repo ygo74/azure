@@ -15,6 +15,9 @@ resource_group: rg-aks-bootstrap-networking-spoke
 virtual_network_name: vnet-spoke
 subnet_name: cluster-nodes-subnet
 
+resource_group_hub: rg-aks-bootstrap-networking-hub
+
+
 # vault
 vault:
   resource_group: CommonVault

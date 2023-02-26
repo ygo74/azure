@@ -11,7 +11,7 @@ has_children: false
 * [Using Administration Portal](https://docs.microsoft.com/fr-fr/azure/active-directory/develop/howto-create-service-principal-portal)
 * [Using Azure Powershell](https://docs.microsoft.com/fr-fr/azure/active-directory/develop/howto-authenticate-service-principal-powershell)
 
-https://docs.microsoft.com/fr-fr/powershell/azure/create-azure-service-principal-azureps?view=azps-2.2.0#sign-in-using-a-service-principal
+* [How to create a service principal](https://docs.microsoft.com/fr-fr/powershell/azure/create-azure-service-principal-azureps?view=azps-2.2.0#sign-in-using-a-service-principal)
 
 ## Service Principal View
 
@@ -48,6 +48,7 @@ https://docs.microsoft.com/fr-fr/powershell/azure/create-azure-service-principal
     ```powershell
     $subscriptionId=Get-AzSubscription | select-object -ExpandProperty Id
     New-AzRoleAssignment  -ObjectId $svcPrincipal.Id  -RoleDefinitionName Contributor -Scope "/subscriptions/$subscriptionId"
+    New-AzRoleAssignment  -ObjectId $svcPrincipal.Id  -RoleDefinitionName "User Access Administrator" -Scope "/subscriptions/$subscriptionId"
     ```
 
 4. **Show service principal**
@@ -86,7 +87,7 @@ Goal : Have a service principal to allow Jenkins to communicate with ACR
     $registry = Get-AzureRmContainerRegistry -ResourceGroupName "AKS" -Name mesfContainerRegistry
     ```
 
-4. ***Assign Contributor permission to All the subscription***
+4. ***Assign Contributor permission to the registry***
 
     ```powershell
     $subscriptionId=Get-AzureRmSubscription | select-object -ExpandProperty Id

@@ -60,15 +60,16 @@ stages:
 
         steps:
 
-          # - task: AzureCLI@2
-          #   inputs:
-          #     azureSubscription: 'Ansible-Automation'
-          #     scriptType: 'bash'
-          #     scriptLocation: 'inlineScript'
-          #     inlineScript: |
-          #       az aks update -n $(aksName) -g $(resourceGroup) --attach-acr $(acrName) --enable-managed-identity
-          #     addSpnToEnvironment: true
-          #     useGlobalConfig: true
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Ansible-Automation'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az aks update -n $(aksName) -g $(resourceGroup) --attach-acr $(acrName) --enable-managed-identity
+              addSpnToEnvironment: true
+              useGlobalConfig: true
+            displayName: 'Enable Managed identity and attach to ACR'
 
           - task: Kubernetes@1
             inputs:
@@ -80,3 +81,5 @@ stages:
               arguments: '-f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml'
               secretType: 'dockerRegistry'
               containerRegistryType: 'Azure Container Registry'
+            displayName: 'Deploy standard kubernetes dashboard'
+

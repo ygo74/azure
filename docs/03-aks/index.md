@@ -11,3 +11,5 @@ https://learn.microsoft.com/fr-fr/azure/architecture/reference-architectures/con
 https://github.com/mspnp/aks-baseline
 https://github.com/mspnp/aks-fabrikam-dronedelivery
 
+
+https://stacksimplify.com/azure-aks/azure-kubernetes-service-introduction/

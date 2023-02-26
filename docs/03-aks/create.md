@@ -101,6 +101,7 @@ $resourceGroupId = $(az group show -n $resourceGroup --query "id" -o tsv)
 
 az role assignment list --scope $resourceGroupId
 az role assignment create --assignee $aksIdentity --scope $resourceGroupId --role "Network Contributor"
+
 ```
 
 ### Grant AKS service To ACR (Deprecated)
