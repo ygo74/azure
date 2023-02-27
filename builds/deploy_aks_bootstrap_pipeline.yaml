@@ -89,7 +89,7 @@ stages:
       - deploy_aks
 
     jobs:
-      - job: configure_cert-manager
+      - job: configure_cert_manager
         displayName: Configure Cert-Manager
         pool:
             vmImage: 'ubuntu-latest'
