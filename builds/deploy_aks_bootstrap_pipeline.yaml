@@ -83,3 +83,23 @@ stages:
               containerRegistryType: 'Azure Container Registry'
             displayName: 'Deploy standard kubernetes dashboard'
 
+  - stage: cert_manager
+    displayName: Configure cert-manager
+    dependsOn:
+      - deploy_aks
+
+    jobs:
+      - job: configure_cert-manager
+        displayName: Configure Cert-Manager
+        pool:
+            vmImage: 'ubuntu-latest'
+
+        steps:
+
+          - task: Bash@3
+            inputs:
+                targetType: 'inline'
+                workingDirectory: ansible
+                script: |
+                  export
+            displayName: 'Display environment'
