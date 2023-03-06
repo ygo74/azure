@@ -18,6 +18,113 @@ has_children: false
 ## Create Cluster
 {: .text-blue-300 }
 
+### Prerequisites
+
+* ACR has been deployed
+
+* script variables have been loaded
+
+    ```powershell
+    # Resource group and network
+    $aksLocation                    = "francecentral"
+    $aksresourceGroup               = "rg-aks-bootstrap-networking-spoke"
+    $vnetAddressprefix              = "10.240.0.0/16"
+    $vnetName                       = "vnet-spoke"
+    $nodesSubnetName                = "cluster-nodes-subnet"
+    $nodesSubnetAddressprefix       = "10.240.0.0/22"
+    $servicesSubnetName             = "cluster-services-subnet"
+    $servicesSubnetAddressprefix    = "10.240.4.0/28"
+    $gatewaySubnetName              = "application-gateway-subnet"
+    $gatewaySubnetAddressprefix     = "10.240.5.0/24"
+    $privateLinkSubnetName          = "private-links-subnet"
+    $privateLinkSubnetAddressprefix = "10.240.4.32/28"
+
+
+    # AKS
+    $aksName                  = "aksbootstrap"
+    $aksPublicIpName          = "pi-inventory-gateway"
+    $aksPublicIpDnsLabel      = "inventory"
+
+    # ACR
+    $acrName                  = "aksbootstrap"
+
+    ```
+
+### Create resource group and network spoke for aks
+
+1. Create resource Group
+
+    ``` powershell
+    # Create Resource Group
+    az group create --name $aksresourceGroup --location $aksLocation
+
+    ```
+
+2. Create network spoke
+
+    ``` powershell
+    # Create Network spoke
+    az group create --name $aksresourceGroup --location $aksLocation
+    az network vnet create  `
+        --name $vnetName `
+        --resource-group $resourceGroup `
+        --address-prefixes $vnetAddressprefix 
+
+    # Create subnet for cluster nodes
+    az network vnet subnet create `
+        -g $resourceGroup `
+        --vnet-name $vnetName `
+        -n $nodesSubnetName `
+        --address-prefixes $nodesSubnetAddressprefix
+
+    # Create subnet for services nodes
+    az network vnet subnet create `
+        -g $resourceGroup `
+        --vnet-name $vnetName `
+        -n $servicesSubnetName `
+        --address-prefixes $servicesSubnetAddressprefix
+
+    # Create subnet for application gateway
+    az network vnet subnet create `
+        -g $resourceGroup `
+        --vnet-name $vnetName `
+        -n $gatewaySubnetName `
+        --address-prefixes $gatewaySubnetAddressprefix
+
+    # Create subnet for private links
+    az network vnet subnet create `
+        -g $resourceGroup `
+        --vnet-name $vnetName `
+        -n $privateLinkSubnetName `
+        --address-prefixes $privateLinkSubnetAddressprefix
+
+    ```
+
+
+### Create AKS cluster
+
+``` powershell
+# Get subnet id
+$subnetNodeId = $(az network vnet subnet show -g $aksresourceGroup --vnet-name $vnetName -n $nodesSubnetName --query "id" -o tsv)
+
+az aks create `
+    --resource-group $aksresourceGroup `
+    --name $aksName `
+    --kubernetes-version 1.24.9 `
+    --node-count 2 `
+    --generate-ssh-keys `
+    --enable-managed-identity `
+    --attach-acr $acrName `
+    --load-balancer-sku Standard `
+    --network-plugin azure `
+    --vnet-subnet-id $subnetNodeId `
+    --service-cidr $servicesSubnetAddressprefix `
+    --dns-service-ip 10.240.4.2
+
+```
+
+## Automatic deployment
+
 ### Deploy with ansible
 {: .text-blue-200 }
 
@@ -41,20 +148,6 @@ cd .\cloud\azure\powershell
 & .\scripts\aks\01-Deploy-AKS.ps1  
 ```
 
-## Get cluster credentials
-{: .text-blue-300 }
-
-``` powershell
-# Attach using acr-name
-$aksName       = "aksbootstrap"
-$resourceGroup = "rg-aks-bootstrap-networking-spoke"
-
-az aks get-credentials --name $aksName --resource-group $resourceGroup --overwrite-existing 
-
-# check if access is well configured
-kubectl get nodes
-
-```
 
 ## Cluster configuration
 {: .text-blue-300 }
