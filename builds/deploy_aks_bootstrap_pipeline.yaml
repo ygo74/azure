@@ -113,19 +113,6 @@ stages:
                   export
             displayName: 'Display environment'
 
-          - task: Kubernetes@1
-            inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Ansible-Automation'
-              azureResourceGroup: 'rg-aks-bootstrap-networking-spoke'
-              kubernetesCluster: 'aksbootstrap'
-              useClusterAdmin: true
-              command: 'create'
-              arguments: 'namespace cert-manager'
-              secretType: 'dockerRegistry'
-              containerRegistryType: 'Azure Container Registry'
-              azureContainerRegistry: 'aksbootstrap.azurecr.io'
-            displayName: 'Create cert-manager namespace'
 
           - task: AzureCLI@2
             inputs:
@@ -139,6 +126,23 @@ stages:
                 # Get credentials for the AKS cluster
                 az aks get-credentials --resource-group rg-aks-bootstrap-networking-spoke --name aksbootstrap
 
+                if kubectl get namespace cert-manager; then
+                  echo "Namespace cert-manager already exists"
+                else
+                  kubectl create namespace cert-manager
+                fi
+
                 # Run kubectl command
                 kubectl label namespace cert-manager cert-manager.io/disable-validation=true
-            displayName: 'Disable cert-manager validation to cert-manager namespace'
+            displayName: 'Create cert-manager namespace'
+
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                # Add the Jetstack Helm repository
+                helm repo add jetstack https://charts.jetstack.io
+
+                # Update your local Helm chart repository cache
+                helm repo update
+            displayName: 'Add jetstack repo'
