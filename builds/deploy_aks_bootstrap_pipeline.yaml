@@ -159,7 +159,7 @@ stages:
               releaseName: 'cert-manager'
               overrideValues: |
                 installCRDs=true
-                nodeSelector."kubernetes\.io/os"=linux'
+                nodeSelector."kubernetes\.io/os"=linux
 
               recreate: true
               resetValues: true
