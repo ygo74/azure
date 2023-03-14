@@ -157,6 +157,7 @@ stages:
               chartType: 'Name'
               chartName: 'jetstack/cert-manager'
               releaseName: 'cert-manager'
+              namespace: 'cert-manager'
               overrideValues: |
                 installCRDs=true
                 nodeSelector."kubernetes\.io/os"=linux
