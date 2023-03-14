@@ -126,3 +126,19 @@ stages:
               containerRegistryType: 'Azure Container Registry'
               azureContainerRegistry: 'aksbootstrap.azurecr.io'
             displayName: 'Create cert-manager namespace'
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Ansible-Automation'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                # Install kubectl
+                az aks install-cli
+
+                # Get credentials for the AKS cluster
+                az aks get-credentials --resource-group rg-aks-bootstrap-networking-spoke --name aksbootstrap
+
+                # Run kubectl command
+                kubectl label namespace cert-manager cert-manager.io/disable-validation=true
+            displayName: 'Disable cert-manager validation to cert-manager namespace'
