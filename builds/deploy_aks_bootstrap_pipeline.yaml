@@ -146,3 +146,22 @@ stages:
                 # Update your local Helm chart repository cache
                 helm repo update
             displayName: 'Add jetstack repo'
+
+          - task: HelmDeploy@0
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscription: 'Ansible-Automation'
+              azureResourceGroup: 'rg-aks-bootstrap-networking-spoke'
+              kubernetesCluster: 'aksbootstrap'
+              command: 'upgrade'
+              chartType: 'Name'
+              chartName: 'jetstack/cert-manager'
+              releaseName: 'cert-manager'
+              overrideValues: |
+                installCRDs=true
+                nodeSelector."kubernetes\.io/os"=linux'
+
+              recreate: true
+              resetValues: true
+              install: true
+            displayName: 'Deploy cert manager'
