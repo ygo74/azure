@@ -29,6 +29,9 @@ stages:
     displayName: Deploy AKS Bootstrap
 
     jobs:
+      # -----------------------------------------------------------------------------
+      # Create AKS Cluster
+      # -----------------------------------------------------------------------------
       - job: create_cluster
         displayName: Create Aks Bootstrap
         pool:
@@ -51,6 +54,9 @@ stages:
               AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
               AZURE_SECRET: $(Ansible-Automation)
 
+      # -----------------------------------------------------------------------------
+      # Base Configuration for the cluster
+      # -----------------------------------------------------------------------------
       - job: configure_cluster
         displayName: Configure Aks Bootstrap
         dependsOn:
@@ -89,6 +95,9 @@ stages:
       - deploy_aks
 
     jobs:
+      # -----------------------------------------------------------------------------
+      # Install Cert Manager
+      # -----------------------------------------------------------------------------
       - job: configure_cert_manager
         displayName: Configure Cert-Manager
         pool:
@@ -103,3 +112,17 @@ stages:
                 script: |
                   export
             displayName: 'Display environment'
+
+          - task: Kubernetes@1
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscriptionEndpoint: 'Ansible-Automation'
+              azureResourceGroup: 'rg-aks-bootstrap-networking-spoke'
+              kubernetesCluster: 'aksbootstrap'
+              useClusterAdmin: true
+              command: 'create'
+              arguments: 'namespace cert-manager'
+              secretType: 'dockerRegistry'
+              containerRegistryType: 'Azure Container Registry'
+              azureContainerRegistry: 'aksbootstrap.azurecr.io'
+            displayName: 'Create cert-manager namespace'
