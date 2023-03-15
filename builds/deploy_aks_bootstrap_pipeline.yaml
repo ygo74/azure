@@ -267,3 +267,62 @@ stages:
               resetValues: true
               install: true
             displayName: 'Deploy ingress controller'
+
+      # -----------------------------------------------------------------------------
+      # deploy application test
+      # -----------------------------------------------------------------------------
+      - job: deploy_test_application
+        displayName: Deploy test application
+        dependsOn:
+          - install_ingress_controller
+        pool:
+            vmImage: 'ubuntu-latest'
+
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Ansible-Automation'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                # Install kubectl
+                az aks install-cli
+
+                # Get credentials for the AKS cluster
+                az aks get-credentials --resource-group rg-aks-bootstrap-networking-spoke --name aksbootstrap
+
+                if kubectl get namespace application-test; then
+                  echo "Namespace application-test already exists"
+                else
+                  kubectl create namespace application-test
+                fi
+
+                # Run kubectl command
+                kubectl label namespace application-test cert-manager.io/disable-validation=true
+            displayName: 'Create application test namespace'
+
+          - task: Kubernetes@1
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscriptionEndpoint: 'Ansible-Automation'
+              azureResourceGroup: 'rg-aks-bootstrap-networking-spoke'
+              kubernetesCluster: 'aksbootstrap'
+              command: 'apply'
+              arguments: '-f ./resources/aks/aks-helloworld-one.yaml ./resources/aks/aks-helloworld-two.yaml'
+              secretType: 'dockerRegistry'
+              containerRegistryType: 'Azure Container Registry'
+              namespace: application-test
+            displayName: 'Deploy Helloworld'
+
+          - task: Kubernetes@1
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscriptionEndpoint: 'Ansible-Automation'
+              azureResourceGroup: 'rg-aks-bootstrap-networking-spoke'
+              kubernetesCluster: 'aksbootstrap'
+              command: 'apply'
+              arguments: '-f ./resources/aks/ingress.yaml'
+              secretType: 'dockerRegistry'
+              containerRegistryType: 'Azure Container Registry'
+              namespace: application-test
+            displayName: 'Deploy Helloworld ingress'
