@@ -24,6 +24,15 @@ variables:
   - name: resourceGroup
     value: rg-aks-bootstrap-networking-spoke
 
+  - name: aksPublicIpResourceGroup
+    value: rg-aks-bootstrap-networking-hub
+
+  - name: aksPublicIpDnsLabel
+    value: inventory
+
+  - name: aksPublicIpName
+    value: pi-inventory-gateway
+
 stages:
   - stage: deploy_aks
     displayName: Deploy AKS Bootstrap
@@ -166,3 +175,95 @@ stages:
               resetValues: true
               install: true
             displayName: 'Deploy cert manager'
+
+  - stage: ingress_controller
+    displayName: Configure ingress controller
+    dependsOn:
+      - cert_manager
+
+    jobs:
+      # -----------------------------------------------------------------------------
+      # Install Ingress controller
+      # -----------------------------------------------------------------------------
+      - job: install_ingress_controller
+        displayName: Install Ingress controller
+        pool:
+            vmImage: 'ubuntu-latest'
+
+        steps:
+
+          - task: Bash@3
+            inputs:
+                targetType: 'inline'
+                workingDirectory: ansible
+                script: |
+                  export
+            displayName: 'Display environment'
+
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Ansible-Automation'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                # Install kubectl
+                az aks install-cli
+
+                # Get credentials for the AKS cluster
+                az aks get-credentials --resource-group rg-aks-bootstrap-networking-spoke --name aksbootstrap
+
+                if kubectl get namespace ingress-controller; then
+                  echo "Namespace ingress-controller already exists"
+                else
+                  kubectl create namespace ingress-controller
+                fi
+
+                # Run kubectl command
+                kubectl label namespace ingress-controller cert-manager.io/disable-validation=true
+            displayName: 'Create ingress-controller namespace'
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Ansible-Automation'
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                $publicIp = $(az network public-ip show -g $(aksPublicIpResourceGroup) -n $(aksPublicIpName) -o tsv --query "ipAddress")
+                write-host "Found ip : $publicIp"
+                Write-Host "##vso[task.setvariable variable=publicIp;]$publicIp"
+
+            displayName: 'Retrieve Public IP value'
+
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                # Add the  ingress-nginx Helm repository
+                helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+                # Update your local Helm chart repository cache
+                helm repo update
+            displayName: 'Add ingress-nginx repo'
+
+          - task: HelmDeploy@0
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscription: 'Ansible-Automation'
+              azureResourceGroup: 'rg-aks-bootstrap-networking-spoke'
+              kubernetesCluster: 'aksbootstrap'
+              command: 'upgrade'
+              chartType: 'Name'
+              chartName: 'ingress-nginx/ingress-nginx'
+              releaseName: 'ingress-nginx'
+              namespace: 'ingress-controller'
+              overrideValues: |
+                controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-resource-group"=$(aksPublicIpResourceGroup)
+                controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
+                controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(aksPublicIpDnsLabel)
+                controller.service.loadBalancerIP=$(publicIp)
+
+              recreate: true
+              resetValues: true
+              install: true
+            displayName: 'Deploy ingress controller'
