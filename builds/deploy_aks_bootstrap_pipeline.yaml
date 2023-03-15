@@ -308,7 +308,7 @@ stages:
               azureResourceGroup: 'rg-aks-bootstrap-networking-spoke'
               kubernetesCluster: 'aksbootstrap'
               command: 'apply'
-              arguments: '-f ./resources/aks/aks-helloworld-one.yaml ./resources/aks/aks-helloworld-two.yaml'
+              arguments: '-f ./resources/aks/aks-helloworld-one.yaml -f ./resources/aks/aks-helloworld-two.yaml'
               secretType: 'dockerRegistry'
               containerRegistryType: 'Azure Container Registry'
               namespace: application-test
