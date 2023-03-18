@@ -55,6 +55,28 @@ stages:
                 targetType: 'inline'
                 workingDirectory: ansible
                 script: |
+                  echo ""
+                  echo "Ansible version"
+                  echo "=================================================="
+                  ansible --version
+
+                  echo ""
+                  echo "Azure and kubernetes collections"
+                  echo "=================================================="
+                  ansible-galaxy collection list | grep azure.azcollection
+                  ansible-galaxy collection list | grep kubernetes.core
+
+                  echo ""
+                  echo "Azure phyton modules"
+                  echo "=================================================="
+                  pip freeze | grep azure
+            displayName: 'Display information'
+
+          - task: Bash@3
+            inputs:
+                targetType: 'inline'
+                workingDirectory: ansible
+                script: |
                   ansible-playbook aks_create_cluster.yml -i inventory/ -e ansible_python_interpreter=/usr/bin/python3
             displayName: 'Create cluster'
             env:
