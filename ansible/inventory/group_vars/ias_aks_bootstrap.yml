@@ -3,10 +3,6 @@
 # IAS Aks bootstrap variables
 # -----------------------------------------------------------------------------
 
-# Ansible connection
-ansible_connection: local
-ansible_python_interpreter: '/usr/local/bin/python'
-
 # cluster information
 location: 'francecentral'
 service_principal_name: Ansible-Automation

@@ -7,17 +7,18 @@
   # connection: local
   collections:
     - azure.azcollection
-  vars:
+  run_once: true
 
 
   tasks:
-    - debug:
-        var: virtual_networks
+    - name: Display hub virtual networks information
+      debug:
+        var: hub_virtual_networks
 
     - name: Create virtual networks
-      include_tasks: ./tasks/networks/advirtual_network_create.yml
+      include_tasks: ./tasks/networks/virtual_network_create.yml
 
-      loop: '{{ virtual_networks }}'
+      loop: '{{ hub_virtual_networks }}'
 
       loop_control:
         loop_var: virtual_network

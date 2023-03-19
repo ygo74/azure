@@ -6,7 +6,18 @@ nav_order: 3
 has_children: false
 ---
 
-## Create virtual network
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
+## Virtual network
+
+### Create virtual network
 
 Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet?view=azure-cli-latest#az-network-vnet-create>
 
@@ -20,18 +31,19 @@ az network vnet create  `
    --address-prefixes $vnetAddressprefix 
 ```
 
-## List subnet
+### Get virtual network info
 
-Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-list>
+``` powershell
+$resourceGroup       = "rg-aks-bootstrap-networking-spoke"
+$vnetName            = "vnet-spoke"
 
-```powershell
-$resourceGroup     = "rg-aks-bootstrap-networking-spoke"
-$vnetName          = "vnet-spoke"
+az network vnet show -g $aksresourceGroup -n $vnetName --query "id" -o tsv
 
-az network vnet subnet list -g $resourceGroup --vnet-name $vnetName
 ```
 
-## Create subnet
+## Subnet
+
+### Create subnet
 
 Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-create>
 
@@ -49,17 +61,18 @@ az network vnet subnet create `
 
 ```
 
-## Get virtual network info
+### List subnet
 
-``` powershell
-$resourceGroup       = "rg-aks-bootstrap-networking-spoke"
-$vnetName            = "vnet-spoke"
+Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-list>
 
-az network vnet show -g $aksresourceGroup -n $vnetName --query "id" -o tsv
+```powershell
+$resourceGroup     = "rg-aks-bootstrap-networking-spoke"
+$vnetName          = "vnet-spoke"
 
+az network vnet subnet list -g $resourceGroup --vnet-name $vnetName
 ```
 
-## Get subnet info
+### Get subnet info
 
 ``` powershell
 $resourceGroup       = "rg-aks-bootstrap-networking-spoke"
@@ -70,7 +83,7 @@ az network vnet subnet show -g $aksresourceGroup --vnet-name $vnetName -n $nodes
 
 ```
 
-## Get available ip
+### Get available ip
 
 Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-list-available-ips>
 

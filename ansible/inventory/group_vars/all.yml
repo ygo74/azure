@@ -1,4 +1,12 @@
 ---
+# ---------------------------------------------------------------------------------------
+# Global variables
+# ---------------------------------------------------------------------------------------
+
+# Default Ansible connection
+ansible_connection: local
+ansible_python_interpreter: '/usr/local/bin/python'
+
 debug_values:
   resourceGroupName: 'debug_values'
   virtual_network:
