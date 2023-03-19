@@ -5,7 +5,7 @@
 
 location: 'francecentral'
 
-# Networks
+# Networks Hub for francecentral location
 hub_virtual_networks:
   - resource_group: rg-francecentral-networking-hub
     name: vnet-hub

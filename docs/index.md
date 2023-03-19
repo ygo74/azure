@@ -17,3 +17,7 @@ has_children: false
 ## Goals
 
 Azure configuration and deployments
+
+## Sources
+
+* Azure limits : <https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits>

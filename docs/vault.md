@@ -3,6 +3,7 @@
 https://docs.microsoft.com/fr-fr/azure/key-vault/key-vault-get-started
 
 ## Create Vault
+
 ```powershell
 #Create the Vault and enable it for deployment
 New-AzKeyVault -Name $inventoryVars.vault.name `
@@ -12,6 +13,7 @@ New-AzKeyVault -Name $inventoryVars.vault.name `
 ```
 
 ## Set an retrieve password
+
 ```powershell
 #Create a secret value and retrieve it
 $secretvalue = ConvertTo-SecureString 'Pa$$w0rd' -AsPlainText -Force

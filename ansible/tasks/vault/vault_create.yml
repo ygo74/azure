@@ -14,7 +14,7 @@
           - client_id is defined
       fail_msg: Missing mandatory values
 
-    - name: Create key vault instance
+    - name: vault_create - Create key vault instance
       azure_rm_keyvault:
         resource_group: '{{ _vaul_resource_group }}'
         vault_name:     '{{ _vaul_name }}'

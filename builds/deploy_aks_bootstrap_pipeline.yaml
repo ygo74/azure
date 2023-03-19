@@ -25,7 +25,7 @@ variables:
     value: rg-aks-bootstrap-networking-spoke
 
   - name: aksPublicIpResourceGroup
-    value: rg-aks-bootstrap-networking-hub
+    value: rg-francecentral-networking-hub
 
   - name: aksPublicIpDnsLabel
     value: inventory

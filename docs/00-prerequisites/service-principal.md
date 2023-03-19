@@ -53,10 +53,15 @@ has_children: false
 
 4. **Show service principal**
 
-    `` bash
+    ``` bash
     az ad sp list --display-name Ansible-Automation --query [].appId -o tsv
     ```
 
+5. **Login with service principal**
+
+    ``` bash
+    az login --service-principal -u <app-id> -p <password-or-cert> --tenant <tenant>
+    ```
 
 ## Create Service Principal for Jenkins to Access to ACR
 

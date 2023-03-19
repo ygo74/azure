@@ -5,19 +5,14 @@ nav_order: 5
 has_children: true
 ---
 
+## Sources
+
+* <https://learn.microsoft.com/fr-fr/azure/architecture/reference-architectures/containers/aks/baseline-aks>
+* <https://github.com/mspnp/aks-baseline>
+* <https://github.com/mspnp/aks-fabrikam-dronedelivery>
+* <https://stacksimplify.com/azure-aks/azure-kubernetes-service-introduction/>
+
 # Azure Kubernetes Services : AKS
-
-https://learn.microsoft.com/fr-fr/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli
-
-https://learn.microsoft.com/fr-fr/azure/architecture/reference-architectures/containers/aks/baseline-aks
-https://github.com/mspnp/aks-baseline
-https://github.com/mspnp/aks-fabrikam-dronedelivery
-
-
-https://stacksimplify.com/azure-aks/azure-kubernetes-service-introduction/
-
-
-##
 
 ``` powershell
 $aksName                  = "aksbootstrap"

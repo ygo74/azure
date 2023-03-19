@@ -44,23 +44,23 @@
 
     - name: Create virtual network peering from vnet-hub to vnet-spoke
       azure_rm_virtualnetworkpeering:
-        resource_group: rg-aks-bootstrap-networking-hub
-        virtual_network: vnet-hub
+        resource_group:  '{{ resource_group_hub_name }}'
+        virtual_network: '{{ virtual_network_hub_name }}'
         name: np-to-vnet-spoke
         remote_virtual_network:
-          resource_group: rg-aks-bootstrap-networking-spoke
-          name: vnet-spoke
+          resource_group: '{{ resource_group }}'
+          name:           '{{ virtual_network_name }}'
         allow_virtual_network_access: true
         allow_forwarded_traffic: true
 
     - name: Create virtual network peering from vnet-spoke to vnet-hub
       azure_rm_virtualnetworkpeering:
-        resource_group: rg-aks-bootstrap-networking-spoke
-        virtual_network: vnet-spoke
+        resource_group:  '{{ resource_group }}'
+        virtual_network: '{{ virtual_network_name }}'
         name: np-to-vnet-hub
         remote_virtual_network:
-          resource_group: rg-aks-bootstrap-networking-hub
-          name: vnet-hub
+          resource_group: '{{ resource_group_hub_name }}'
+          name:           '{{ virtual_network_hub_name }}'
         allow_virtual_network_access: true
         allow_forwarded_traffic: true
 
@@ -175,7 +175,7 @@
 
       - name: Get facts for hub resource group
         azure_rm_resourcegroup_info:
-          name: '{{ resource_group_hub }}'
+          name: '{{ resource_group_hub_name }}'
         register: rg_hub_data
 
       - name: display rg_hub_data
@@ -203,7 +203,7 @@
 
     - name: Create a public ip address
       azure_rm_publicipaddress:
-        resource_group:    'rg-aks-bootstrap-networking-hub'
+        resource_group:    '{{ resource_group_hub_name }}'
         name:              pi-inventory-gateway
         allocation_method: Static
         domain_name:       inventory
@@ -241,4 +241,3 @@
     #         name: sample_appgateway_http_settings
     #   tags:
     #     - gateway
-

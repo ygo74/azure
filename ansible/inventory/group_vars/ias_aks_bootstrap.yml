@@ -11,7 +11,9 @@ resource_group: rg-aks-bootstrap-networking-spoke
 virtual_network_name: vnet-spoke
 subnet_name: cluster-nodes-subnet
 
-resource_group_hub: rg-aks-bootstrap-networking-hub
+# Lint to virtual network hub
+resource_group_hub_name: rg-francecentral-networking-hub
+virtual_network_hub_name: vnet-hub
 
 
 # vault
@@ -33,16 +35,6 @@ virtual_networks:
         address_prefix: 10.240.5.0/24
       - name: private-links-subnet
         address_prefix: 10.240.4.32/28
-  - resource_group: rg-aks-bootstrap-networking-hub
-    name: vnet-hub
-    address_prefixes: 10.200.0.0/24
-    subnets:
-      - name: firewall-subnet
-        address_prefix: 10.200.0.0/26
-      - name: gateway-subnet
-        address_prefix: 10.200.0.64/27
-      - name: bastion-subnet
-        address_prefix: 10.200.0.128/26
 
 registries:
   # - name:               'mesfContainerRegistry'
