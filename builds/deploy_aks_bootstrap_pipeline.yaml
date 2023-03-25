@@ -103,7 +103,9 @@ stages:
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
-                az aks update -n $(aksName) -g $(resourceGroup) --attach-acr $(acrName) --enable-managed-identity
+                # az aks update -n $(aksName) -g $(resourceGroup) --attach-acr $(acrName) --enable-managed-identity
+                az aks update -n $(aksName) -g $(resourceGroup) --enable-managed-identity
+                az aks check-acr --resource-group $aksresourceGroup --name $aksName --acr $acrName
               addSpnToEnvironment: true
               useGlobalConfig: true
             displayName: 'Enable Managed identity and attach to ACR'
