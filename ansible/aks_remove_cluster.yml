@@ -64,3 +64,15 @@
         loop_var: virtual_network
         label: '{{ virtual_network.resource_group }}'
 
+
+    - name: Remove virtual network peering from vnet-hub to vnet-spoke
+      azure_rm_virtualnetworkpeering:
+        resource_group:  '{{ resource_group_hub_name }}'
+        virtual_network: '{{ virtual_network_hub_name }}'
+        name: np-to-vnet-spoke
+        remote_virtual_network:
+          resource_group: '{{ resource_group }}'
+          name:           '{{ virtual_network_name }}'
+        allow_virtual_network_access: true
+        allow_forwarded_traffic: true
+        state: absent
