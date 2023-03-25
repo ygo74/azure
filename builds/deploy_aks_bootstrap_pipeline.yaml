@@ -106,13 +106,22 @@ stages:
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
-                # az aks update -n $(aksName) -g $(resourceGroup) --attach-acr $(acrName) --enable-managed-identity
-                az aks update -n $(aksName) -g $(resourceGroup) --enable-managed-identity
-                az aks check-acr --resource-group $(resourceGroup) --name $(aksName) --acr aksbootstrap
+                az aks update -n $(aksName) -g $(resourceGroup) --attach-acr $(acrName) --enable-managed-identity
               addSpnToEnvironment: true
               useGlobalConfig: true
             displayName: 'Enable Managed identity and attach to ACR'
             continueOnError: true
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Ansible-Automation'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az aks check-acr --resource-group $(resourceGroup) --name $(aksName) --acr aksbootstrap
+              addSpnToEnvironment: true
+              useGlobalConfig: true
+            displayName: 'Check ACR access'
 
           - task: Kubernetes@1
             inputs:
