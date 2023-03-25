@@ -107,6 +107,7 @@ stages:
               addSpnToEnvironment: true
               useGlobalConfig: true
             displayName: 'Enable Managed identity and attach to ACR'
+            continueOnError: true
 
           - task: Kubernetes@1
             inputs:
