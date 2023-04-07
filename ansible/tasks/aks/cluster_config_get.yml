@@ -1,0 +1,25 @@
+---
+# -----------------------------------------------------------------------------
+# Get cluster config and store it for kubernetes command
+# -----------------------------------------------------------------------------
+# https://learn.microsoft.com/en-us/azure/developer/ansible/aks-configure-rbac
+
+- name: cluster_config_get
+  tags:
+    - always
+  block:
+    - name: cluster_config_get - Get admin config of AKS
+      azure.azcollection.azure_rm_aks_info:
+          name:             '{{ cluster_name }}'
+          resource_group:   '{{ resource_group }}'
+          show_kubeconfig: admin
+      register: aks_config_admin
+
+    - name: Set kubeconfig file path
+      set_fact:
+        _kubeconfig_file_path: '/tmp/aks-{{ cluster_name }}-kubeconfig'
+
+    - name: cluster_config_get - Save the kubeconfig
+      ansible.builtin.copy:
+          content: "{{ aks_config_admin.aks[0].kube_config }}"
+          dest:    "{{ _kubeconfig_file_path }}"

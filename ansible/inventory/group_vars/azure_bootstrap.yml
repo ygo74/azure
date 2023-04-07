@@ -1,0 +1,17 @@
+---
+# -----------------------------------------------------------------------------
+# Azure bootstrap
+# -----------------------------------------------------------------------------
+
+# registry information
+bootstrap_resource_group: rg-acr-bootstrap
+
+# storage
+storage_account_name: staygo74bootstrap
+storage_account_sku: Standard_LRS
+storage_account_kind: StorageV2
+storage_account_tags:
+  bootstrap: azure_bootstrap
+
+storage_share_postgresql_name: postgresql-bootstrap
+storage_share_postgresql_quota: 5 # size in gigabytes
