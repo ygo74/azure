@@ -5,12 +5,48 @@ nav_order: 5
 has_children: true
 ---
 
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
+
 ## Sources
 
 * <https://learn.microsoft.com/fr-fr/azure/architecture/reference-architectures/containers/aks/baseline-aks>
 * <https://github.com/mspnp/aks-baseline>
 * <https://github.com/mspnp/aks-fabrikam-dronedelivery>
 * <https://stacksimplify.com/azure-aks/azure-kubernetes-service-introduction/>
+
+## Automatic deployment
+
+### Deploy with ansible
+{: .text-blue-200 }
+
+``` bash
+cd .\cloud\azure\ansible
+# Mount azure credentials
+docker run --rm -it -v C:\Users\Administrator\azure_config_ansible.cfg:/root/.azure/credentials -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
+
+# Use environment file
+docker run --rm -it --env-file C:\Users\Administrator\azure_credentials  -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
+
+ansible-playbook aks_create_cluster.yml -i inventory/
+```
+
+### Deploy with powershell
+{: .text-blue-200 }
+
+``` powershell
+cd .\cloud\azure\powershell
+
+& .\scripts\aks\01-Deploy-AKS.ps1  
+```
+
 
 # Azure Kubernetes Services : AKS
 

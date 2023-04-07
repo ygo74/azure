@@ -49,6 +49,7 @@ has_children: false
     $subscriptionId=Get-AzSubscription | select-object -ExpandProperty Id
     New-AzRoleAssignment  -ObjectId $svcPrincipal.Id  -RoleDefinitionName Contributor -Scope "/subscriptions/$subscriptionId"
     New-AzRoleAssignment  -ObjectId $svcPrincipal.Id  -RoleDefinitionName "User Access Administrator" -Scope "/subscriptions/$subscriptionId"
+    
     ```
 
 4. **Show service principal**

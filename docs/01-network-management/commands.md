@@ -22,22 +22,40 @@ has_children: false
 Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet?view=azure-cli-latest#az-network-vnet-create>
 
 ``` powershell
-$resourceGroup     = "rg-aks-bootstrap-networking-spoke"
-$vnetAddressprefix = "10.240.0.0/16"
-$vnetName          = "vnet-spoke"
+$aksresourceGroup     = "rg-aks-bootstrap-networking-spoke"
+$vnetAddressprefix    = "10.240.0.0/16"
+$vnetName             = "vnet-spoke"
 az network vnet create  `
    --name $vnetName `
-   --resource-group $resourceGroup `
+   --resource-group $aksresourceGroup `
    --address-prefixes $vnetAddressprefix 
 ```
 
 ### Get virtual network info
 
 ``` powershell
-$resourceGroup       = "rg-aks-bootstrap-networking-spoke"
+$aksresourceGroup    = "rg-aks-bootstrap-networking-spoke"
 $vnetName            = "vnet-spoke"
 
 az network vnet show -g $aksresourceGroup -n $vnetName --query "id" -o tsv
+
+```
+
+### Create virtual network peering
+
+{: .warning-title }
+> Command error
+>
+> Unable to create peering with az cli !!!
+
+
+``` powershell
+$aksresourceGroup    = "rg-aks-bootstrap-networking-spoke"
+$vnetName            = "vnet-spoke"
+$vnetHubName         = "vnet-hub"
+$hubResourceGroup    = "rg-francecentral-networking-hub"
+
+az network vnet peering create --name np-to-vnet-hub --vnet-name $vnetName --remote-vnet $vnetHubName  --resource-group $aksresourceGroup --allow-vnet-access --allow-forwarded-traffic 
 
 ```
 

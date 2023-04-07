@@ -15,10 +15,7 @@ has_children: false
 {:toc}
 </details>
 
-## Create Cluster
-{: .text-blue-300 }
-
-### Prerequisites
+## Prerequisites
 
 * ACR has been deployed
 
@@ -39,16 +36,22 @@ has_children: false
     $privateLinkSubnetName          = "private-links-subnet"
     $privateLinkSubnetAddressprefix = "10.240.4.32/28"
 
+    # Resource group and vnet hub
+    $hubResourceGroup               = "rg-francecentral-networking-hub"
+    $vnetHubName                    = "vnet-hub"
 
     # AKS
     $aksName                  = "aksbootstrap"
     $aksPublicIpName          = "pi-inventory-gateway"
     $aksPublicIpDnsLabel      = "inventory"
+    $aksStorageName           = "ygo74akstorageaccount"
 
     # ACR
     $acrName                  = "aksbootstrap"
 
     ```
+
+## Create Cluster
 
 ### Create resource group and network spoke for aks
 
@@ -64,96 +67,105 @@ has_children: false
 
     ``` powershell
     # Create Network spoke
-    az group create --name $aksresourceGroup --location $aksLocation
     az network vnet create  `
         --name $vnetName `
-        --resource-group $resourceGroup `
+        --resource-group $aksresourceGroup `
         --address-prefixes $vnetAddressprefix 
 
     # Create subnet for cluster nodes
     az network vnet subnet create `
-        -g $resourceGroup `
+        -g $aksresourceGroup `
         --vnet-name $vnetName `
         -n $nodesSubnetName `
         --address-prefixes $nodesSubnetAddressprefix
 
     # Create subnet for services nodes
-    az network vnet subnet create `
-        -g $resourceGroup `
-        --vnet-name $vnetName `
-        -n $servicesSubnetName `
-        --address-prefixes $servicesSubnetAddressprefix
+    # az network vnet subnet create `
+    #     -g $aksresourceGroup `
+    #     --vnet-name $vnetName `
+    #     -n $servicesSubnetName `
+    #     --address-prefixes $servicesSubnetAddressprefix
 
     # Create subnet for application gateway
     az network vnet subnet create `
-        -g $resourceGroup `
+        -g $aksresourceGroup `
         --vnet-name $vnetName `
         -n $gatewaySubnetName `
         --address-prefixes $gatewaySubnetAddressprefix
 
     # Create subnet for private links
     az network vnet subnet create `
-        -g $resourceGroup `
+        -g $aksresourceGroup `
         --vnet-name $vnetName `
         -n $privateLinkSubnetName `
         --address-prefixes $privateLinkSubnetAddressprefix
 
     ```
 
+### Create Aks Identity
+
+```powershell
+# Create identity
+az identity create --name aksIdentity --resource-group $aksresourceGroup
+$aksIdentityPrincipalId =$(az identity show --name aksIdentity --resource-group $aksresourceGroup --query "principalId" -o tsv)
+write-host "Aks identity Principal Id : $aksIdentityPrincipalId"
+
+
+# Get resource group Id
+$aksResourceGroupId = $(az group show -n $aksresourceGroup --query "id" -o tsv)
+if ($null -eq $aksResourceGroupId) { throw "Unable to retrieve aks resource group $aksResourceGroupId Id"}
+write-host "Aks Resource group Id : $aksResourceGroupId"
+
+# Assign network contributor to AKS Identity on resource group Hub
+az role assignment list --scope $aksResourceGroupId
+az role assignment create --assignee $aksIdentityPrincipalId --scope $aksResourceGroupId --role "Contributor"
+
+```
 
 ### Create AKS cluster
 
 ``` powershell
 # Get subnet id
 $subnetNodeId = $(az network vnet subnet show -g $aksresourceGroup --vnet-name $vnetName -n $nodesSubnetName --query "id" -o tsv)
+write-host "Subnet node Id : $subnetNodeId"
+
+# Get Identity resource Id
+$aksIdentityResourceId =$(az identity show --name aksIdentity --resource-group $aksresourceGroup --query "id" -o tsv)
+write-host "Aks identity resource id : $aksIdentityResourceId"
+
 
 az aks create `
     --resource-group $aksresourceGroup `
     --name $aksName `
     --kubernetes-version 1.24.9 `
+    --node-resource-group rg-aks-$aksName-node `
     --node-count 2 `
     --generate-ssh-keys `
-    --enable-managed-identity `
     --attach-acr $acrName `
     --load-balancer-sku Standard `
     --network-plugin azure `
     --vnet-subnet-id $subnetNodeId `
     --service-cidr $servicesSubnetAddressprefix `
-    --dns-service-ip 10.240.4.2
+    --dns-service-ip 10.240.4.2 `
+    --enable-managed-identity `
+    --assign-identity $aksIdentityResourceId
 
 ```
-
-## Automatic deployment
-
-### Deploy with ansible
-{: .text-blue-200 }
-
-```bash
-cd .\cloud\azure\ansible
-# Mount azure credentials
-docker run --rm -it -v C:\Users\Administrator\azure_config_ansible.cfg:/root/.azure/credentials -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
-
-# Use environment file
-docker run --rm -it --env-file C:\Users\Administrator\azure_credentials  -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
-
-ansible-playbook aks_create_cluster.yml -i inventory/
-```
-
-### Deploy with powershell
-{: .text-blue-200 }
-
-``` powershell
-cd .\cloud\azure\powershell
-
-& .\scripts\aks\01-Deploy-AKS.ps1  
-```
-
 
 ## Cluster configuration
-{: .text-blue-300 }
 
-### additional configuration
-{: .text-blue-200 }
+### Connect to AKS Cluster
+
+``` powershell
+# Get cluster configuration
+az aks get-credentials --name $aksName --resource-group $aksresourceGroup --overwrite-existing 
+
+# Check if access is well configured
+kubectl get nodes
+
+```
+
+### Attach ACR and enable managed identity
 
 {: .warning-title }
 > Deployment location
@@ -162,68 +174,156 @@ cd .\cloud\azure\powershell
 
 ``` powershell
 # Attach using acr-name
-$aksName       = "aksbootstrap"
-$resourceGroup = "rg-aks-bootstrap-networking-spoke"
-$acrName       = "aksbootstrap"
+az aks update -n $aksName -g $aksresourceGroup  --attach-acr $acrName --enable-managed-identity
 
-az aks update -n $aksName -g $resourceGroup  --attach-acr $acrName --enable-managed-identity
-
-az aks check-acr --resource-group $resourceGroup --name $aksName --acr $acrName
+az aks check-acr --resource-group $aksresourceGroup --name $aksName --acr $acrName
 ```
 
 ### Standard Kubernetes dashboard
-{: .text-blue-200 }
 
-TODO See Kubernetes doc
+``` powershell
+# Deploy standard kubernetes dashboard
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+
+```
+
+{: .information-title }
+> Access to the standard dashboard
+>
+> kubectl proxy
+> <http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/>
 
 ### Grant AKS service identity to virtual network
-{: .text-blue-200 }
 
 ``` powershell
 # Get Aks Identity
-$aksName       = "aksbootstrap"
-$resourceGroup = "rg-aks-bootstrap-networking-spoke"
+$aksIdentity = $(az aks show --resource-group $aksresourceGroup --name $aksName --query "identity.principalId" -o tsv)
+if ($null -eq $aksIdentity) { throw "Unable to retrieve aks $aksName identity in resource group $resourceGroup"}
+write-host "Aks identity : $aksIdentity"
 
-$aksIdentity = $(az aks show --resource-group $resourceGroup --name $aksName --query "identity.principalId" -o tsv)
+# Get resource group Id
+$hubResourceGroupId = $(az group show -n $hubResourceGroup --query "id" -o tsv)
+if ($null -eq $hubResourceGroupId) { throw "Unable to retrieve hub resource group $hubResourceGroup Id"}
+write-host "Hub Resource group Id : $hubResourceGroupId"
+$hubResourceGroupId
 
 # Assign network contributor to AKS Identity on resource group Hub
-$aksName       = "aksbootstrap"
-$resourceGroup = "rg-aks-bootstrap-networking-hub"
-
-$resourceGroupId = $(az group show -n $resourceGroup --query "id" -o tsv)
-
-az role assignment list --scope $resourceGroupId
-az role assignment create --assignee $aksIdentity --scope $resourceGroupId --role "Network Contributor"
+az role assignment list --scope $hubResourceGroupId
+az role assignment create --assignee $aksIdentity --scope $hubResourceGroupId --role "Network Contributor"
 
 ```
 
-### Grant AKS service To ACR (Deprecated)
+## Deploy Cert Manager
+
+### Configure namespace for Cert Manager
 
 ``` powershell
-$AKS_RESOURCE_GROUP="AKS"
-$ACR_RESOURCE_GROUP="ACR"
-$AKS_CLUSTER_NAME="aksCluster"
-$ACR_NAME="mesfContainerRegistry"
-$ACR_HOSTNAME="mesfcontainerregistry.azurecr.io"
-
-<# Old Method
-
-# Get the id of the service principal configured for AKS
-$CLIENT_ID= (az aks show --resource-group $AKS_RESOURCE_GROUP --name $AKS_CLUSTER_NAME --query "servicePrincipalProfile.clientId" --output tsv)
-
-# Get the ACR registry resource id
-$registry = Get-AzContainerRegistry -ResourceGroupName $ACR_RESOURCE_GROUP -name $ACR_NAME ##ACR_ID=$(az acr show --name $ACR_NAME --resource-group $ACR_RESOURCE_GROUP --query "id" --output tsv)
-
-# Create role assignment
-# az role assignment create --assignee $CLIENT_ID --role Reader --scope $registry.Id
-#>
-
-# [2022-02-09T05:43:29Z] Checking ACR location matches cluster location: FAILED
-# [2022-02-09T05:43:29Z] ACR location 'westeurope' does not match your cluster location 'francecentral'. This may result in slow image pulls and extra cost.
-
-# replaced by
-az aks update --resource-group $AKS_RESOURCE_GROUP --name $AKS_CLUSTER_NAME --attach-acr $ACR_NAME
-
-az aks check-acr --resource-group $AKS_RESOURCE_GROUP --name $AKS_CLUSTER_NAME --acr $ACR_HOSTNAME
+kubectl create namespace cert-manager
+kubectl label namespace cert-manager cert-manager.io/disable-validation=true
 
 ```
+
+### Add jetstack repo
+
+``` powershell
+# Add the Jetstack Helm repository
+helm repo add jetstack https://charts.jetstack.io
+
+# Update your local Helm chart repository cache
+helm repo update
+
+```
+
+### Deploy cert manager
+
+``` powershell
+helm upgrade cert-manager jetstack/cert-manager `
+  --install `
+  --namespace cert-manager `
+  --set installCRDs=true `
+  --set nodeSelector."kubernetes\.io/os"=linux
+
+kubectl apply -f .\containers\kubernetes\configuration\cert-manager\02-cluster-issuer.yaml
+
+```
+
+## Deploy ingress controller
+
+### Configure namespace for ingress controller
+
+``` powershell
+kubectl create namespace ingress-controller
+kubectl label namespace ingress-controller cert-manager.io/disable-validation=true
+
+```
+
+### Add jetstack repo
+
+``` powershell
+# Add the  ingress-nginx Helm repository
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+# Update your local Helm chart repository cache
+helm repo update
+```
+
+### Create public IP for the Ingress
+
+``` powershell
+# CREATE IP
+az network public-ip create --resource-group $hubResourceGroup --name $aksPublicIpName --sku Standard --allocation-method static --query publicIp.ipAddress -o tsv
+# DNS Label
+az network public-ip update -g $hubResourceGroup -n $aksPublicIpName --dns-name $aksPublicIpDnsLabel --allocation-method Static
+# fqdn testygo.eastus.cloudapp.azure.com
+# fqdn testygo.francecentral.cloudapp.azure.com
+
+$publicIp = $(az network public-ip show -g $hubResourceGroup -n $aksPublicIpName -o tsv --query "ipAddress")
+write-host "Public IP is : $publicIp"
+
+# Get dns fqdn
+$PUBLICIPID=$(az network public-ip list --query "[?ipAddress!=null]|[?contains(ipAddress, '$publicIp')].[id]" --output tsv)
+az network public-ip show --ids $PUBLICIPID --query "[dnsSettings.fqdn]" --output tsv
+
+```
+
+### Deploy nginx Ingress controller
+
+``` powershell
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx `
+  --install `
+  --create-namespace `
+  --namespace ingress-controller `
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-resource-group"=$hubResourceGroup `
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz `
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$aksPublicIpDnsLabel `
+  --set controller.service.loadBalancerIP=$publicIp
+
+```
+
+## Deploy Test application
+
+### Deploy application
+
+``` powershell
+kubectl create namespace application-test
+kubectl label namespace application-test cert-manager.io/disable-validation=true
+kubectl apply -f cloud\azure\resources\aks\aks-helloworld-one.yaml --namespace application-test
+kubectl apply -f cloud\azure\resources\aks\aks-helloworld-two.yaml --namespace application-test
+
+```
+
+### Deploy Ingress rule for application
+
+1. For Http
+
+    ``` powershell
+    kubectl apply -f .\cloud\azure\resources\aks\ingress.yaml --namespace application-test
+
+    ```
+
+2. For Https
+
+    ``` powershell
+    kubectl apply -f .\cloud\azure\resources\aks\ingress-ssl.yaml --namespace application-test
+
+    ```

@@ -17,5 +17,3 @@ az aks install-cli
 $env:path += '{0}\.azure-kubelogin' -f $env:USERPROFILE
 
 ```
-
-51.138.221.151

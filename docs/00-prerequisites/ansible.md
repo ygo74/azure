@@ -32,12 +32,14 @@ FROM python:3.9-alpine
 RUN apk update && apk upgrade \
     && apk add --no-cache --virtual .pipeline-deps readline linux-pam \
     && apk add bash sudo shadow \
-    && apk add bash py3-pip git \
+    && apk add bash py3-pip \
     && apk add --virtual=build gcc libffi-dev musl-dev openssl-dev python3-dev make \
     && pip --no-cache-dir install -U pip \
-    && pip install -r https://raw.githubusercontent.com/ansible-collections/azure/v1.14.0/requirements-azure.txt \
-    && pip install ansible \
-    && ansible-galaxy collection install azure.azcollection \
+    && pip install -r https://raw.githubusercontent.com/ansible-collections/azure/v1.15.0/requirements-azure.txt \
+    && pip install ansible==7.3.0 \
+    && ansible-galaxy collection install azure.azcollection:1.15.0 \
+    && pip install kubernetes==26.1.0 \
+    && ansible-galaxy collection install kubernetes.core:2.4.0 \
     && apk del .pipeline-deps \
     && apk del --purge build
 

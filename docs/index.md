@@ -16,8 +16,27 @@ has_children: false
 
 ## Goals
 
-Azure configuration and deployments
+Provide a set of guide lines, automation scripts to configure Azure resources.
+
+Used tools in this repository are :
+
+* [Ansible](00-prerequisites/ansible.md)
+* [az-cli](00-prerequisites/azure-cli.md)
+* [az powershell module](00-prerequisites/powershell-az.md)
+* Azure devops pipeline
 
 ## Sources
 
+* Hub-sopke network topology : <https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli>
 * Azure limits : <https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits>
+* Inventory API : <https://ygo74.github.io/Inventory.API/>
+
+## Concepts
+
+Start the Azure's journey by following Microsoft architecture recommendations with the usage of hub/spoke patterns and by segregating permissions granted to automation services accounts:
+
+* Create Root user of Azure subscription : This account is responsible to create the resources groups for expected deployments, provision automation accounts, grant them on their respective resource and manage the Hub virtual networks
+
+* Bootstrap Azure subscription : Deploy the [inventory application](https://ygo74.github.io/Inventory.API/) to manage Azure inventory which is the brain of automation scripts.
+
+* Standard Automation users : These accounts are used to deploy their resources inside their resources groups.
