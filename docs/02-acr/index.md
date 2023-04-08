@@ -8,22 +8,18 @@ has_children: true
 Goal : Docker image repository
 
 ## Sources
-{: .text-blue-300 }
 
 * [Microsoft documentation](https://docs.microsoft.com/fr-fr/azure/container-registry/)
 
 ## Operations
-{: .text-blue-300 }
 
 ### Connect to ACR
-{: .text-blue-200 }
 
 ```bash
 az acr login --name mesfContainerRegistry
 ```
 
 ### Push images
-{: .text-blue-200 }
 
 ```powershell
 docker tag geolocationapi:dev  mesfcontainerregistry.azurecr.io/huntergames/geolocationapi
@@ -31,7 +27,6 @@ docker push mesfcontainerregistry.azurecr.io/huntergames/geolocationapi
 ```
 
 ### List images in the repository
-{: .text-blue-200 }
 
 ```bash
 az acr repository list -n mesfContainerRegistry  

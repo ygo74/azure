@@ -7,7 +7,6 @@ has_children: false
 ---
 
 ## Install kubelogin
-{: .text-blue-300 }
 
 Installation is done thanks to azure-cli into your profile directory.
 

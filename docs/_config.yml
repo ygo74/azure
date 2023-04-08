@@ -31,7 +31,7 @@ github_username:  ygo74
 
 # Build settings
 # theme: minima
-remote_theme: just-the-docs/just-the-docs@v0.4.0.rc3
+remote_theme: just-the-docs/just-the-docs@v0.4.2
 plugins:
   - jekyll-remote-theme # add this line to the plugins list if you already have one
   - jekyll-menus
@@ -89,9 +89,13 @@ search:
 
 # logo: "/assets/images/1024px-Devops-toolchain.svg.png"
 
+logo: "/assets/images/1024px-Devops-toolchain.svg.png"
+
 aux_links:
   "View Github repositories":
     - "//github.com/ygo74/azure"
+  "ygo74 Devops platform ":
+    - "//ygo74.github.io/"
 
 # Makes Aux links open in a new tab. Default is false
 aux_links_new_tab: true

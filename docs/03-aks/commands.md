@@ -16,7 +16,6 @@ has_children: false
 </details>
 
 ## Get cluster credentials
-{: .text-blue-300 }
 
 ``` powershell
 # Attach using acr-name
@@ -31,7 +30,6 @@ kubectl get nodes
 ```
 
 ## Dashboard access
-{: .text-blue-300 }
 
 ``` powershell
 $aksName       = "aksbootstrap"

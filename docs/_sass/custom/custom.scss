@@ -1,0 +1,9 @@
+@media (min-width: 50rem) { .side-bar { width: min-content; min-width: 264px; } }
+@media (min-width: 66.5rem) { .side-bar { width: min-content; min-width: 264px; } }
+// @media (min-width: 66.5rem) { .side-bar { width: calc((100% - 1064px) / 2 + 264px); min-width: 264px; } }
+
+@media (min-width: 50rem) { .main {position: relative; max-width: none; /* margin-left: 10px; */} }
+@media (min-width: 66.5rem) { .main { margin-left: Max(10px, calc((100% - 1064px) / 2 + 10px)); } }
+
+h2 { color: #183385 !important; }
+h3 { color: #264caf !important; }

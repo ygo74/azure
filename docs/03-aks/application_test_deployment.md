@@ -18,7 +18,6 @@ has_children: false
 
 
 ## Sanity check cluster creation
-{: .text-blue-300 }
 
 1. Deploy test application
 

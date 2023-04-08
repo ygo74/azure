@@ -25,7 +25,6 @@ has_children: true
 ## Automatic deployment
 
 ### Deploy with ansible
-{: .text-blue-200 }
 
 ``` bash
 cd .\cloud\azure\ansible
@@ -39,7 +38,6 @@ ansible-playbook aks_create_cluster.yml -i inventory/
 ```
 
 ### Deploy with powershell
-{: .text-blue-200 }
 
 ``` powershell
 cd .\cloud\azure\powershell
@@ -47,8 +45,7 @@ cd .\cloud\azure\powershell
 & .\scripts\aks\01-Deploy-AKS.ps1  
 ```
 
-
-# Azure Kubernetes Services : AKS
+## Azure Kubernetes Services : AKS
 
 ``` powershell
 $aksName                  = "aksbootstrap"
