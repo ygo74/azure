@@ -96,6 +96,8 @@ aux_links:
     - "//github.com/ygo74/azure"
   "ygo74 Devops platform ":
     - "//ygo74.github.io/"
+  "LinkedIn":
+    - "//www.linkedin.com/in/yannickgobert/"
 
 # Makes Aux links open in a new tab. Default is false
 aux_links_new_tab: true
