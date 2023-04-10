@@ -17,8 +17,6 @@ has_children: false
 
 ## Resources groups list definition
 
-All resources groups and their expected state are defined and created thanks to the root automation account.
-
 Resources groups are defined in a dedicated file saved into the inventory all subfolder : **_<https://github.com/ygo74/azure/blob/master/inventory/root/group_vars/all/resources_groups.yml>_**
 
 All resoures groups are defined under the key **all_resources_groups**

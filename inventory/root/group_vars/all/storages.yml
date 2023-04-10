@@ -16,5 +16,3 @@ all_storages:
     shares:
       - name: postgresql-aksbootstrap
         quota: 5
-
-
