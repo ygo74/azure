@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Virtual Networks
-parent: Deploy subscription root resources
+parent: Deploy root resources
 nav_order: 2
 has_children: false
 ---

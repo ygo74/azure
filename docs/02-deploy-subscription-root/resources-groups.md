@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Resource groups
-parent: Deploy subscription root resources
+parent: Deploy root resources
 nav_order: 1
 has_children: false
 ---

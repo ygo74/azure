@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Deploy subscription root resources
+title: Deploy root resources
 nav_order: 3
 has_children: true
 ---

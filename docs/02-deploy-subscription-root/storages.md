@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Storages
-parent: Deploy subscription root resources
+parent: Deploy root resources
 nav_order: 3
 has_children: false
 ---
