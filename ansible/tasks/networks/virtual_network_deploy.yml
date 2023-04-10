@@ -1,0 +1,58 @@
+---
+# -----------------------------------------------------------------------------
+# Add virtual network :
+# - Create resource group
+# - Create Virtual network
+# - Add subnets
+# -----------------------------------------------------------------------------
+
+- name: virtual_network_deploy - Deploy virtual network
+  block:
+
+    - name: virtual_network_deploy - Assert mandatory variables
+      assert:
+        that:
+          - _virtual_network is defined
+          - _virtual_network.name is defined
+          - _virtual_network.resource_group is defined
+          - _virtual_network.address_prefixes is defined
+
+        fail_msg: "Missing mandatory variables"
+
+    - name: "virtual_network_deploy - Get resource group info for {{ _virtual_network.name }}"
+      azure.azcollection.azure_rm_resourcegroup_info:
+        name:     '{{ _virtual_network.resource_group }}'
+      register: _resource_group_info
+
+    - name: "virtual_network_deploy - Assert resource group exists for {{ _virtual_network.name }}"
+      assert:
+        that:
+          - _resource_group_info.resourcegroups | length > 0
+        fail_msg: "Missing resource group {{ _virtual_network.resource_group }}"
+
+    - name: "virtual_network_deploy - Create virtual network {{ _virtual_network.name }}"
+      azure.azcollection.azure_rm_virtualnetwork:
+        resource_group:   '{{ _virtual_network.resource_group }}'
+        name:             '{{ _virtual_network.name }}'
+        address_prefixes: '{{ _virtual_network.address_prefixes }}'
+        tags:             '{{ _virtual_network.tags  | default(omit) }}'
+        state:            '{{ _virtual_network.state | default("present") }}'
+
+    - name: "virtual_network_deploy - Add subnet for {{ _virtual_network.name }}"
+      azure.azcollection.azure_rm_subnet:
+        resource_group:  '{{ _virtual_network.resource_group }}'
+        name:            '{{ _subnet.name }}'
+        address_prefix:  '{{ _subnet.address_prefix }}'
+        virtual_network: '{{ _virtual_network.name }}'
+        state:           '{{ _subnet.state | default("present") }}'
+
+      when:
+        - _virtual_network.state | default("present") == "present"
+
+      loop: '{{ _virtual_network.subnets }}'
+      loop_control:
+        loop_var: _subnet
+        label: '{{ _subnet.name }} with address {{ _subnet.address_prefix  }}'
+
+  tags:
+    - virtual_networks

@@ -44,7 +44,8 @@ has_children: false
     $aksName                  = "aksbootstrap"
     $aksPublicIpName          = "pi-inventory-gateway"
     $aksPublicIpDnsLabel      = "inventory"
-    $aksStorageName           = "ygo74akstorageaccount"
+    $aksStorageName           = "staygo74bootstrap"
+    $aksStorageResourceGroup  = "rg-francecentral-storage-shared"
 
     # ACR
     $acrName                  = "aksbootstrap"

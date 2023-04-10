@@ -14,13 +14,20 @@ has_children: true
 {:toc}
 </details>
 
-
 ## Sources
 
 * <https://learn.microsoft.com/fr-fr/azure/architecture/reference-architectures/containers/aks/baseline-aks>
 * <https://github.com/mspnp/aks-baseline>
 * <https://github.com/mspnp/aks-fabrikam-dronedelivery>
 * <https://stacksimplify.com/azure-aks/azure-kubernetes-service-introduction/>
+
+## Remarks
+
+1. Nodes resources **must not exists** when creating a new cluster
+
+2. Services cidr **must not be** an existing subnet cidr
+
+3. Dns service ip **must be within** the Kubernetes service address range specified in services cidr
 
 ## Automatic deployment
 

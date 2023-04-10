@@ -60,7 +60,7 @@ write-host "Storage Key is : $storageKey"
 
 ``` powershell
 # Create secret key
-kubectl create secret generic azure-secret --from-literal=azurestorageaccountname=$aksStorageName --from-literal=azurestorageaccountkey=$storageKey
+kubectl create secret generic secret-storage-bootstrap --from-literal=azurestorageaccountname=$aksStorageName --from-literal=azurestorageaccountkey=$storageKey
 
 ```
 
@@ -69,7 +69,7 @@ kubectl create secret generic azure-secret --from-literal=azurestorageaccountnam
 ``` powershell
 kubectl create -f .\cloud\azure\resources\aks\volumes\persistent-volume.yml
 kubectl create -f .\cloud\azure\resources\aks\volumes\persistent-volume-claim.yml
-kubectl get pvc azurefile
+kubectl get pvc pv-postgresql
 ```
 
 ## Deploy Postgresql with helm
@@ -82,7 +82,7 @@ helm repo update
 helm upgrade postgresql bitnami/postgresql `
   --install `
   --namespace default `
-  --set persistence.existingClaim=azurefile `
+  --set persistence.existingClaim=pv-postgresql `
   --set volumePermissions.enabled=true
 
 $postgres_password_base64=$(kubectl get secret --namespace default postgresql -o jsonpath="{.data.postgres-password}")

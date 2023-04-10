@@ -3,7 +3,7 @@ kind: PersistentVolume
 metadata:
   annotations:
     pv.kubernetes.io/provisioned-by: file.csi.azure.com
-  name: azurefile
+  name: pv-postgresql
 spec:
   capacity:
     storage: 5Gi
@@ -17,9 +17,9 @@ spec:
     volumeHandle: unique-volumeid  # make sure this volumeid is unique for every identical share in the cluster
     volumeAttributes:
       resourceGroup: rg-aks-aksbootstrap-node  # optional, only set this when storage account is not in the same resource group as node
-      shareName: postgresql
+      shareName: postgresql-aksbootstrap
     nodeStageSecretRef:
-      name: azure-secret
+      name: secret-storage-bootstrap
       namespace: default
   mountOptions:
     - dir_mode=0777

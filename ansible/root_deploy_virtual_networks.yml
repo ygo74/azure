@@ -1,0 +1,71 @@
+---
+# -----------------------------------------------------------------------------
+# Deploy virtual Network and configure peering
+# -----------------------------------------------------------------------------
+- name: Deploy virtual Network and configure peering
+  hosts: all
+  # connection: local
+  run_once: true
+  gather_facts: false
+
+
+  tasks:
+
+    - name: Create filters to on demand specific configuration
+      block:
+
+        - name: Create filter to specific virtual networks
+          set_fact:
+            _virtual_networks_calculated_filter: .*
+
+      tags:
+        - always
+
+    # -----------------------------------------------------------------------------
+    # Deploy virtual networks
+    # -----------------------------------------------------------------------------
+    - name: Deploy virtual networks
+      block:
+
+        - name: "Deploy virtual networks - Apply filter to virtual networks"
+          set_fact:
+            _virtual_networks: >-
+              {{
+                  all_virtual_networks
+                  | selectattr("name", "match", _virtual_networks_calculated_filter)
+                  | list
+              }}
+
+
+        - name: "Deploy virtual networks - Assert found filtered virtual networks"
+          assert:
+            that:
+              - _virtual_networks | length > 0
+            fail_msg: "Don't find virtual networks with filter {{ _virtual_networks_calculated_filter }}"
+
+        - name: Deploy virtual networks - Display found filtered virtual networks
+          debug:
+            var: _virtual_networks
+
+
+        - name: Deploy virtual networks - Include tasks to deploy virtual networks
+          include_tasks: ./tasks/networks/virtual_network_deploy.yml
+
+          loop: '{{ _virtual_networks }}'
+
+          loop_control:
+            loop_var: _virtual_network
+            label: '{{ _virtual_network.name }}'
+
+        - name: Create virtual networks - Include tasks to configure virtual networks peering
+          include_tasks: ./tasks/networks/virtual_network_peering.yml
+
+          loop: '{{ _virtual_networks | selectattr("peerings", "defined") | list | default([]) }}'
+
+          loop_control:
+            loop_var: _virtual_network
+            label: '{{ _virtual_network.name }}'
+
+      tags:
+        - virtual_networks
+        - virtual_networks_peering

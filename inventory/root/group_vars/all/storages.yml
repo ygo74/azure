@@ -1,0 +1,20 @@
+---
+# -----------------------------------------------------------------------------
+# Define all storages for the subscription
+# -----------------------------------------------------------------------------
+
+all_storages:
+
+  - name:                  staygo74bootstrap
+    resource_group:        rg-francecentral-storage-shared
+    sku:                   Standard_LRS
+    kind:                  StorageV2
+    public_network_access: true
+    tags:
+      scope: bootstrap
+
+    shares:
+      - name: postgresql-aksbootstrap
+        quota: 5
+
+

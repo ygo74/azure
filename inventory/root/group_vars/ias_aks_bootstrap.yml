@@ -8,10 +8,15 @@ location: 'francecentral'
 service_principal_name: Ansible-Automation
 cluster_name: aksbootstrap
 resource_group: rg-aks-bootstrap-networking-spoke
+
+# aks node resources group
+nodes_resource_group: 'rg-aks-bootstrap-cluster-nodes'
+
+# Aks Network
 virtual_network_name: vnet-spoke
 subnet_name: cluster-nodes-subnet
 
-# Lint to virtual network hub
+# Link to virtual network hub
 resource_group_hub_name: rg-francecentral-networking-hub
 virtual_network_hub_name: vnet-hub
 
@@ -22,21 +27,6 @@ dashboard_manifest_uri: 'https://raw.githubusercontent.com/kubernetes/dashboard/
 vault:
   resource_group: CommonVault
   name: mesfVault
-
-# Networks
-virtual_networks:
-  - resource_group: rg-aks-bootstrap-networking-spoke
-    name: vnet-spoke
-    address_prefixes: 10.240.0.0/16
-    subnets:
-      - name: cluster-nodes-subnet
-        address_prefix: 10.240.0.0/22
-      - name: cluster-services-subnet
-        address_prefix: 10.240.4.0/28
-      - name: application-gateway-subnet
-        address_prefix: 10.240.5.0/24
-      - name: private-links-subnet
-        address_prefix: 10.240.4.32/28
 
 registries:
   # - name:               'mesfContainerRegistry'

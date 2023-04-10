@@ -1,0 +1,64 @@
+---
+# -----------------------------------------------------------------------------
+# Deploy Resources groups and assign permission
+# -----------------------------------------------------------------------------
+- name: Deploy Resources groups and assign permission
+  hosts: all
+  # connection: local
+  run_once: true
+  gather_facts: false
+
+
+  tasks:
+
+    - name: Create filters to on demand specific configuration
+      block:
+
+        - name: Create filter to specific resource groups
+          set_fact:
+            _resources_groups_calculated_filter: .*
+
+      tags:
+        - always
+
+    # -----------------------------------------------------------------------------
+    # Deploy resources groups
+    # -----------------------------------------------------------------------------
+    - name: Deploy resources groups
+      block:
+
+        - name: "Deploy resources groups - Apply filter to resources groups"
+          set_fact:
+            _resources_groups: >-
+              {{
+                  all_resources_groups
+                  | selectattr("name", "match", _resources_groups_calculated_filter)
+                  | list
+              }}
+
+
+        - name: "Deploy resources groups - Assert found filtered resources groups "
+          assert:
+            that:
+              - _resources_groups | length > 0
+            fail_msg: "Don't find resources groups with filter {{ _resources_groups_calculated_filter }}"
+
+        - name: Deploy resources groups - Display found filtered resources groups
+          debug:
+            var: _resources_groups
+
+        - name: "Deploy resources groups - Create or remove resource group"
+          azure.azcollection.azure_rm_resourcegroup:
+            name:     '{{ _resources_group.name }}'
+            location: '{{ _resources_group.name.location | default(default_location) }}'
+            tags:     '{{ _resources_group.name.tags     | default(omit) }}'
+            state:    '{{ _resources_group.state         | default("present") }}'
+
+          loop: '{{ _resources_groups }}'
+
+          loop_control:
+            loop_var: _resources_group
+            label: "Resources group {{ _resources_group.name }}"
+
+      tags:
+        - resources_groups

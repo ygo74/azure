@@ -1,0 +1,22 @@
+---
+# -----------------------------------------------------------------------------
+# Define all resources groups for the subscription
+# -----------------------------------------------------------------------------
+all_resources_groups:
+  - name: rg-francecentral-networking-hub
+    tags:
+      scope: bootstrap
+
+  - name: rg-francecentral-storage-shared
+    tags:
+      scope: bootstrap
+
+  - name: rg-aks-bootstrap-networking-spoke
+    tags:
+      scope: bootstrap
+
+  - name: rg-aks-bootstrap-cluster-nodes
+    state: absent
+    tags:
+      scope: bootstrap
+

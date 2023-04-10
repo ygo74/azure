@@ -1,0 +1,44 @@
+---
+# -----------------------------------------------------------------------------
+# Define all virtual networks for the subscription
+# -----------------------------------------------------------------------------
+
+all_virtual_networks:
+  # Hub for france central location
+  - name: vnet-hub
+    resource_group: rg-francecentral-networking-hub
+    address_prefixes: 10.200.0.0/24
+    subnets:
+      - name: firewall-subnet
+        address_prefix: 10.200.0.0/26
+      - name: gateway-subnet
+        address_prefix: 10.200.0.64/27
+      - name: bastion-subnet
+        address_prefix: 10.200.0.128/26
+    tags:
+      scope: bootstrap
+      virtual_network_kind: hub
+
+  # aks bootstrap networks
+  - name: vnet-spoke
+    resource_group: rg-aks-bootstrap-networking-spoke
+    address_prefixes: 10.240.0.0/16
+    subnets:
+      - name: cluster-nodes-subnet
+        address_prefix: 10.240.0.0/22
+      - name: cluster-services-subnet
+        address_prefix: 10.240.4.0/28
+      - name: application-gateway-subnet
+        address_prefix: 10.240.5.0/24
+      - name: private-links-subnet
+        address_prefix: 10.240.4.32/28
+    peerings:
+      - to:
+          name: vnet-hub
+          resource_group: rg-francecentral-networking-hub
+        allow_virtual_network_access: true
+        allow_forwarded_traffic: true
+    tags:
+      scope: bootstrap
+      virtual_network_kind: spoke
+

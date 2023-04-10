@@ -1,0 +1,51 @@
+---
+# -----------------------------------------------------------------------------
+# Add storage :
+# - Create storage accounts
+# - Create storage accounts
+# -----------------------------------------------------------------------------
+
+- name: storage_create - Create storage
+  block:
+
+    - name: storage_create - Assert mandatory variables
+      assert:
+        that:
+          - _storage is defined
+          - _storage.name is defined
+          - _storage.resource_group is defined
+
+        fail_msg: "Missing mandatory variables"
+
+    - name: "storage_create - Create azure storage {{ _storage.name }}"
+      azure.azcollection.azure_rm_storageaccount:
+        resource_group:        '{{ _storage.resource_group }}'
+        name:                  '{{ _storage.name }}'
+        tags:                  '{{ _storage.tags | default(omit) }}'
+        type:                  '{{ _storage.sku }}'
+        kind:                  '{{ _storage.kind }}'
+        # access_tier:           'Hot'
+        state:                 '{{ _storage.state | default("present") }}'
+        public_network_access: >-
+          {{
+            (_storage.public_network_access | default(false) | bool)
+            | ternary("Enabled","Disabled")
+          }}
+
+    - name: "storage_create - Create azure storage shared {{ _storage_share.name }} on {{ _storage.name }}"
+      azure.azcollection.azure_rm_storageshare:
+        resource_group:        '{{ _storage.resource_group }}'
+        account_name:          '{{ _storage.name }}'
+        name:                  '{{ _storage_share.name }}'
+        quota:                 '{{ _storage_share.quota }}'
+        # access_tier:           'Hot'
+        state:                 '{{ _storage_share.state | default("present") }}'
+
+      when:
+        - _storage.state | default("present") == "present"
+
+      loop: '{{ _storage.shares | default([]) }}'
+
+      loop_control:
+        loop_var: _storage_share
+        label: '{{ _storage_share.name }}'

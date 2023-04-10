@@ -1,0 +1,59 @@
+# -----------------------------------------------------------------------------
+# Deploy storages :
+# - Create or remove storage accounts
+# - Create or remove storage shares
+# -----------------------------------------------------------------------------
+- name: Deploy storages
+  hosts: all
+  run_once: true
+  gather_facts: false
+
+  tasks:
+
+
+    - name: Create filters to on demand specific configuration
+      block:
+
+        - name: Create filter to specific storages
+          set_fact:
+            _storages_calculated_filter: .*
+
+      tags:
+        - always
+
+    # -----------------------------------------------------------------------------
+    # Deploy storages
+    # -----------------------------------------------------------------------------
+    - name: Deploy storages
+      block:
+
+        - name: "Deploy storages - Apply filter to storages"
+          set_fact:
+            _storages: >-
+              {{
+                  all_storages
+                  | selectattr("name", "match", _storages_calculated_filter)
+                  | list
+              }}
+
+
+        - name: "Deploy storages - Assert found filtered storages"
+          assert:
+            that:
+              - _storages | length > 0
+            fail_msg: "Don't find storages with filter {{ _storages_calculated_filter }}"
+
+        - name: Deploy storages - Display found filtered storages
+          debug:
+            var: _storages
+
+        - name: Deploy storages - include tasks to deploy storages
+          include_tasks: ./tasks/storages/storage_deploy.yml
+
+          loop: '{{ _storages }}'
+
+          loop_control:
+            loop_var: _storage
+            label: '{{ _storage.name }}'
+
+

@@ -31,40 +31,6 @@
         var: vault
 
     # ---------------------------------------------------------------------------
-    # Create virtual networks
-    # ---------------------------------------------------------------------------
-    - name: Create virtual networks
-      include_tasks: ./tasks/networks/virtual_network_create.yml
-
-      loop: '{{ virtual_networks }}'
-
-      loop_control:
-        loop_var: virtual_network
-        label: '{{ virtual_network.name }}'
-
-    - name: Create virtual network peering from vnet-hub to vnet-spoke
-      azure_rm_virtualnetworkpeering:
-        resource_group:  '{{ resource_group_hub_name }}'
-        virtual_network: '{{ virtual_network_hub_name }}'
-        name: np-to-vnet-spoke
-        remote_virtual_network:
-          resource_group: '{{ resource_group }}'
-          name:           '{{ virtual_network_name }}'
-        allow_virtual_network_access: true
-        allow_forwarded_traffic: true
-
-    - name: Create virtual network peering from vnet-spoke to vnet-hub
-      azure_rm_virtualnetworkpeering:
-        resource_group:  '{{ resource_group }}'
-        virtual_network: '{{ virtual_network_name }}'
-        name: np-to-vnet-hub
-        remote_virtual_network:
-          resource_group: '{{ resource_group_hub_name }}'
-          name:           '{{ virtual_network_hub_name }}'
-        allow_virtual_network_access: true
-        allow_forwarded_traffic: true
-
-    # ---------------------------------------------------------------------------
     # Get secret value for AKS principal
     # ---------------------------------------------------------------------------
     - name: Get secret value for AKS principal
@@ -153,11 +119,12 @@
             vm_size: Standard_D2_v2
             vnet_subnet_id: '{{ _subnet_info.subnets[0].id }}'
             mode: System
-        node_resource_group: 'rg-aks-{{ cluster_name }}-node'
+        node_resource_group: '{{ nodes_resource_group }}'
         enable_rbac: yes
         network_profile:
           load_balancer_sku: standard
           network_plugin: azure
+
         tags:
           Environment: Production
 

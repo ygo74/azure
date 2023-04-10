@@ -1,0 +1,71 @@
+---
+# -----------------------------------------------------------------------------
+# Create virtual network peering :
+# -----------------------------------------------------------------------------
+
+- name: virtual_network_peering - Create virtual network peering
+  block:
+
+    - name: virtual_network_peering - Assert mandatory variables
+      assert:
+        that:
+          - _virtual_network is defined
+          - _virtual_network.name is defined
+          - _virtual_network.resource_group is defined
+          - _virtual_network.peerings is defined
+
+        fail_msg: "Missing mandatory variables"
+
+    # - name: virtual_network_peering - Find linked hub
+    #   azure.azcollection.azure_rm_virtualnetwork_info:
+    #     tags:
+    #       - "virtual_network_kind:virtual network hub"
+    #   register: __virtual_network_hub_info
+
+    - name: "virtual_network_peering - Create virtual network peering from {{ _virtual_network_peering.to.name }} to {{ _virtual_network.name }}"
+      azure.azcollection.azure_rm_virtualnetworkpeering:
+        name:                         'np-to-{{ _virtual_network.name }}'
+        resource_group:               '{{  _virtual_network_peering.to.resource_group }}'
+        virtual_network:              '{{  _virtual_network_peering.to.name }}'
+        allow_virtual_network_access: '{{  _virtual_network_peering.allow_virtual_network_access | default(false) }}'
+        allow_forwarded_traffic:      '{{  _virtual_network_peering.allow_forwarded_traffic | default(false) }}'
+        remote_virtual_network:
+          resource_group: '{{ _virtual_network.resource_group }}'
+          name:           '{{ _virtual_network.name }}'
+        state: >-
+          {%- if _virtual_network.state | default("present") != "present" -%}
+            "absent"
+          {%- else -%}
+            {{ _virtual_network_peering.state | default("present") }}
+          {%- endif -%}
+
+
+      loop: '{{ _virtual_network.peerings }}'
+
+      loop_control:
+        loop_var: _virtual_network_peering
+        label: '{{ _virtual_network_peering.to.name }}'
+
+    - name: "virtual_network_peering - Create virtual network peering from {{ _virtual_network.name }} to {{ _virtual_network_peering.to.name }}"
+      azure.azcollection.azure_rm_virtualnetworkpeering:
+        name:                         'np-to-{{  _virtual_network_peering.to.name }}'
+        resource_group:               '{{ _virtual_network.resource_group }}'
+        virtual_network:              '{{ _virtual_network.name }}'
+        allow_virtual_network_access: '{{  _virtual_network_peering.allow_virtual_network_access | default(false) }}'
+        allow_forwarded_traffic:      '{{  _virtual_network_peering.allow_forwarded_traffic | default(false) }}'
+        remote_virtual_network:
+          resource_group: '{{  _virtual_network_peering.to.resource_group }}'
+          name:           '{{  _virtual_network_peering.to.name }}'
+
+      when:
+        - _virtual_network.state | default("present") == "present"
+
+      loop: '{{ _virtual_network.peerings }}'
+
+      loop_control:
+        loop_var: _virtual_network_peering
+        label: '{{ _virtual_network_peering.to.name }}'
+
+  tags:
+    - virtual_networks
+    - virtual_networks_peering
