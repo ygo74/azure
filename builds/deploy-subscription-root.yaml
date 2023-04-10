@@ -62,7 +62,10 @@ stages:
                 targetType: 'inline'
                 workingDirectory: ansible
                 script: |
-                  ansible-playbook root_deploy_resources_groups.yml -i ../inventory/root -e ansible_python_interpreter=/usr/bin/python3
+                  ansible-playbook root_deploy_resources_groups.yml \
+                                   -i ../inventory/root \
+                                   -e ansible_python_interpreter=/usr/bin/python3
+
             displayName: 'Deploy resources groups'
             env:
               AZURE_TENANT: $(TenantId)
@@ -94,32 +97,44 @@ stages:
                 targetType: 'inline'
                 workingDirectory: ansible
                 script: |
-                  echo ""
-                  echo "Ansible version"
-                  echo "=================================================="
-                  ansible --version
+                  ansible-playbook root_deploy_virtual_networks.yml \
+                                   -i ../inventory/root \
+                                   -e ansible_python_interpreter=/usr/bin/python3
+            displayName: 'Deploy virtual networks'
+            env:
+              AZURE_TENANT: $(TenantId)
+              AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
+              AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
+              AZURE_SECRET: $(Ansible-Automation)
 
-                  echo ""
-                  echo "Azure and kubernetes collections"
-                  echo "=================================================="
-                  ansible-galaxy collection list | grep azure.azcollection
-                  ansible-galaxy collection list | grep kubernetes.core
+  # -----------------------------------------------------------------------------
+  # Storages
+  # -----------------------------------------------------------------------------
+  - stage: deploy_storages
+    displayName: Deploy storages
 
-                  echo ""
-                  echo "Azure phyton modules"
-                  echo "=================================================="
-                  pip freeze | grep azure
-            displayName: 'Display ansible information'
+    jobs:
+      # -----------------------------------------------------------------------------
+      # Deploy storages
+      # -----------------------------------------------------------------------------
+      - job: deploy_storages
+        displayName: Deploy storages
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        container: ansible_az
+
+        steps:
 
           - task: Bash@3
             inputs:
                 targetType: 'inline'
                 workingDirectory: ansible
                 script: |
-                  ansible-playbook root_deploy_virtual_networks.yml \
+                  ansible-playbook root_deploy_storage.yml \
                                    -i ../inventory/root \
                                    -e ansible_python_interpreter=/usr/bin/python3
-            displayName: 'Deploy virtual networks'
+            displayName: 'Deploy storages'
             env:
               AZURE_TENANT: $(TenantId)
               AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
