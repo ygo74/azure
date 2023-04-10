@@ -1,0 +1,68 @@
+---
+# -----------------------------------------------------------------------------
+# Deploy AKS Bootstrap to support Inventory infrastructure
+# -----------------------------------------------------------------------------
+resources:
+  containers:
+  # Container image with ansible and azure collection installed
+  - container: ansible_az
+    image: aksbootstrap.azurecr.io/ansible_azure:dev
+    endpoint: aksbootstrap
+
+trigger: none
+
+variables:
+  # Get Ansible-Autmation secret
+  - group: azure_automation
+
+stages:
+  - stage: deploy_resource_groups
+    displayName: Deploy resources groups
+
+    jobs:
+      # -----------------------------------------------------------------------------
+      # Create AKS Cluster
+      # -----------------------------------------------------------------------------
+      - job: deploy_resource_groups
+        displayName: Deploy resources groups
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        container: ansible_az
+
+        steps:
+
+          - task: Bash@3
+            inputs:
+                targetType: 'inline'
+                workingDirectory: ansible
+                script: |
+                  echo ""
+                  echo "Ansible version"
+                  echo "=================================================="
+                  ansible --version
+
+                  echo ""
+                  echo "Azure and kubernetes collections"
+                  echo "=================================================="
+                  ansible-galaxy collection list | grep azure.azcollection
+                  ansible-galaxy collection list | grep kubernetes.core
+
+                  echo ""
+                  echo "Azure phyton modules"
+                  echo "=================================================="
+                  pip freeze | grep azure
+            displayName: 'Display ansible information'
+
+          - task: Bash@3
+            inputs:
+                targetType: 'inline'
+                workingDirectory: ansible
+                script: |
+                  ansible-playbook root_deploy_resources_groups.yml -i ../inventory/root -e ansible_python_interpreter=/usr/bin/python3
+            displayName: 'Deploy resources groups'
+            env:
+              AZURE_TENANT: $(TenantId)
+              AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
+              AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
+              AZURE_SECRET: $(Ansible-Automation)
