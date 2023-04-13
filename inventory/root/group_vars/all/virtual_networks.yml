@@ -24,13 +24,14 @@ all_virtual_networks:
     resource_group: rg-aks-bootstrap-networking-spoke
     address_prefixes: 10.240.0.0/16
     subnets:
-      - name: cluster-nodes-subnet
+      - name: net-cluster-nodes
         address_prefix: 10.240.0.0/22
-      - name: cluster-services-subnet
-        address_prefix: 10.240.4.0/28
-      - name: application-gateway-subnet
+      # Managed by AKS Cluster and specified during the AKS cluster creation
+      # - name: net-cluster-services
+      #   address_prefix: 10.240.4.0/28
+      - name: net-application-gateway
         address_prefix: 10.240.5.0/24
-      - name: private-links-subnet
+      - name: net-private-links
         address_prefix: 10.240.4.32/28
     peerings:
       - to:

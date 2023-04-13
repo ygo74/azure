@@ -40,3 +40,20 @@ Start the Azure's journey by following Microsoft architecture recommendations wi
 * Bootstrap Azure subscription : Deploy the [inventory application](https://ygo74.github.io/Inventory.API/) to manage Azure inventory which is the brain of automation scripts.
 
 * Standard Automation users : These accounts are used to deploy their resources inside their resources groups.
+
+## Resources naming convention
+
+Majority of resources have their name which starts with the first letter of resource name's words. the "-" is used to split terms in the naming if it is allowed by the Azure's APIs.
+
+Some exceptions have been defined for short resource'name or because they are part of termes generaly used.
+
+| Resource kind             | prefix | Specific naming rule           |
+|:------------------------- |:------ |:------------------------------ |
+| Resource group            | rg-    | N/A                            |
+| Virtual network           | vnet-  | Yes, according my own decision |
+| Subnet                    | net-   | Yes, according my own decision |
+| Azure Kubernetes services | aks-   | N/A                            |
+| Azure Container registry  | acr    | Yes. .... |
+| Storage account           | sa     | Yes, .....|
+| Disk                      | disk-  | Yes, according my own decision |
+| User Managed Identity     | umi-   | N/A                            |

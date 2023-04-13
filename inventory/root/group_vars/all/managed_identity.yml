@@ -1,0 +1,18 @@
+# -----------------------------------------------------------------------------
+# Define all Managed identity
+# -----------------------------------------------------------------------------
+all_user_managed_identities:
+  - name: umi-aksbootstrap
+    resource_group: rg-francecentral-managed_identities
+    permissions:
+      - name: rg-aks-bootstrap-networking-spoke
+        location: francecentral
+        type: resource_group
+        roles:
+          - Contributor
+
+      - name: rg-francecentral-networking-hub
+        location: francecentral
+        type: resource_group
+        roles:
+          - Network Contributor

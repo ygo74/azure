@@ -32,11 +32,12 @@ has_children: false
 
 ``` powershell
 # Get aks nodes resources group
-$aksNodesResourceGroup = $(az aks show --resource-group $aksresourceGroup --name $aksName --query nodeResourceGroup -o tsv)
-write-host "Node resources group is : $aksNodesResourceGroup"
+
+# $aksNodesResourceGroup = $(az aks show --resource-group $aksresourceGroup --name $aksName --query nodeResourceGroup -o tsv)
+# write-host "Node resources group is : $aksNodesResourceGroup"
 
 # Create the storage account
-az storage account create -n $aksStorageName -g $aksNodesResourceGroup -l $aksLocation --sku Standard_LRS
+az storage account create -n $aksStorageName -g $aksStorageResourceGroup -l $aksLocation --sku Standard_LRS
 
 ```
 
@@ -44,14 +45,14 @@ az storage account create -n $aksStorageName -g $aksNodesResourceGroup -l $aksLo
 
 ``` powershell
 # Get storage connection string
-$storageConnectionString = $(az storage account show-connection-string -n $aksStorageName -g $aksNodesResourceGroup -o tsv)
+$storageConnectionString = $(az storage account show-connection-string -n $aksStorageName -g $aksStorageResourceGroup -o tsv)
 write-host "Storage connection string is : $storageConnectionString"
 
 # Create the storage share
-az storage share create -n postgresql --connection-string $storageConnectionString
+az storage share create -n postgresql-aksbootstrap --connection-string $storageConnectionString
 
 # get the storage key
-$storageKey = $(az storage account keys list --resource-group $aksNodesResourceGroup --account-name $aksStorageName --query "[0].value" -o tsv)
+$storageKey = $(az storage account keys list --resource-group $aksStorageResourceGroup --account-name $aksStorageName --query "[0].value" -o tsv)
 write-host "Storage Key is : $storageKey"
 
 ```
@@ -82,12 +83,13 @@ helm repo update
 helm upgrade postgresql bitnami/postgresql `
   --install `
   --namespace default `
-  --set persistence.existingClaim=pv-postgresql `
-  --set volumePermissions.enabled=true
+  --set primary.persistence.existingClaim=azure-managed-disk `
+  --set volumePermissions.enabled=true `
+  --set volumePermissions.containerSecurityContext.runAsUser=1001
 
 $postgres_password_base64=$(kubectl get secret --namespace default postgresql -o jsonpath="{.data.postgres-password}")
 $postgres_password=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($postgres_password_base64))  
 
-kubectl run postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:15.2.0-debian-11-r16 --env="PGPASSWORD=$POSTGRES_PASSWORD" `
+kubectl run postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:15.2.0-debian-11-r16 --env="PGPASSWORD=$postgres_password" `
       --command -- psql --host postgresql -U postgres -d postgres -p 5432
 ```

@@ -1,0 +1,27 @@
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: managed-standard-francecentral-storage-shared
+provisioner: kubernetes.io/azure-disk
+parameters:
+  storageaccounttype: Standard_LRS
+  kind: Managed
+  resourceGroup: rg-francecentral-storage-shared
+  location: francecentral
+  fsType: ext4
+  skuName: Standard_LRS
+  tags: scope=bootstrap
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: azure-managed-disk
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: managed-standard-francecentral-storage-shared
+  resources:
+    requests:
+      storage: 5Gi

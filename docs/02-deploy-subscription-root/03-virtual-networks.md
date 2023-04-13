@@ -19,12 +19,12 @@ has_children: false
 
 Deploy the Hub and spoke networking model as described in the Microsoft architecture best practices :
 
-* <https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/hub-spoke-network-topology>
-* <https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli>
+* <https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/hub-spoke-network-topology>{:target="_blank"}
+* <https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli>{:target="_blank"}
 
 ## Virtual networks list definition
 
-Virtual networks are defined in a dedicated file saved into the inventory all subfolder : **_<https://github.com/ygo74/azure/blob/master/inventory/root/group_vars/all/virtual_networks.yml>_**
+Virtual networks are defined in a dedicated file saved into the inventory all subfolder : **_<https://github.com/ygo74/azure/blob/master/inventory/root/group_vars/all/virtual_networks.yml>_**{:target="_blank"}
 
 All virtual networks are defined under the key **all_virtual_networks**
 
@@ -79,13 +79,13 @@ All virtual networks are defined under the key **all_virtual_networks**
         resource_group: rg-aks-bootstrap-networking-spoke
         address_prefixes: 10.240.0.0/16
         subnets:
-          - name: cluster-nodes-subnet
+          - name: net-cluster-nodes
             address_prefix: 10.240.0.0/22
-          - name: cluster-services-subnet
+          - name: net-cluster-services
             address_prefix: 10.240.4.0/28
-          - name: application-gateway-subnet
+          - name: net-application-gateway
             address_prefix: 10.240.5.0/24
-          - name: private-links-subnet
+          - name: net-private-links
             address_prefix: 10.240.4.32/28
         peerings:
           - to:

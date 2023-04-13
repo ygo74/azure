@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Resource groups commands
-parent: Base objects commands
-nav_order: 1
+title: Managed Identities
+parent: Deploy root resources
+nav_order: 3
 has_children: false
 ---
 
@@ -14,4 +14,3 @@ has_children: false
 1. TOC
 {:toc}
 </details>
-

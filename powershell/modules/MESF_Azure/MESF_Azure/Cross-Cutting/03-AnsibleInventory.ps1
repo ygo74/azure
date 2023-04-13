@@ -14,8 +14,11 @@ Function Import-MESFAnsibleInventory
         #Load yaml files from inventory directory
         $inventoryVars = @{}
         Get-ChildItem -Path $fullConfigurationFilePath.Path -Include "*.yml","*.yaml" -Recurse | ForEach-Object {
-            $vars = ConvertFrom-Yaml -Yaml ((Get-Content -Path $_.FullName) -join("`n"))
-            $inventoryVars += $vars
+            $vars = ConvertFrom-Yaml -Yaml ((Get-Content -Path $_.FullName) -join("`n")) -Ordered -UseMergingParser
+            foreach($key in $vars.keys)
+            {
+                $inventoryVars[ $key ] = $vars[ $key ]
+            }
         }
 
         Write-Output $inventoryVars

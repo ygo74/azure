@@ -17,7 +17,7 @@ has_children: false
 
 ## storage list definition
 
-Storages are defined in a dedicated file saved into the inventory all subfolder : **_<https://github.com/ygo74/azure/blob/master/inventory/root/group_vars/all/storages.yml>_**
+Storages are defined in a dedicated file saved into the inventory all subfolder : **_<https://github.com/ygo74/azure/blob/master/inventory/root/group_vars/all/storages.yml>_**{:target="_blank"}
 
 All storages are defined under the key **all_storages**
 

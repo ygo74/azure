@@ -11,12 +11,6 @@
 
     registry: '{{ registries[0] }}'
 
-
-    client_id:     '{{ lookup("ansible.builtin.env", "AZURE_CLIENT_ID") }}'
-    client_secret: '{{ lookup("ansible.builtin.env", "AZURE_SECRET") }}'
-    tenant_id:     '{{ lookup("ansible.builtin.env", "AZURE_TENANT") }}'
-
-
   tasks:
 
     # - name: Create a workspace with backup enabled

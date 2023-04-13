@@ -5,7 +5,7 @@
 
 all_storages:
 
-  - name:                  staygo74bootstrap
+  - name:                  saygo74bootstrap
     resource_group:        rg-francecentral-storage-shared
     sku:                   Standard_LRS
     kind:                  StorageV2

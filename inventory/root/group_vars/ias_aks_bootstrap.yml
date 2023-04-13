@@ -14,7 +14,7 @@ nodes_resource_group: 'rg-aks-bootstrap-cluster-nodes'
 
 # Aks Network
 virtual_network_name: vnet-spoke
-subnet_name: cluster-nodes-subnet
+subnet_name: net-cluster-nodes
 
 # Link to virtual network hub
 resource_group_hub_name: rg-francecentral-networking-hub

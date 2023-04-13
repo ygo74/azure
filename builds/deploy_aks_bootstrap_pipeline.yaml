@@ -80,7 +80,10 @@ stages:
                 targetType: 'inline'
                 workingDirectory: ansible
                 script: |
-                  ansible-playbook aks_create_cluster.yml -i inventory/ -e ansible_python_interpreter=/usr/bin/python3
+                  ansible-playbook aks_create_cluster.yml \
+                                   -i ../inventory/root \
+                                   -e ansible_python_interpreter=/usr/bin/python3
+
             displayName: 'Create cluster'
             env:
               AZURE_TENANT: $(TenantId)

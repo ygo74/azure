@@ -16,7 +16,7 @@ spec:
     readOnly: false
     volumeHandle: unique-volumeid  # make sure this volumeid is unique for every identical share in the cluster
     volumeAttributes:
-      resourceGroup: rg-aks-aksbootstrap-node  # optional, only set this when storage account is not in the same resource group as node
+      resourceGroup: rg-francecentral-storage-shared  # optional, only set this when storage account is not in the same resource group as node
       shareName: postgresql-aksbootstrap
     nodeStageSecretRef:
       name: secret-storage-bootstrap
@@ -24,8 +24,8 @@ spec:
   mountOptions:
     - dir_mode=0777
     - file_mode=0777
-    - uid=0
-    - gid=0
+    - uid=1001
+    - gid=1001
     - mfsymlinks
     - cache=strict
     - nosharesock

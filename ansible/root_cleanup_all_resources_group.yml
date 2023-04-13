@@ -1,0 +1,31 @@
+---
+- ansible.builtin.import_playbook: aks_remove_cluster.yml
+
+# -----------------------------------------------------------------------------
+# Cleanup All resources groups
+# -----------------------------------------------------------------------------
+- name: Cleanup All resources
+  hosts: all
+  # connection: local
+  run_once: true
+  gather_facts: false
+
+
+  tasks:
+
+    - name: "Cleanup All resources groups - Remove resource group"
+      azure.azcollection.azure_rm_resourcegroup:
+        name:     '{{ _resources_group.name }}'
+        location: '{{ _resources_group.name.location | default(default_location) }}'
+        tags:     '{{ _resources_group.name.tags     | default(omit) }}'
+        state:    'absent'
+        force_delete_nonempty: true
+
+      loop: '{{ all_resources_groups }}'
+
+      loop_control:
+        loop_var: _resources_group
+        label: "Resources group {{ _resources_group.name }}"
+
+      tags:
+        - resources_groups

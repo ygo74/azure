@@ -14,12 +14,21 @@ has_children: true
 {:toc}
 </details>
 
+## Goals
+
+Deploy AKS following several methods / best practices described on the Microsoft learn website with several technologies.
+
+ 
+
+
 ## Sources
 
 * <https://learn.microsoft.com/fr-fr/azure/architecture/reference-architectures/containers/aks/baseline-aks>
 * <https://github.com/mspnp/aks-baseline>
 * <https://github.com/mspnp/aks-fabrikam-dronedelivery>
 * <https://stacksimplify.com/azure-aks/azure-kubernetes-service-introduction/>
+* <https://learn.microsoft.com/fr-fr/azure/aks/operator-best-practices-storage>
+* <https://learn.microsoft.com/fr-fr/azure/aks/azure-csi-disk-storage-provision#dynamically-provision-a-volume>
 
 ## Remarks
 

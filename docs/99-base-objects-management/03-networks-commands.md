@@ -19,7 +19,7 @@ has_children: false
 
 ### Create virtual network
 
-Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet?view=azure-cli-latest#az-network-vnet-create>
+Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet?view=azure-cli-latest#az-network-vnet-create>{:target="_blank"}
 
 ``` powershell
 $aksresourceGroup     = "rg-aks-bootstrap-networking-spoke"
@@ -63,12 +63,12 @@ az network vnet peering create --name np-to-vnet-hub --vnet-name $vnetName --rem
 
 ### Create subnet
 
-Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-create>
+Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-create>{:target="_blank"}
 
 ``` powershell
 $resourceGroup       = "rg-aks-bootstrap-networking-spoke"
 $vnetName            = "vnet-spoke"
-$subnetName          = "cluster-nodes-subnet"
+$subnetName          = "net-cluster-nodes"
 $subnetAddressprefix = "10.240.0.0/22"
 
 az network vnet subnet create `
@@ -81,7 +81,7 @@ az network vnet subnet create `
 
 ### List subnet
 
-Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-list>
+Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-list>{:target="_blank"}
 
 ```powershell
 $resourceGroup     = "rg-aks-bootstrap-networking-spoke"
@@ -95,7 +95,7 @@ az network vnet subnet list -g $resourceGroup --vnet-name $vnetName
 ``` powershell
 $resourceGroup       = "rg-aks-bootstrap-networking-spoke"
 $vnetName            = "vnet-spoke"
-$subnetName          = "cluster-nodes-subnet"
+$subnetName          = "net-cluster-nodes"
 
 az network vnet subnet show -g $aksresourceGroup --vnet-name $vnetName -n $nodesSubnetName --query "id" -o tsv
 
@@ -103,12 +103,12 @@ az network vnet subnet show -g $aksresourceGroup --vnet-name $vnetName -n $nodes
 
 ### Get available ip
 
-Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-list-available-ips>
+Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-list-available-ips>{:target="_blank"}
 
 ``` powershell
 $resourceGroup       = "rg-aks-bootstrap-networking-spoke"
 $vnetName            = "vnet-spoke"
-$subnetName          = "cluster-nodes-subnet"
+$subnetName          = "net-cluster-nodes"
 
 az network vnet subnet list-available-ips --resource-group $aksresourceGroup --vnet-name $vnetName -n $nodesSubnetName
 

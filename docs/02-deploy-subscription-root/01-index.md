@@ -26,4 +26,4 @@ Each new application / services deployment has to request their needs.
 
 ## Deployment status
 
-Azure devops pipeline : [![Build Status](https://dev.azure.com/ygo74/iac/_apis/build/status%2FDeploy%20subscription%20root%20objects?branchName=master)](https://dev.azure.com/ygo74/iac/_build/latest?definitionId=33&branchName=master)
+Azure devops pipeline : [![Build Status](https://dev.azure.com/ygo74/iac/_apis/build/status%2FDeploy%20subscription%20root%20objects?branchName=master)](https://dev.azure.com/ygo74/iac/_build/latest?definitionId=33&branchName=master){:target="_blank"}

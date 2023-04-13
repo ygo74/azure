@@ -17,7 +17,7 @@ has_children: false
 
 ## Resources groups list definition
 
-Resources groups are defined in a dedicated file saved into the inventory all subfolder : **_<https://github.com/ygo74/azure/blob/master/inventory/root/group_vars/all/resources_groups.yml>_**
+Resources groups are defined in a dedicated file saved into the inventory all subfolder : **_<https://github.com/ygo74/azure/blob/master/inventory/root/group_vars/all/resources_groups.yml>_**{:target="_blank"}
 
 All resoures groups are defined under the key **all_resources_groups**
 
