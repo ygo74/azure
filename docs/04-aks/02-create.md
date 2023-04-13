@@ -17,7 +17,6 @@ has_children: false
 
 ## Prerequisites
 
-|                                                                                                     |     |
 |:--------------------------------------------------------------------------------------------------- | --- |
 | [ACR deployed](../03-acr/index.md)                                                                  | ✅ |
 | [Hands on lab Variables loaded](02-prerequisites.md#variables-declaration-for-hands-on-lab-scripts) | ✅ |
@@ -52,7 +51,7 @@ Managed identities can be either system managed identities or user managed ident
 :point_right: Comparison conclusion
 {: .text-blue-300 }
 
-* Don't use service principal to have not to manage password storage, usage and renewal
+* Don't use service principal to avoid password storage, usage and renewal management
 
 * Use user Managed Identity to not give "User Access Administrator" roles on other automation accounts
 
@@ -65,44 +64,6 @@ Managed identities can be either system managed identities or user managed ident
 >  * it is mandatoy to break the provisioning from Ansible
 >  * Use an other execution environment with only Azure-Cli
 >  * Wait more time during the cluster update to switch from System Managed Identity to User Managed Identity
-
-## Create Aks with system managed identities
-
-### Create the cluster
-
-:point_right: **Hands-on lab**
-{: .text-blue-100 }
-
-``` powershell
-
-```
-
-### Apply permissions for cluster System Managed Identity
-
-For Proof of concept, You can choose to let all resources in the cluster nodes resources groups and no permissions grant are needed.
-
-The Hands on lab is just to show how retrieve the cluster identity to apply permission if it is required for the Proof of Concept.
-
-:point_right: **Hands-on lab**
-{: .text-blue-100 }
-
-``` powershell
-# Get Aks Identity
-$aksIdentity = $(az aks show --resource-group $aksresourceGroup --name $aksName --query "identity.principalId" -o tsv)
-if ($null -eq $aksIdentity) { throw "Unable to retrieve aks $aksName identity in resource group $resourceGroup"}
-write-host "Aks identity : $aksIdentity"
-
-# Get resource group Id
-$hubResourceGroupId = $(az group show -n $hubResourceGroup --query "id" -o tsv)
-if ($null -eq $hubResourceGroupId) { throw "Unable to retrieve hub resource group $hubResourceGroup Id"}
-write-host "Hub Resource group Id : $hubResourceGroupId"
-$hubResourceGroupId
-
-# Assign network contributor to AKS Identity on resource group Hub
-az role assignment list --scope $hubResourceGroupId
-az role assignment create --assignee $aksIdentity --scope $hubResourceGroupId --role "Network Contributor"
-
-```
 
 ## Create Aks with user managed identities
 
@@ -148,6 +109,66 @@ az role assignment create --assignee $aksIdentity --scope $hubResourceGroupId --
 
     ```
 
+## Create Aks with system managed identities
+
+:point_right: **Hands-on lab**
+{: .text-blue-100 }
+
+1. Get Subnet and Identities Id
+
+    ``` powershell
+    # Get subnet id
+    $subnetNodeId = $(az network vnet subnet show -g $aksresourceGroup --vnet-name $vnetName -n $nodesSubnetName --query "id" -o tsv)
+    write-host "Subnet node Id : $subnetNodeId"
+
+    ```
+
+2. Create cluster With System Managed identities
+
+    ``` powershell
+    az aks create `
+        --resource-group $aksresourceGroup `
+        --name $aksName `
+        --kubernetes-version 1.24.9 `
+        --node-resource-group $aksNodesResourceGroup `
+        --node-count 1 `
+        --generate-ssh-keys `
+        --attach-acr $acrName `
+        --load-balancer-sku Standard `
+        --network-plugin azure `
+        --vnet-subnet-id $subnetNodeId `
+        --service-cidr $servicesSubnetAddressprefix `
+        --dns-service-ip 10.240.4.2 `
+        --enable-managed-identity
+
+    ```
+
+3. Apply permissions for cluster System Managed Identity
+
+    For Proof of concept, You can choose to let all resources in the cluster nodes resources groups and no permissions grant are needed.
+
+    The Hands on lab is just to show how retrieve the cluster identity to apply permission if it is required for the Proof of Concept.
+
+    :point_right: **Hands-on lab**
+    {: .text-blue-100 }
+
+    ``` powershell
+    # Get Aks Identity
+    $aksIdentity = $(az aks show --resource-group $aksresourceGroup --name $aksName --query "identity.principalId" -o tsv)
+    if ($null -eq $aksIdentity) { throw "Unable to retrieve aks $aksName identity in resource group $resourceGroup"}
+    write-host "Aks identity : $aksIdentity"
+
+    # Get resource group Id
+    $hubResourceGroupId = $(az group show -n $hubResourceGroup --query "id" -o tsv)
+    if ($null -eq $hubResourceGroupId) { throw "Unable to retrieve hub resource group $hubResourceGroup Id"}
+    write-host "Hub Resource group Id : $hubResourceGroupId"
+    $hubResourceGroupId
+
+    # Assign network contributor to AKS Identity on resource group Hub
+    az role assignment list --scope $hubResourceGroupId
+    az role assignment create --assignee $aksIdentity --scope $hubResourceGroupId --role "Network Contributor"
+
+    ```
 
 ## Connect to AKS Cluster
 
