@@ -93,3 +93,9 @@ $postgres_password=[System.Text.Encoding]::UTF8.GetString([System.Convert]::From
 kubectl run postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:15.2.0-debian-11-r16 --env="PGPASSWORD=$postgres_password" `
       --command -- psql --host postgresql -U postgres -d postgres -p 5432
 ```
+
+## Ansible Role: PostgreSQL
+
+* <https://github.com/geerlingguy/ansible-role-postgresql>
+
+Installs and configures PostgreSQL server on RHEL/CentOS or Debian/Ubuntu servers.

@@ -8,11 +8,32 @@
   run_once: true
   gather_facts: false
 
+  vars:
+    cleanup_objects_select_names:
+      - .*
+
+    cleanup_objects_reject_names:
+      - N/A
+
 
   tasks:
 
     - name: Create filters to on demand specific configuration
       block:
+
+        - name: Create filter to specific resource groups
+          set_fact:
+            cleanup_objects_select_names_filter: >-
+              (({{ cleanup_objects_select_names | join(")|(") }}))
+
+            cleanup_objects_select_types_filter: >-
+              (({{ cleanup_objects_select_types | join(")|(") }}))
+
+            cleanup_objects_reject_names_filter: >-
+              (({{ cleanup_objects_reject_names | join(")|(") }}))
+
+            cleanup_objects_reject_types_filter: >-
+              (({{ cleanup_objects_reject_types | join(")|(") }}))
 
         - name: Create filter to specific resource groups
           set_fact:
