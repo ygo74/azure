@@ -24,8 +24,8 @@ has_children: false
 | [Virtual network deployed](./01-prerequisites.md#virtual-network)                                   | ✅ |
 | [User Managed Identities deployed](./01-prerequisites.md#user-managed-identities)                   | ✅ |
 
-[X] test 1
-[X] test 2
+- [X] test 1
+- [X] test 2
 
 ## Cluster identity
 
@@ -54,21 +54,22 @@ Managed identities can be either system managed identities or user managed ident
 :point_right: Comparison conclusion
 {: .text-blue-300 }
 
-* Don't use service principal to avoid password storage, usage and renewal management
+- Don't use service principal to avoid password storage, usage and renewal management
 
-* Use user Managed Identity to not give "User Access Administrator" roles on other automation accounts
+- Use user Managed Identity to not give "User Access Administrator" roles on other automation accounts
 
-* Use System Managed Identity only for Proof of Concept to have less configuration tasks
+- Use System Managed Identity only for Proof of Concept to have less configuration tasks
 
 {: .warning-title }
 > User Managed Identity drawback for Ansible provisioning
 >
 > As It is not yet supported in Ansible azure.azcollection v1.15.0 and a conflict exist between azure.azcollection v1.15.0 and Azure-cli v2.46.0[^1] :
->  * it is mandatoy to break the provisioning from Ansible
->  * Use an other execution environment with only Azure-Cli
->  * Wait more time during the cluster update to switch from System Managed Identity to User Managed Identity
+>
+> - it is mandatoy to break the provisioning from Ansible
+> - Use an other execution environment with only Azure-Cli
+> - Wait more time during the cluster update to switch from System Managed Identity to User Managed Identity
 
-[^1]: Conflict between azure.azcollection v1.15.0 and Azure-cli v2.46.0
+[^1]: [Conflict between azure.azcollection v1.15.0 and Azure-cli v2.46.0](https://github.com/ansible-collections/azure/issues/1138)
 
 ## Create Aks with user managed identities
 

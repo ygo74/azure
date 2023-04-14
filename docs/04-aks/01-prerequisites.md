@@ -23,7 +23,8 @@ $env:path += '{0}\.azure-kubelogin' -f $env:USERPROFILE
 
 all scripts defined in the hands on lab demonstration must be defined before executing the commands.
 
-:point_right: **Hands on lab**
+:point_right: **Hands-on lab**
+{: .text-blue-100 }
 
 ``` powershell
 # Location
@@ -81,7 +82,8 @@ Resources groups used in the deployment are :
 * rg-francecentral-storage-shared : Container which holds disks and storage accounts
 * rg-francecentral-managed_identities : Container which holds user managed identities
 
-:point_right: **Hands on lab**
+:point_right: **Hands-on lab**
+{: .text-blue-100 }
 
 ``` powershell
 # Create Hub Resource Group
@@ -113,7 +115,7 @@ Virtual networks used in the deployment are :
 
 Remarks : The cluster services subnet is managed internaly by the cluster during its provisioning with the cidr 10.240.4.0/28. There is no name, neither link into the virtual network
 
-:point_right: **Hands on lab**
+:point_right: **Hands-on lab**
 {: .text-blue-100 }
 
 ``` powershell
