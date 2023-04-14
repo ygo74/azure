@@ -18,9 +18,6 @@ has_children: true
 
 Deploy AKS following several methods / best practices described on the Microsoft learn website with several technologies.
 
- 
-
-
 ## Sources
 
 * <https://learn.microsoft.com/fr-fr/azure/architecture/reference-architectures/containers/aks/baseline-aks>
@@ -32,11 +29,13 @@ Deploy AKS following several methods / best practices described on the Microsoft
 
 ## Remarks
 
-1. Nodes resources **must not exists** when creating a new cluster
-
-2. Services cidr **must not be** an existing subnet cidr
-
-3. Dns service ip **must be within** the Kubernetes service address range specified in services cidr
+{: .important-title }
+> Configuration notes
+>
+> 1. Nodes resources **must not exists** when creating a new cluster
+> 2. Services cidr **must not be** an existing subnet cidr
+> 3. Dns service ip **must be within** the Kubernetes service address range specified in services cidr
+> 4. ACR and AKS should be in the same location
 
 ## Automatic deployment
 

@@ -11,18 +11,16 @@ Keep the control of resources usages, used identity, and network design.
 
 The following resources are qualified as root objects and can be deployed only by the **root automation service account** :
 
-* Resources groups
-* Virtual Networks
-* Storages
-* User Managed identity
-* Services principals
-* User Managed identity and service principals permissions
+- Resources groups
+- Virtual Networks
+- Storages
+- User Managed identity
+- Services principals
+- User Managed identity and service principals permissions
 
 Each new application / services deployment has to request their needs.
 
 ## Deployment architecture
-
-
 
 ## Deployment status
 

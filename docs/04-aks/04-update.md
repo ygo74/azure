@@ -91,6 +91,11 @@ If Cluster has been created with Ansible (which doesn't support User Managed Ide
 
 1. Update AKS CLuster
 
+    {: .warning-title }
+    > Update duration
+    >
+    > Update operation take long time
+
     ``` powershell
     az aks update `
         --resource-group $aksresourceGroup `
@@ -99,21 +104,39 @@ If Cluster has been created with Ansible (which doesn't support User Managed Ide
         --assign-identity $aksControlPlaneIdentityId `
         --assign-kubelet-identity $aksKubeletIdentityId `
         --yes
+
     ```
 
 1. Upgrade node pool to use the new Kubelet Identity
 
     ``` powershell
+    # Upgrade default node pool
     az aks nodepool upgrade --cluster-name $aksName --resource-group $aksresourceGroup --name default --node-image-only
+
+    ```
+
+1. Restart the cluster
+
     ``` powershell
+    # Stop the cluster
+    az aks stop --name $aksName --resource-group $resourceGroup
+
+    # Wait one minute
+    Start-Sleep -Seconds 60
+
+    # Start the cluster
+    az aks stop --name $aksName --resource-group $resourceGroup
+
+    ```
 
 1. Attach to ACR
 
     ``` powershell
+    # Attach to ACR
     az aks update --name $aksName --resource-group $aksresourceGroup `
                   --attach-acr $acrName
-                  
-    ``` powershell
+
+    ```
 
 ### Attach ACR and enable managed identity
 
@@ -133,4 +156,5 @@ az aks check-acr --resource-group $aksresourceGroup --name $aksName --acr $acrNa
 
 ## Sources
 
-https://learn.microsoft.com/en-us/azure/aks/start-stop-cluster?tabs=azure-cli#stop-an-aks-cluster
+- [Use Managed Identities](https://learn.microsoft.com/en-us/azure/aks/use-managed-identity){:target="_blank"}
+- [Stop / Start an AKS cluster](https://learn.microsoft.com/en-us/azure/aks/start-stop-cluster?tabs=azure-cli#stop-an-aks-cluster){:target="_blank"}
