@@ -119,13 +119,13 @@ If Cluster has been created with Ansible (which doesn't support User Managed Ide
 
     ``` powershell
     # Stop the cluster
-    az aks stop --name $aksName --resource-group $resourceGroup
+    az aks stop --name $aksName --resource-group $aksresourceGroup
 
     # Wait one minute
     Start-Sleep -Seconds 60
 
     # Start the cluster
-    az aks stop --name $aksName --resource-group $resourceGroup
+    az aks start --name $aksName --resource-group $aksresourceGroup
 
     ```
 
