@@ -36,6 +36,16 @@ variables:
   - name:  applicationTestNameSpace
     value: ingress-controller
 
+  - name:  aksControlPlaneIdentity
+    value: umi-aks-bootsrap
+
+  - name:  aksKubeletIdentity
+    value: umi-aks-bootstrap-kubelet
+
+  - name:  managedIdentitiesResourceGroup
+    value: rg-francecentral-managed_identities
+
+
 stages:
   - stage: deploy_aks
     displayName: Deploy AKS Bootstrap
@@ -94,8 +104,8 @@ stages:
       # -----------------------------------------------------------------------------
       # Base Configuration for the cluster
       # -----------------------------------------------------------------------------
-      - job: configure_cluster
-        displayName: Configure Aks Bootstrap
+      - job: configure_cluster_security
+        displayName: Configure Aks Bootstrap security
         dependsOn:
           - create_cluster
         pool:
@@ -106,25 +116,32 @@ stages:
           - task: AzureCLI@2
             inputs:
               azureSubscription: 'Ansible-Automation'
-              scriptType: 'bash'
+              scriptType: 'pscore'
               scriptLocation: 'inlineScript'
               inlineScript: |
-                az aks update -n $(aksName) -g $(resourceGroup) --attach-acr $(acrName) --enable-managed-identity
+                # Get Control Plane identity
+                $aksControlPlaneIdentityPrincipalId = az identity show --name $(aksControlPlaneIdentity) --resource-group $(managedIdentitiesResourceGroup) --query "principalId" -o tsv
+                write-host "Aks Control Plane identity Principal Id : $aksControlPlaneIdentityPrincipalId"
+
+                # Get kubelet identity
+                $aksKubeletIdentityPrincipalId = az identity show --name $(aksKubeletIdentity) --resource-group $(managedIdentitiesResourceGroup) --query "principalId" -o tsv
+                write-host "Aks Kubelet identity Principal Id : $aksKubeletIdentityPrincipalId"
+
               addSpnToEnvironment: true
               useGlobalConfig: true
-            displayName: 'Enable Managed identity and attach to ACR'
+            displayName: 'Configure security'
             continueOnError: true
 
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: 'Ansible-Automation'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                az aks check-acr --resource-group $(resourceGroup) --name $(aksName) --acr aksbootstrap
-              addSpnToEnvironment: true
-              useGlobalConfig: true
-            displayName: 'Check ACR access'
+          # - task: AzureCLI@2
+          #   inputs:
+          #     azureSubscription: 'Ansible-Automation'
+          #     scriptType: 'bash'
+          #     scriptLocation: 'inlineScript'
+          #     inlineScript: |
+          #       az aks check-acr --resource-group $(resourceGroup) --name $(aksName) --acr aksbootstrap
+          #     addSpnToEnvironment: true
+          #     useGlobalConfig: true
+          #   displayName: 'Check ACR access'
 
           - task: Kubernetes@1
             inputs:
