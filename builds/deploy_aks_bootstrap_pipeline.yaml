@@ -90,7 +90,7 @@ stages:
                 targetType: 'inline'
                 workingDirectory: ansible
                 script: |
-                  ansible-playbook aks_create_cluster.yml \
+                  ansible-playbook aks_cluster_create.yml \
                                    -i ../inventory/root \
                                    -e ansible_python_interpreter=/usr/bin/python3
 
@@ -101,11 +101,27 @@ stages:
               AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
               AZURE_SECRET: $(Ansible-Automation)
 
+          - task: Bash@3
+            inputs:
+                targetType: 'inline'
+                workingDirectory: ansible
+                script: |
+                  ansible-playbook aks_cluster_permissions_assign.yml \
+                                   -i ../inventory/root \
+                                   -e ansible_python_interpreter=/usr/bin/python3
+
+            displayName: 'User managed identities permissions'
+            env:
+              AZURE_TENANT: $(TenantId)
+              AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
+              AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
+              AZURE_SECRET: $(Ansible-Automation)
+
       # -----------------------------------------------------------------------------
       # Base Configuration for the cluster
       # -----------------------------------------------------------------------------
       - job: configure_cluster_security
-        displayName: Configure Aks Bootstrap security
+        displayName: Enable User Managed identities
         dependsOn:
           - create_cluster
         pool:
@@ -119,29 +135,28 @@ stages:
               scriptType: 'pscore'
               scriptLocation: 'inlineScript'
               inlineScript: |
-                # Get Control Plane identity
-                $aksControlPlaneIdentityPrincipalId = az identity show --name $(aksControlPlaneIdentity) --resource-group $(managedIdentitiesResourceGroup) --query "principalId" -o tsv
-                write-host "Aks Control Plane identity Principal Id : $aksControlPlaneIdentityPrincipalId"
+                # Get Control plane Identity Id
+                write-host "Retrieve Aks Control Plane identity Principal Id"
+                $aksControlPlaneIdentityId = az identity show --name $(aksControlPlaneIdentity) --resource-group $(managedIdentitiesResourceGroup) --query "id" -o tsv
+                write-host "Aks Control Plane identity Principal Id : $aksControlPlaneIdentityId"
 
-                # Get kubelet identity
-                $aksKubeletIdentityPrincipalId = az identity show --name $(aksKubeletIdentity) --resource-group $(managedIdentitiesResourceGroup) --query "principalId" -o tsv
-                write-host "Aks Kubelet identity Principal Id : $aksKubeletIdentityPrincipalId"
+                # Get kubelet identity Id
+                write-host "Retrieve Aks kubelet identity Principal Id"
+                $aksKubeletIdentityId = az identity show --name $(aksKubeletIdentity) --resource-group $(managedIdentitiesResourceGroup) --query "id" -o tsv
+                write-host "Aks Control Plane identity Principal Id : $aksKubeletIdentityId"
+
+                write-host "Enable Aks User Managed identities"
+                az aks update `
+                    --resource-group $(resourceGroup) `
+                    --name $(aksName) `
+                    --enable-managed-identity `
+                    --assign-identity $aksControlPlaneIdentityId `
+                    --assign-kubelet-identity $aksKubeletIdentityId `
+                    --yes
 
               addSpnToEnvironment: true
               useGlobalConfig: true
-            displayName: 'Configure security'
-            continueOnError: true
-
-          # - task: AzureCLI@2
-          #   inputs:
-          #     azureSubscription: 'Ansible-Automation'
-          #     scriptType: 'bash'
-          #     scriptLocation: 'inlineScript'
-          #     inlineScript: |
-          #       az aks check-acr --resource-group $(resourceGroup) --name $(aksName) --acr aksbootstrap
-          #     addSpnToEnvironment: true
-          #     useGlobalConfig: true
-          #   displayName: 'Check ACR access'
+            displayName: 'Enable Managed identities'
 
           - task: Kubernetes@1
             inputs:

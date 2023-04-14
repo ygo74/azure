@@ -1,0 +1,60 @@
+---
+# -----------------------------------------------------------------------------
+# Set resource group permission
+# -----------------------------------------------------------------------------
+- name: resource_group_permissions_set - Set resource group permission
+  block:
+
+    - name: resource_group_permissions_set - Assert mandatory variables
+      assert:
+        that:
+          - _resource_group_name is defined
+          - _resource_group_location is defined
+          - _principal_id is defined
+          - _permission_role is defined
+        fail_msg: "Missing mandatory variables"
+
+    - name: "resource_group_permissions_set - Get resource group {{ _resource_group_name }} info"
+      azure_rm_resourcegroup_info:
+        name: '{{ _resource_group_name }}'
+      register: __resource_group_info_results
+
+    - name: "resource_group_permissions_set - Assert resource group {{ _resource_group_name }} exists"
+      assert:
+        that:
+          - __resource_group_info_results.resourcegroups | length == 1
+        fail_msg: >
+          Found {{ __resource_group_info_results.resourcegroups | length }} resource group(s)
+          Resource group {{ _resource_group_name }} doesn't exist or found multiple resource groups with same name
+
+    - name: "resource_group_permissions_set - Set resource group {{ _resource_group_name }} info variable"
+      set_fact:
+        __resource_group_info: '{{  __resource_group_info_results.resourcegroups[0] }}'
+
+    - name: "resource_group_permissions_set - Display resource group {{ _resource_group_name }} info"
+      debug:
+        var: __resource_group_info
+        verbosity: 4
+
+    - name: "resource_group_permissions_set - Get role {{ _permission_role }} definition on resource group {{ _resource_group_name }}"
+      azure_rm_roledefinition_info:
+        scope:     '{{ __resource_group_info.id }}'
+        role_name: '{{ _permission_role }}'
+      register: __role_definition_info_results
+
+    - name: "resource_group_permissions_set - Assert role {{ _permission_role }} definition exists on resource group {{ _resource_group_name }}"
+      assert:
+        that:
+          - __role_definition_info_results.roledefinitions | length == 1
+        fail_msg: >
+          Found {{ __role_definition_info_results.roledefinitions | length }} role definition on resource group
+          Role {{ _permission_role }} doesn't exist
+
+    - name: "resource_group_permissions_set - Assign role {{ _permission_role }} for {{ _principal_id }} on resource group {{ _resource_group_name }}"
+      azure_rm_roleassignment:
+        scope:              '{{ __resource_group_info.id }}'
+        assignee_object_id: '{{ _principal_id }}'
+        role_definition_id: '{{ __role_definition_info_results.roledefinitions[0].id }}'
+
+  tags:
+    - permissions

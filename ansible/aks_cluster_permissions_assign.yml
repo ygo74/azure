@@ -1,0 +1,82 @@
+---
+# -----------------------------------------------------------------------------
+# Assign User Managed identities permissions for Azure Kubernetes Service
+# -----------------------------------------------------------------------------
+- name: Assign User Managed identities permissions for Azure Kubernetes Service
+  hosts: aks
+  gather_facts: false
+
+  tasks:
+
+    # -----------------------------------------------------------------------------
+    # Assign permissions for Kubelet identity
+    # -----------------------------------------------------------------------------
+    - name: Assign permissions for Kubelet identity
+      block:
+        - name: Assign permissions for Kubelet identity - Retrieve AKS facts
+          azure.azcollection.azure_rm_aks_info:
+            name:             '{{ cluster_name }}'
+            resource_group:   '{{ resource_group }}'
+          register: _aks_info_results
+
+        - name: "Assign permissions for Kubelet identity - Assert aks cluster {{ cluster_name }} exists"
+          assert:
+            that:
+              - _aks_info_results.aks | length == 1
+            fail_msg: >
+              Found {{ _aks_info_results.aks | length }} aks
+              Aks cluster {{ cluster_name }} doesn't exist
+
+        - name: "Assign permissions for Kubelet identity - Display aks cluster {{ cluster_name }} info"
+          debug:
+            var: _aks_info_results.aks[0]
+            verbosity: 1
+
+        - name: "Assign permissions for Kubelet identity - Get role Managed Identity Operator definition on Kubelet resource id"
+          azure_rm_roledefinition_info:
+            scope:     '{{ _aks_info_results.aks[0].properties.identityProfile.kubeletidentity.resourceId }}'
+            role_name: 'Managed Identity Operator'
+          register: __role_definition_info_results
+
+        - name: "Assign permissions for Kubelet identity - Assert role Managed Identity Operator definition exists on Kubelet resource id"
+          assert:
+            that:
+              - __role_definition_info_results.roledefinitions | length == 1
+            fail_msg: >
+              Found {{ __role_definition_info_results.roledefinitions | length }} role definition on Kubelet resource id
+              Role Managed Identity Operator doesn't exist
+
+        - name: "Assign permissions for Kubelet identity - Assign role Managed Identity Operator for {{ kubelet_principal_id }} on Kubelet resource id"
+          azure_rm_roleassignment:
+            scope:              '{{ _aks_info_results.aks[0].properties.identityProfile.kubeletidentity.resourceId }}'
+            assignee_object_id: '{{ kubelet_principal_id }}'
+            role_definition_id: '{{ __role_definition_info_results.roledefinitions[0].id }}'
+
+    # -----------------------------------------------------------------------------
+    # Assign permissions for Control plane identity
+    # -----------------------------------------------------------------------------
+    - name: Include tasks to assign permission for control plane identity
+      ansible.builtin.include_tasks: ./tasks/resource_group/resource_group_permissions_set.yml
+      vars:
+        _resource_group_name:     '{{ _permission.resource_group }}'
+        _resource_group_location: '{{ _permission.location | default(location) }}'
+        _permission_role:         '{{ _permission.role }}'
+        _principal_id:            '{{ control_plane_principal_id }}'
+
+      loop:
+        - resource_group: '{{ resource_group }}'
+          role: 'Contributor'
+        - resource_group: '{{ nodes_resource_group }}'
+          role: 'Contributor'
+        - resource_group: '{{ resource_group_hub_name }}'
+          role: 'Network Contributor'
+        - resource_group: '{{ storage_resource_group }}'
+          role: 'Contributor'
+        - resource_group: '{{ storage_resource_group }}'
+          role: 'Storage Account Contributor'
+
+      loop_control:
+        loop_var: _permission
+
+      tags:
+        - always

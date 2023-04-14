@@ -3,57 +3,32 @@
 # IAS Aks bootstrap variables
 # -----------------------------------------------------------------------------
 
+# Resource groups
+resource_group:          'rg-aks-bootstrap-networking-spoke'
+nodes_resource_group:    'rg-aks-bootstrap-cluster-nodes'
+resource_group_hub_name: 'rg-francecentral-networking-hub'
+storage_resource_group:  'rg-francecentral-storage-shared'
+
 # cluster information
-location: 'francecentral'
-service_principal_name: Ansible-Automation
 cluster_name: aksbootstrap
-resource_group: rg-aks-bootstrap-networking-spoke
+cluster_tags:
+  scope: bootstrap
 
-# aks node resources group
-nodes_resource_group: 'rg-aks-bootstrap-cluster-nodes'
+# User Managed identities
+control_plane_principal_id: '37bb7a5f-61e4-4ead-8ec2-a73be8a6d3f0'
+kubelet_principal_id:       'da3f3e28-d17f-4b74-822f-7016d5e263c4'
 
-# Aks Network
+# Network configuration
 virtual_network_name: vnet-spoke
 subnet_name: net-cluster-nodes
-
-# Link to virtual network hub
-resource_group_hub_name: rg-francecentral-networking-hub
-virtual_network_hub_name: vnet-hub
 
 # Dashboard
 dashboard_manifest_uri: 'https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml'
 
-# vault
-vault:
-  resource_group: CommonVault
-  name: mesfVault
-
-registries:
-  # - name:               'mesfContainerRegistry'
-  #   resource_group:     'ACR'
-  #   location:           'francecentral'
-  #   sku:                'Basic'
-  #   admin_user_enabled: true
-
-  - name:               'aksbootstrap'
-    resource_group:     'rg-acr-bootstrap'
-    location:           'francecentral'
-    sku:                'Basic'
-    admin_user_enabled: true
-
-aks:
-  resource_group:  'bootstrap'
-  cluster_name:    'aksCluster'
-  node_vm_size:    'Standard_D3_v2'
-  virtual_network:
-    Name:          "ContinuousIntegration_Network"
-    AddressPrefix: "10.2.0.0/16"
-    Subnets:
-      - Name:          "Front"
-        AddressPrefix: "10.2.1.0/24"
-
-serviceprincipals:
-  ut_automation:
-    applicationName: 'ut_automation'
-    roleName:        'Contributor'
-
+# Registry linked to the cluster
+registry:
+  name:               'aksbootstrap'
+  resource_group:     'rg-acr-bootstrap'
+  location:           'francecentral'
+  sku:                'Basic'
+  admin_user_enabled: true

@@ -6,18 +6,15 @@ nav_order: 1
 has_children: false
 ---
 
-## Tools
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
 
-### Install kubelogin
-
-Installation is done thanks to azure-cli into your profile directory.
-
-```powershell
-az aks install-cli
-
-$env:path += '{0}\.azure-kubelogin' -f $env:USERPROFILE
-
-```
 
 ## Variables declaration for Hands On Lab scripts
 

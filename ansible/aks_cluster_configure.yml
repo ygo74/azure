@@ -1,0 +1,58 @@
+- name: Create Azure Kubernetes Service
+  hosts: aks
+  collections:
+    - azure.azcollection
+  vars:
+
+    # Define database users to be deployed
+    postgresql_users:
+      - name:     'XXXXX'
+        password: 'XXXXX'
+
+  # vars_files:
+  #   - ./vault/applications.yml
+
+  tasks:
+
+    - name: Get cluster config
+      tags:
+        - always
+      include_tasks: ./tasks/aks/cluster_config_get.yml
+      when:
+        - _kubeconfig_file_path is not defined
+
+
+    - name: Deploy Dashboard
+      block:
+
+        - name: Download dashboard manifest to the cluster.
+          ansible.builtin.get_url:
+            url:  '{{ dashboard_manifest_uri }}'
+            dest: '~/dashboard-manifest.yaml'
+            mode: '0664'
+
+        - name: Apply Dashboard manifest to the cluster.
+          kubernetes.core.k8s:
+            state:      'present'
+            src:        '~/dashboard-manifest.yaml'
+            kubeconfig: '{{ _kubeconfig_file_path }}'
+
+
+    # - name: Ensure PostgreSQL users are present.
+    #   community.general.postgresql_user:
+    #     name: "{{ item.name }}"
+    #     password: "{{ item.password | default(omit) }}"
+    #     login_host: "{{ item.login_host | default('localhost') }}"
+    #     login_password: "{{ item.login_password | default(omit) }}"
+    #     login_user: "{{ item.login_user | default(postgresql_user) }}"
+    #     login_unix_socket: "{{ item.login_unix_socket | default(postgresql_unix_socket_directories[0]) }}"
+    #     port: "{{ item.port | default(omit) }}"
+    #   with_items: "{{ postgresql_users }}"
+    #   no_log: "{{ postgres_users_no_log }}"
+    #   become: true
+    #   become_user: "{{ postgresql_user }}"
+    #   # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+    #   vars:
+    #     ansible_ssh_pipelining: true
+    #   environment:
+    #     PGOPTIONS: "{{ (postgresql_auth_method == 'scram-sha-256') | ternary('-c password_encryption=scram-sha-256', '') }}"
