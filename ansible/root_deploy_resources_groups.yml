@@ -9,10 +9,10 @@
   gather_facts: false
 
   vars:
-    cleanup_objects_select_names:
+    resources_groups_select_names:
       - .*
 
-    cleanup_objects_reject_names:
+    resources_groups_reject_names:
       - N/A
 
 
@@ -23,21 +23,11 @@
 
         - name: Create filter to specific resource groups
           set_fact:
-            cleanup_objects_select_names_filter: >-
-              (({{ cleanup_objects_select_names | join(")|(") }}))
+            _resources_groups_select_names_filter: >-
+              (({{ resources_groups_select_names | join(")|(") }}))
 
-            cleanup_objects_select_types_filter: >-
-              (({{ cleanup_objects_select_types | join(")|(") }}))
-
-            cleanup_objects_reject_names_filter: >-
-              (({{ cleanup_objects_reject_names | join(")|(") }}))
-
-            cleanup_objects_reject_types_filter: >-
-              (({{ cleanup_objects_reject_types | join(")|(") }}))
-
-        - name: Create filter to specific resource groups
-          set_fact:
-            _resources_groups_calculated_filter: .*
+            _resources_groups_reject_names_filter: >-
+              (({{ resources_groups_reject_names | join(")|(") }}))
 
       tags:
         - always
@@ -53,7 +43,8 @@
             _resources_groups: >-
               {{
                   all_resources_groups
-                  | selectattr("name", "match", _resources_groups_calculated_filter)
+                  | selectattr("name", "match", _resources_groups_select_names_filter)
+                  | rejectattr("name", "match", _resources_groups_reject_names_filter)
                   | list
               }}
 
@@ -62,7 +53,7 @@
           assert:
             that:
               - _resources_groups | length > 0
-            fail_msg: "Don't find resources groups with filter {{ _resources_groups_calculated_filter }}"
+            fail_msg: "Don't find resources groups with filter {{ _resources_groups_select_names_filter }}"
 
         - name: Deploy resources groups - Display found filtered resources groups
           debug:
