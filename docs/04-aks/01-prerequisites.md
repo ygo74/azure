@@ -185,58 +185,58 @@ Managed identities used in the deployment are :
 
 2. Grant aks Control Plane Identity to required resources
 
-    2.1. Get Control plane identity
+   1. Get Control plane identity
 
-        ```powershell
-        # Get Control Plane identity
-        $aksControlPlaneIdentityPrincipalId =$(az identity show --name $aksControlPlaneIdentity --resource-group $managedIdentitiesResourceGroup --query "principalId" -o tsv)
-        write-host "Aks Control Plane identity Principal Id : $aksControlPlaneIdentityPrincipalId"
+      ```powershell
+      # Get Control Plane identity
+      $aksControlPlaneIdentityPrincipalId =$(az identity show --name $aksControlPlaneIdentity --resource-group $managedIdentitiesResourceGroup --query "principalId" -o tsv)
+      write-host "Aks Control Plane identity Principal Id : $aksControlPlaneIdentityPrincipalId"
 
-        ```
+      ```
 
-    2.2. Assign Contributor role on Cluster resource group
+   2. Assign Contributor role on Cluster resource group
 
-        ```powershell
-        # Get Aks resource group Id
-        $aksResourceGroupId = $(az group show -n $aksresourceGroup --query "id" -o tsv)
-        if ($null -eq $aksResourceGroupId) { throw "Unable to retrieve aks resource group $aksresourceGroup Id"}
-        write-host "Aks Resource group Id : $aksResourceGroupId"
+      ```powershell
+      # Get Aks resource group Id
+      $aksResourceGroupId = $(az group show -n $aksresourceGroup --query "id" -o tsv)
+      if ($null -eq $aksResourceGroupId) { throw "Unable to retrieve aks resource group $aksresourceGroup Id"}
+      write-host "Aks Resource group Id : $aksResourceGroupId"
 
-        # Assign role contributor to AKS Identity on AKS resource group
-        az role assignment list --scope $aksResourceGroupId
-        az role assignment create --assignee $aksControlPlaneIdentityPrincipalId --scope $aksResourceGroupId --role "Contributor"
+      # Assign role contributor to AKS Identity on AKS resource group
+      az role assignment list --scope $aksResourceGroupId
+      az role assignment create --assignee $aksControlPlaneIdentityPrincipalId --scope $aksResourceGroupId --role "Contributor"
 
-        ```
+      ```
 
-    2.3. Assign Network Contributor role on Hub resource group
+   3. Assign Network Contributor role on Hub resource group
 
-        ```powershell
+      ```powershell
 
-        # Get hub resource group Id
-        $hubResourceGroupId = $(az group show -n $hubResourceGroup --query "id" -o tsv)
-        if ($null -eq $hubResourceGroupId) { throw "Unable to retrieve hub resource group $hubResourceGroup Id"}
-        write-host "Aks hub Resource group Id : $hubResourceGroupId"
+      # Get hub resource group Id
+      $hubResourceGroupId = $(az group show -n $hubResourceGroup --query "id" -o tsv)
+      if ($null -eq $hubResourceGroupId) { throw "Unable to retrieve hub resource group $hubResourceGroup Id"}
+      write-host "Aks hub Resource group Id : $hubResourceGroupId"
 
-        # Assign network contributor to AKS Identity on resource group Hub
-        az role assignment list --scope $hubResourceGroupId
-        az role assignment create --assignee $aksControlPlaneIdentityPrincipalId --scope $hubResourceGroupId --role "Network Contributor"
+      # Assign network contributor to AKS Identity on resource group Hub
+      az role assignment list --scope $hubResourceGroupId
+      az role assignment create --assignee $aksControlPlaneIdentityPrincipalId --scope $hubResourceGroupId --role "Network Contributor"
 
-        ```
+      ```
 
-    2.4. Assign Storage Account Contributor role on storage resource group
+   4. Assign Storage Account Contributor role on storage resource group
 
-        ```powershell
-        # Get storage resource group Id
-        $aksStorageResourceGroupId = $(az group show -n $aksStorageResourceGroup --query "id" -o tsv)
-        if ($null -eq $aksStorageResourceGroupId) { throw "Unable to retrieve storage resource group $aksStorageResourceGroup Id"}
-        write-host "Aks Storage Resource group Id : $aksStorageResourceGroupId"
+      ```powershell
+      # Get storage resource group Id
+      $aksStorageResourceGroupId = $(az group show -n $aksStorageResourceGroup --query "id" -o tsv)
+      if ($null -eq $aksStorageResourceGroupId) { throw "Unable to retrieve storage resource group $aksStorageResourceGroup Id"}
+      write-host "Aks Storage Resource group Id : $aksStorageResourceGroupId"
 
-        # Assign contributor to AKS Identity on storage resource group
-        az role assignment list --scope $aksStorageResourceGroupId
-        az role assignment create --assignee $aksControlPlaneIdentityPrincipalId --scope $aksStorageResourceGroupId --role "Contributor"
-        az role assignment create --assignee $aksControlPlaneIdentityPrincipalId --scope $aksStorageResourceGroupId --role "Storage Account Contributor"
+      # Assign contributor to AKS Identity on storage resource group
+      az role assignment list --scope $aksStorageResourceGroupId
+      az role assignment create --assignee $aksControlPlaneIdentityPrincipalId --scope $aksStorageResourceGroupId --role "Contributor"
+      az role assignment create --assignee $aksControlPlaneIdentityPrincipalId --scope $aksStorageResourceGroupId --role "Storage Account Contributor"
 
-        ```
+      ```
 
 3. Grant aks Kubelet Identity to required resources
 

@@ -19,10 +19,10 @@ has_children: false
 
 |:--------------------------------------------------------------------------------------------------- | --- |
 | [ACR deployed](../03-acr/index.md)                                                                  | ✅ |
-| [Hands on lab Variables loaded](02-prerequisites.md#variables-declaration-for-hands-on-lab-scripts) | ✅ |
-| [Resources groups deployed](./02-prerequisites.md#resources-groups)                                 | ✅ |
-| [Virtual network deployed](./02-prerequisites.md#virtual-network)                                   | ✅ |
-| [User Managed Identities deployed](./02-prerequisites.md#user-managed-identities)                   | ✅ |
+| [Hands on lab Variables loaded](01-prerequisites.md#variables-declaration-for-hands-on-lab-scripts) | ✅ |
+| [Resources groups deployed](./01-prerequisites.md#resources-groups)                                 | ✅ |
+| [Virtual network deployed](./01-prerequisites.md#virtual-network)                                   | ✅ |
+| [User Managed Identities deployed](./01-prerequisites.md#user-managed-identities)                   | ✅ |
 
 [X] test 1
 [X] test 2
