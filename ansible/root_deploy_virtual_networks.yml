@@ -8,6 +8,14 @@
   run_once: true
   gather_facts: false
 
+  vars:
+    virtual_networks_select_names:
+      - .*
+
+    virtual_networks_reject_names:
+      - N/A
+
+
 
   tasks:
 
@@ -16,7 +24,11 @@
 
         - name: Create filter to specific virtual networks
           set_fact:
-            _virtual_networks_calculated_filter: .*
+            _virtual_networks_select_names_filter: >-
+              (({{ virtual_networks_select_names | join(")|(") }}))
+
+            _virtual_networks_reject_names_filter: >-
+              (({{ virtual_networks_reject_names | join(")|(") }}))
 
       tags:
         - always
@@ -32,7 +44,8 @@
             _virtual_networks: >-
               {{
                   all_virtual_networks
-                  | selectattr("name", "match", _virtual_networks_calculated_filter)
+                  | selectattr("name", "match", _virtual_networks_select_names_filter)
+                  | rejectattr("name", "match", _virtual_networks_reject_names_filter)
                   | list
               }}
 
@@ -41,7 +54,7 @@
           assert:
             that:
               - _virtual_networks | length > 0
-            fail_msg: "Don't find virtual networks with filter {{ _virtual_networks_calculated_filter }}"
+            fail_msg: "Don't find virtual networks with filter {{ _virtual_networks_select_names_filter }}"
 
         - name: Deploy virtual networks - Display found filtered virtual networks
           debug:

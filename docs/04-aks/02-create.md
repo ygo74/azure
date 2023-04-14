@@ -17,15 +17,11 @@ has_children: false
 
 ## Prerequisites
 
-|:--------------------------------------------------------------------------------------------------- | --- |
-| [ACR deployed](../03-acr/index.md)                                                                  | ✅ |
-| [Hands on lab Variables loaded](01-prerequisites.md#variables-declaration-for-hands-on-lab-scripts) | ✅ |
-| [Resources groups deployed](./01-prerequisites.md#resources-groups)                                 | ✅ |
-| [Virtual network deployed](./01-prerequisites.md#virtual-network)                                   | ✅ |
-| [User Managed Identities deployed](./01-prerequisites.md#user-managed-identities)                   | ✅ |
-
-- [X] test 1
-- [X] test 2
+- ✅ [ACR deployed](../03-acr/index.md)
+- ✅ [Hands on lab Variables loaded](01-prerequisites.md#variables-declaration-for-hands-on-lab-scripts)
+- ✅ [Resources groups deployed](./01-prerequisites.md#resources-groups)
+- ✅ [Virtual network deployed](./01-prerequisites.md#virtual-network)
+- ✅ [User Managed Identities deployed](./01-prerequisites.md#user-managed-identities)
 
 ## Cluster identity
 
@@ -65,11 +61,11 @@ Managed identities can be either system managed identities or user managed ident
 >
 > As It is not yet supported in Ansible azure.azcollection v1.15.0 and a conflict exist between azure.azcollection v1.15.0 and Azure-cli v2.46.0[^1] :
 >
-> - it is mandatoy to break the provisioning from Ansible
+> - It is mandatoy to break the provisioning from Ansible
 > - Use an other execution environment with only Azure-Cli
 > - Wait more time during the cluster update to switch from System Managed Identity to User Managed Identity
 
-[^1]: [Conflict between azure.azcollection v1.15.0 and Azure-cli v2.46.0](https://github.com/ansible-collections/azure/issues/1138)
+[^1]: [Conflict between azure.azcollection v1.15.0 and Azure-cli v2.46.0](https://github.com/ansible-collections/azure/issues/1138){:target="_blank"}
 
 ## Create Aks with user managed identities
 
@@ -94,6 +90,8 @@ Managed identities can be either system managed identities or user managed ident
     ```
 
 2. Create cluster With User Managed identities
+
+    Source : <https://learn.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-create>{:target="_blank"}
 
     ``` powershell
     az aks create `
@@ -192,5 +190,7 @@ az aks check-acr --resource-group $aksresourceGroup --name $aksName --acr $acrNa
 
 ### Sources
 
-* [Use Managed Identities](https://learn.microsoft.com/en-us/azure/aks/use-managed-identity){:target="_blank"}
-* [Use Service Principal](https://learn.microsoft.com/en-us/azure/aks/kubernetes-service-principal?tabs=azure-cli){:target="_blank"}
+- [Use Managed Identities](https://learn.microsoft.com/en-us/azure/aks/use-managed-identity){:target="_blank"}
+- [Use Service Principal](https://learn.microsoft.com/en-us/azure/aks/kubernetes-service-principal?tabs=azure-cli){:target="_blank"}
+
+### Notes

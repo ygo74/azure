@@ -104,6 +104,29 @@ write-host "Node resources group is : $aksNodesResourceGroupaz"
 
 ```
 
+## Stop aks cluster
+
+Source : https://learn.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-stop
+
+``` powershell
+$aksName       = "aksbootstrap"
+$resourceGroup = "rg-aks-bootstrap-networking-spoke"
+
+az aks stop --name $aksName --resource-group $resourceGroup
+
+```
+
+## Start aks cluster
+
+Source : https://learn.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-start
+
+``` powershell
+$aksName       = "aksbootstrap"
+$resourceGroup = "rg-aks-bootstrap-networking-spoke"
+
+az aks start --name $aksName --resource-group $resourceGroup
+
+```
 
 
 ## Deprecated

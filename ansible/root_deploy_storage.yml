@@ -8,6 +8,13 @@
   run_once: true
   gather_facts: false
 
+  vars:
+    storages_select_names:
+      - .*
+
+    storages_reject_names:
+      - N/A
+
   tasks:
 
 
@@ -16,7 +23,11 @@
 
         - name: Create filter to specific storages
           set_fact:
-            _storages_calculated_filter: .*
+            _storages_select_names_filter: >-
+              (({{ storages_select_names | join(")|(") }}))
+
+            _storages_reject_names_filter: >-
+              (({{ storages_reject_names | join(")|(") }}))
 
       tags:
         - always
@@ -32,7 +43,8 @@
             _storages: >-
               {{
                   all_storages
-                  | selectattr("name", "match", _storages_calculated_filter)
+                  | selectattr("name", "match", _storages_select_names_filter)
+                  | rejectattr("name", "match", _storages_reject_names_filter)
                   | list
               }}
 
@@ -41,7 +53,7 @@
           assert:
             that:
               - _storages | length > 0
-            fail_msg: "Don't find storages with filter {{ _storages_calculated_filter }}"
+            fail_msg: "Don't find storages with filter {{ _storages_select_names_filter }}"
 
         - name: Deploy storages - Display found filtered storages
           debug:
