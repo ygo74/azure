@@ -15,8 +15,8 @@ cluster_tags:
   scope: bootstrap
 
 # User Managed identities
-control_plane_principal_id: '47ecf5d4-fd43-4550-b804-8476922dc576'
-kubelet_principal_id:       '5001e190-2929-4dde-b510-52875229db0d'
+control_plane_principal_id: 'e195dbf8-62e9-40b8-a66f-1b5c09f1f8ce'
+kubelet_principal_id:       'bd75fc52-d274-4576-8bbf-7189757c4d23'
 
 # Network configuration
 virtual_network_name: vnet-spoke
