@@ -92,7 +92,8 @@ stages:
                 script: |
                   ansible-playbook aks_cluster_create.yml \
                                    -i ../inventory/root \
-                                   -e ansible_python_interpreter=/usr/bin/python3
+                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
             displayName: 'Create cluster'
             env:
@@ -100,6 +101,7 @@ stages:
               AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
               AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
               AZURE_SECRET: $(Ansible-Automation)
+              ANSIBLE_VAULT_PASSWORD: $(ansible-vault-password)
 
           - task: Bash@3
             inputs:
@@ -108,7 +110,8 @@ stages:
                 script: |
                   ansible-playbook aks_cluster_permissions_assign.yml \
                                    -i ../inventory/root \
-                                   -e ansible_python_interpreter=/usr/bin/python3
+                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
             displayName: 'User managed identities permissions'
             env:
@@ -116,6 +119,7 @@ stages:
               AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
               AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
               AZURE_SECRET: $(Ansible-Automation)
+              ANSIBLE_VAULT_PASSWORD: $(ansible-vault-password)
 
       # -----------------------------------------------------------------------------
       # Base Configuration for the cluster
@@ -170,7 +174,7 @@ stages:
               containerRegistryType: 'Azure Container Registry'
             displayName: 'Deploy standard kubernetes dashboard'
 
-  - stage: cert_manager
+  - stage: configure_aks
     displayName: Configure cert-manager
     dependsOn:
       - deploy_aks
@@ -184,6 +188,8 @@ stages:
         pool:
             vmImage: 'ubuntu-latest'
 
+        container: ansible_az
+
         steps:
 
           - task: Bash@3
@@ -191,76 +197,52 @@ stages:
                 targetType: 'inline'
                 workingDirectory: ansible
                 script: |
-                  export
-            displayName: 'Display environment'
+                  ansible-playbook aks_cluster_configure.yml \
+                                   -i ../inventory/root \
+                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   -t cert_manager \
+                                   --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
-
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: 'Ansible-Automation'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                # Install kubectl
-                az aks install-cli
-
-                # Get credentials for the AKS cluster
-                az aks get-credentials --resource-group rg-aks-bootstrap-networking-spoke --name aksbootstrap
-
-                if kubectl get namespace cert-manager; then
-                  echo "Namespace cert-manager already exists"
-                else
-                  kubectl create namespace cert-manager
-                fi
-
-                # Run kubectl command
-                kubectl label namespace cert-manager cert-manager.io/disable-validation=true
-            displayName: 'Create cert-manager namespace'
-
-          - task: Bash@3
-            inputs:
-              targetType: 'inline'
-              script: |
-                # Add the Jetstack Helm repository
-                helm repo add jetstack https://charts.jetstack.io
-
-                # Update your local Helm chart repository cache
-                helm repo update
-            displayName: 'Add jetstack repo'
-
-          - task: HelmDeploy@0
-            inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscription: 'Ansible-Automation'
-              azureResourceGroup: 'rg-aks-bootstrap-networking-spoke'
-              kubernetesCluster: 'aksbootstrap'
-              command: 'upgrade'
-              chartType: 'Name'
-              chartName: 'jetstack/cert-manager'
-              releaseName: 'cert-manager'
-              namespace: 'cert-manager'
-              overrideValues: |
-                installCRDs=true
-                nodeSelector."kubernetes\.io/os"=linux
-
-              recreate: true
-              resetValues: true
-              install: true
             displayName: 'Deploy cert manager'
+            env:
+              AZURE_TENANT: $(TenantId)
+              AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
+              AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
+              AZURE_SECRET: $(Ansible-Automation)
+              ANSIBLE_VAULT_PASSWORD: $(ansible-vault-password)
 
-  - stage: ingress_controller
-    displayName: Configure ingress controller
-    dependsOn:
-      - cert_manager
 
-    jobs:
+          # - task: HelmDeploy@0
+          #   inputs:
+          #     connectionType: 'Azure Resource Manager'
+          #     azureSubscription: 'Ansible-Automation'
+          #     azureResourceGroup: 'rg-aks-bootstrap-networking-spoke'
+          #     kubernetesCluster: 'aksbootstrap'
+          #     command: 'upgrade'
+          #     chartType: 'Name'
+          #     chartName: 'jetstack/cert-manager'
+          #     releaseName: 'cert-manager'
+          #     namespace: 'cert-manager'
+          #     overrideValues: |
+          #       installCRDs=true
+          #       nodeSelector."kubernetes\.io/os"=linux
+
+          #     recreate: true
+          #     resetValues: true
+          #     install: true
+          #   displayName: 'Deploy cert manager'
+
       # -----------------------------------------------------------------------------
-      # Install Ingress controller
+      # Install Cert Manager
       # -----------------------------------------------------------------------------
-      - job: install_ingress_controller
-        displayName: Install Ingress controller
+      - job: configure_ingress_controller
+        displayName: Configure Ingress Controller
         pool:
             vmImage: 'ubuntu-latest'
+        dependsOn:
+          - configure_cert_manager
+
+        container: ansible_az
 
         steps:
 
@@ -269,84 +251,31 @@ stages:
                 targetType: 'inline'
                 workingDirectory: ansible
                 script: |
-                  export
-            displayName: 'Display environment'
+                  ansible-playbook aks_cluster_configure.yml \
+                                   -i ../inventory/root \
+                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   -t ingress_controller \
+                                   --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
+            displayName: 'Deploy Ingress Controller'
+            env:
+              AZURE_TENANT: $(TenantId)
+              AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
+              AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
+              AZURE_SECRET: $(Ansible-Automation)
+              ANSIBLE_VAULT_PASSWORD: $(ansible-vault-password)
 
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: 'Ansible-Automation'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                # Install kubectl
-                az aks install-cli
+  - stage: test_application
+    displayName: Deploy test application
+    dependsOn:
+      - configure_aks
 
-                # Get credentials for the AKS cluster
-                az aks get-credentials --resource-group rg-aks-bootstrap-networking-spoke --name aksbootstrap
-
-                if kubectl get namespace ingress-controller; then
-                  echo "Namespace ingress-controller already exists"
-                else
-                  kubectl create namespace ingress-controller
-                fi
-
-                # Run kubectl command
-                kubectl label namespace ingress-controller cert-manager.io/disable-validation=true
-            displayName: 'Create ingress-controller namespace'
-
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: 'Ansible-Automation'
-              scriptType: 'pscore'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                $publicIp = $(az network public-ip show -g $(aksPublicIpResourceGroup) -n $(aksPublicIpName) -o tsv --query "ipAddress")
-                write-host "Found ip : $publicIp"
-                Write-Host "##vso[task.setvariable variable=publicIp;]$publicIp"
-
-            displayName: 'Retrieve Public IP value'
-
-          - task: Bash@3
-            inputs:
-              targetType: 'inline'
-              script: |
-                # Add the  ingress-nginx Helm repository
-                helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-
-                # Update your local Helm chart repository cache
-                helm repo update
-            displayName: 'Add ingress-nginx repo'
-
-          - task: HelmDeploy@0
-            inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscription: 'Ansible-Automation'
-              azureResourceGroup: 'rg-aks-bootstrap-networking-spoke'
-              kubernetesCluster: 'aksbootstrap'
-              command: 'upgrade'
-              chartType: 'Name'
-              chartName: 'ingress-nginx/ingress-nginx'
-              releaseName: 'ingress-nginx'
-              namespace: 'ingress-controller'
-              overrideValues: |
-                controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-resource-group"=$(aksPublicIpResourceGroup)
-                controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
-                controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(aksPublicIpDnsLabel)
-                controller.service.loadBalancerIP=$(publicIp)
-
-              recreate: true
-              resetValues: true
-              install: true
-            displayName: 'Deploy ingress controller'
-
+    jobs:
       # -----------------------------------------------------------------------------
       # deploy application test
       # -----------------------------------------------------------------------------
       - job: deploy_test_application
         displayName: Deploy test application
-        dependsOn:
-          - install_ingress_controller
         pool:
             vmImage: 'ubuntu-latest'
 

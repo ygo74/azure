@@ -5,7 +5,7 @@
 # -----------------------------------------------------------------------------
 - name: cert_manager_set - Deploy Cert-Manager
   tags:
-    - cert-manager
+    - cert_manager
   block:
 
     - name: cert_manager_set - Get cluster config
