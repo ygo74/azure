@@ -10,8 +10,26 @@
   run_once: true
   gather_facts: false
 
+  vars:
+
+    resources_groups_reject_names:
+      - rg-francecentral-managed_identities
+
 
   tasks:
+
+    - name: Create filters to on demand specific configuration
+      block:
+
+        - name: Create filter to specific resource groups
+          set_fact:
+
+            _resources_groups_reject_names_filter: >-
+              (({{ resources_groups_reject_names | join(")|(") }}))
+
+      tags:
+        - always
+
 
     - name: "Cleanup All resources groups - Remove resource group"
       azure.azcollection.azure_rm_resourcegroup:
@@ -21,7 +39,11 @@
         state:    'absent'
         force_delete_nonempty: true
 
-      loop: '{{ all_resources_groups }}'
+      loop: >-
+        {{
+           all_resources_groups
+           | rejectattr("name", "match", _resources_groups_reject_names_filter )
+        }}
 
       loop_control:
         loop_var: _resources_group

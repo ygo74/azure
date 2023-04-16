@@ -162,6 +162,39 @@ stages:
               useGlobalConfig: true
             displayName: 'Enable Managed identities'
 
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Ansible-Automation'
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                # Upgrade default node pool
+                az aks nodepool upgrade --cluster-name $(aksName) --resource-group $(resourceGroup) --name default --node-image-only
+
+              addSpnToEnvironment: true
+              useGlobalConfig: true
+            displayName: 'Upgrade node pools with kubelet identity'
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Ansible-Automation'
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                # Stop the cluster
+                az aks stop --name $(aksName) --resource-group $(resourceGroup)
+
+                # Wait one minute
+                Start-Sleep -Seconds 60
+
+                # Start the cluster
+                az aks start --name $(aksName) --resource-group $(resourceGroup)
+
+
+              addSpnToEnvironment: true
+              useGlobalConfig: true
+            displayName: 'Restart cluster'
+
           - task: Kubernetes@1
             inputs:
               connectionType: 'Azure Resource Manager'
@@ -175,7 +208,7 @@ stages:
             displayName: 'Deploy standard kubernetes dashboard'
 
   - stage: configure_aks
-    displayName: Configure cert-manager
+    displayName: Configure AKS Bootstrap
     dependsOn:
       - deploy_aks
 
