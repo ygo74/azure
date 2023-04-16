@@ -90,3 +90,22 @@
           network_plugin: azure
 
         tags: '{{ cluster_tags | default({}) }}'
+
+    - name: Get cluster config
+      tags:
+        - always
+      include_tasks: ./tasks/aks/cluster_config_get.yml
+      when:
+        - _kubeconfig_file_path is not defined
+
+    - name: Get a list of all nodes
+      kubernetes.core.k8s_info:
+        kind: Node
+        kubeconfig: '{{ _kubeconfig_file_path }}'
+      register: nodes_list
+
+    - name: Assert cluster nodes exist
+      assert:
+        that:
+          - nodes_list.resources | length > 0
+        fail_msg: No node exist in the cluster

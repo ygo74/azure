@@ -9,8 +9,8 @@
       - name:     'XXXXX'
         password: 'XXXXX'
 
-  # vars_files:
-  #   - ./vault/applications.yml
+  vars_files:
+    - ./vault/applications.yml
 
   tasks:
 
@@ -21,38 +21,34 @@
       when:
         - _kubeconfig_file_path is not defined
 
+    - name: Import tasks to deploy Dashboard
+      import_tasks: ./tasks/aks/dashboard_set.yml
 
-    - name: Deploy Dashboard
-      block:
+    - name: Import tasks to deploy cert-manager
+      import_tasks: ./tasks/aks/cert_manager_set.yml
 
-        - name: Download dashboard manifest to the cluster.
-          ansible.builtin.get_url:
-            url:  '{{ dashboard_manifest_uri }}'
-            dest: '~/dashboard-manifest.yaml'
-            mode: '0664'
+    - name: Create a public ip address
+      tags:
+        - always
+      azure_rm_publicipaddress:
+        resource_group:    '{{ resource_group_hub_name }}'
+        name:              pi-inventory-gateway
+        allocation_method: Static
+        domain_name:       inventory
+        sku: Standard
+      register: _ip_inventory_result
 
-        - name: Apply Dashboard manifest to the cluster.
-          kubernetes.core.k8s:
-            state:      'present'
-            src:        '~/dashboard-manifest.yaml'
-            kubeconfig: '{{ _kubeconfig_file_path }}'
+    - debug: var=_ip_inventory_result
+      tags:
+        - always
+
+    - name: Include tasks to deploy nginx ingress controller
+      tags:
+        - always
+      include_tasks: ./tasks/aks/ingress_controller_nginx_set.yml
+      vars:
+        _ingress_controller_ip:             '{{ _ip_inventory_result.state.ip_address }}'
+        _ingress_controller_dns_name:       '{{ _ip_inventory_result.state.dns_settings.domain_name_label }}'
+        _ingress_controller_resource_group: '{{ resource_group_hub_name }}'
 
 
-    # - name: Ensure PostgreSQL users are present.
-    #   community.general.postgresql_user:
-    #     name: "{{ item.name }}"
-    #     password: "{{ item.password | default(omit) }}"
-    #     login_host: "{{ item.login_host | default('localhost') }}"
-    #     login_password: "{{ item.login_password | default(omit) }}"
-    #     login_user: "{{ item.login_user | default(postgresql_user) }}"
-    #     login_unix_socket: "{{ item.login_unix_socket | default(postgresql_unix_socket_directories[0]) }}"
-    #     port: "{{ item.port | default(omit) }}"
-    #   with_items: "{{ postgresql_users }}"
-    #   no_log: "{{ postgres_users_no_log }}"
-    #   become: true
-    #   become_user: "{{ postgresql_user }}"
-    #   # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
-    #   vars:
-    #     ansible_ssh_pipelining: true
-    #   environment:
-    #     PGOPTIONS: "{{ (postgresql_auth_method == 'scram-sha-256') | ternary('-c password_encryption=scram-sha-256', '') }}"

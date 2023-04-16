@@ -67,6 +67,16 @@ Managed identities can be either system managed identities or user managed ident
 
 [^1]: [Conflict between azure.azcollection v1.15.0 and Azure-cli v2.46.0](https://github.com/ansible-collections/azure/issues/1138){:target="_blank"}
 
+## Remarks
+
+{: .important-title }
+> Configuration notes
+>
+> 1. Nodes resources **must not exists** when creating a new cluster
+> 2. Services cidr **must not be** an existing subnet cidr
+> 3. Dns service ip **must be within** the Kubernetes service address range specified in services cidr
+> 4. ACR and AKS should be in the same location
+
 ## Create Aks with user managed identities
 
 :point_right: **Hands-on lab**
@@ -188,9 +198,9 @@ az aks check-acr --resource-group $aksresourceGroup --name $aksName --acr $acrNa
 
 ```
 
-### Sources
+## Sources
 
 - [Use Managed Identities](https://learn.microsoft.com/en-us/azure/aks/use-managed-identity){:target="_blank"}
 - [Use Service Principal](https://learn.microsoft.com/en-us/azure/aks/kubernetes-service-principal?tabs=azure-cli){:target="_blank"}
 
-### Notes
+## Notes

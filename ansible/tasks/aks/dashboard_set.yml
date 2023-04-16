@@ -1,0 +1,27 @@
+
+---
+# -----------------------------------------------------------------------------
+# Deploy dashboard
+# -----------------------------------------------------------------------------
+- name: dashboard_set - Deploy Dashboard
+  tags:
+    - dashboard
+  block:
+
+    - name: dashboard_set - Get cluster config
+      include_tasks: ./tasks/aks/cluster_config_get.yml
+      when:
+        - _kubeconfig_file_path is not defined
+
+    - name: dashboard_set - Download dashboard manifest to the cluster.
+      ansible.builtin.get_url:
+        url:  '{{ dashboard_manifest_uri }}'
+        dest: '~/dashboard-manifest.yaml'
+        mode: '0664'
+
+    - name: dashboard_set - Apply Dashboard manifest to the cluster.
+      kubernetes.core.k8s:
+        state:      'present'
+        src:        '~/dashboard-manifest.yaml'
+        kubeconfig: '{{ _kubeconfig_file_path }}'
+

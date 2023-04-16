@@ -27,16 +27,6 @@ Deploy AKS following several methods / best practices described on the Microsoft
 * <https://learn.microsoft.com/fr-fr/azure/aks/operator-best-practices-storage>
 * <https://learn.microsoft.com/fr-fr/azure/aks/azure-csi-disk-storage-provision#dynamically-provision-a-volume>
 
-## Remarks
-
-{: .important-title }
-> Configuration notes
->
-> 1. Nodes resources **must not exists** when creating a new cluster
-> 2. Services cidr **must not be** an existing subnet cidr
-> 3. Dns service ip **must be within** the Kubernetes service address range specified in services cidr
-> 4. ACR and AKS should be in the same location
-
 ## Automatic deployment
 
 ### Deploy with ansible
@@ -47,9 +37,16 @@ cd .\cloud\azure\ansible
 docker run --rm -it -v C:\Users\Administrator\azure_config_ansible.cfg:/root/.azure/credentials -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
 
 # Use environment file
-docker run --rm -it --env-file C:\Users\Administrator\azure_credentials  -v "$(Get-Location):/myapp:rw" -w /myapp local/ansible bash
+docker run --rm -it --env-file C:\Users\Administrator\azure_credentials  -v "$(Get-Location)/ansible:/ansible:rw" -v "$(Get-Location)/inventory:/inventory:rw" -w /ansible local/ansible bash
 
-ansible-playbook aks_create_cluster.yml -i inventory/
+# Create cluster
+ansible-playbook aks_cluster_create.yml -i /inventory/root/
+
+# Assign permission : need User Managed identities principal id before
+ansible-playbook aks_cluster_permissions_assign.yml -i /inventory/root/
+
+# Configure cluster
+ansible-playbook aks_cluster_configure.yml -i /inventory/root/
 ```
 
 ### Deploy with powershell

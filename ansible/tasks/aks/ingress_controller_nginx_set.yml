@@ -1,0 +1,81 @@
+
+---
+# -----------------------------------------------------------------------------
+# Deploy nginx ingress controller
+# -----------------------------------------------------------------------------
+- name: ingress_controller_nginx_set - Deploy nginx ingress controller
+  tags:
+    - ingress_controller
+  block:
+
+    - name: ingress_controller_nginx_set - Assert Mandatory values
+      assert:
+        that:
+          - _ingress_controller_ip is defined
+          - _ingress_controller_dns_name is defined
+          - _ingress_controller_resource_group is defined
+        fail_msg: "Missing mandatory values"
+
+    - name: ingress_controller_nginx_set - Get cluster config
+      include_tasks: ./tasks/aks/cluster_config_get.yml
+      when:
+        - _kubeconfig_file_path is not defined
+
+    - name: ingress_controller_nginx_set - Ceate namespace ingress-controller
+      kubernetes.core.k8s:
+        name:        'ingress-controller'
+        api_version: 'v1'
+        kind:        'Namespace'
+        state:       'present'
+        kubeconfig:  '{{ _kubeconfig_file_path }}'
+        definition:
+          metadata:
+            labels:
+              cert-manager.io/disable-validation: "true"
+
+    - name: ingress_controller_nginx_set - Add ingress-nginx repository
+      kubernetes.core.helm_repository:
+        name:       'ingress-nginx'
+        repo_url:   'https://kubernetes.github.io/ingress-nginx'
+        kubeconfig: '{{ _kubeconfig_file_path }}'
+
+
+    - name: ingress_controller_nginx_set - Deploy ingress-nginx/ingress-nginx chart
+      ansible.builtin.shell: |
+          helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
+            --install \
+            --create-namespace \
+            --namespace ingress-controller \
+            --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-resource-group"={{ _ingress_controller_resource_group}} \
+            --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz \
+            --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"={{ _ingress_controller_dns_name }} \
+            --set controller.service.loadBalancerIP={{ _ingress_controller_ip }} \
+            --kubeconfig {{ _kubeconfig_file_path }}
+
+          exit 0
+      run_once: true
+      delegate_to: localhost
+      failed_when:
+        - '"STATUS: deployed" not in _helm_result.stdout_lines'
+      changed_when:
+        - '"STATUS: deployed" in _helm_result.stdout_lines'
+      register: _helm_result
+
+
+    - name: ingress_controller_nginx_set - Display chart installation result
+      debug:
+        msg: '{{ _helm_result.stdout_lines }}'
+
+    - name: ingress_controller_nginx_set - Get a list of all pods from ingress-controller namespace
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: ingress-controller
+        kubeconfig: '{{ _kubeconfig_file_path }}'
+      register: _ingress_controller_pods_list
+
+    - name: ingress_controller_nginx_set - Assert pods exist
+      assert:
+        that:
+          - _ingress_controller_pods_list.resources | length > 0
+        fail_msg: No node exist in the cluster
+

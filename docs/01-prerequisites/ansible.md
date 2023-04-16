@@ -44,3 +44,7 @@ RUN apk update && apk upgrade \
     && apk del --purge build
 
 ```
+
+curl -fsSL -o helm-v3.11.3-linux-amd64.tar.gz https://get.helm.sh/helm-v3.11.3-linux-amd64.tar.gz
+tar -zxvf helm-v3.11.3-linux-amd64.tar.gz
+mv linux-amd64/helm /usr/local/bin/helm
