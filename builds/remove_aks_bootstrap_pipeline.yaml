@@ -34,10 +34,16 @@ stages:
                 targetType: 'inline'
                 workingDirectory: ansible
                 script: |
-                  ansible-playbook aks_remove_cluster.yml -i inventory/ -e ansible_python_interpreter=/usr/bin/python3
+                  ansible-playbook aks_remove_cluster.yml \
+                                   -i ../inventory/root \
+                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
+
             displayName: 'Remove cluster'
             env:
               AZURE_TENANT: $(TenantId)
               AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
               AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
               AZURE_SECRET: $(Ansible-Automation)
+              ANSIBLE_VAULT_PASSWORD: $(ansible-vault-password)
+
