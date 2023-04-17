@@ -103,25 +103,43 @@ Managed identities can be either system managed identities or user managed ident
 
     Source : <https://learn.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-create>{:target="_blank"}
 
-    ``` powershell
-    az aks create `
-        --resource-group $aksresourceGroup `
-        --name $aksName `
-        --kubernetes-version 1.24.9 `
-        --node-resource-group $aksNodesResourceGroup `
-        --node-count 1 `
-        --generate-ssh-keys `
-        --attach-acr $acrName `
-        --load-balancer-sku Standard `
-        --network-plugin azure `
-        --vnet-subnet-id $subnetNodeId `
-        --service-cidr $servicesSubnetAddressprefix `
-        --dns-service-ip 10.240.4.2 `
-        --enable-managed-identity `
-        --assign-identity $aksControlPlaneIdentityId `
-        --assign-kubelet-identity $aksKubeletIdentityId
+{% tabs createAKS %}
 
-    ```
+{% tab createAKS Azure-Cli %}
+
+``` powershell
+az aks create `
+    --resource-group $aksresourceGroup `
+    --name $aksName `
+    --kubernetes-version 1.24.9 `
+    --node-resource-group $aksNodesResourceGroup `
+    --node-count 1 `
+    --generate-ssh-keys `
+    --attach-acr $acrName `
+    --load-balancer-sku Standard `
+    --network-plugin azure `
+    --vnet-subnet-id $subnetNodeId `
+    --service-cidr $servicesSubnetAddressprefix `
+    --dns-service-ip 10.240.4.2 `
+    --enable-managed-identity `
+    --assign-identity $aksControlPlaneIdentityId `
+    --assign-kubelet-identity $aksKubeletIdentityId
+
+```
+
+{% endtab %}
+
+{% tab createAKS Ansible %}
+
+{: .warning-title }
+> Create AKS Cluster with User Managed Identities Not Yet Supported
+>
+> Ansible module **azure.azcollection.azure_rm_aks** only supports System Managed Identity or Service Principal.
+
+{% endtab %}
+
+{% endtabs %}
+
 
 ## Create Aks with system managed identities
 
