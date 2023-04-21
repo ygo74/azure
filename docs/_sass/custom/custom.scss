@@ -66,4 +66,8 @@ h3 { color: #264caf !important; }
     display: initial;
 }
 
-.main-content ul > li::before {content: "";}
+.tab > li.active::before {content: "";}
+.tab li::before {content: "" !important}
+
+.tab-content > li.active::before {content: "";}
+.tab-content > li::before {content: "";}
