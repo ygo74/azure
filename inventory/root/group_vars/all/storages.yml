@@ -3,7 +3,7 @@
 # Define all storages for the subscription
 # -----------------------------------------------------------------------------
 
-all_storages:
+all_storage_accounts:
 
   - name:                  saygo74bootstrap
     resource_group:        rg-francecentral-storage-shared

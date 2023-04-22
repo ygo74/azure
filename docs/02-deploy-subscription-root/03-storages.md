@@ -19,7 +19,7 @@ has_children: false
 
 Storages are defined in a dedicated file saved into the inventory all subfolder : **_<https://github.com/ygo74/azure/blob/master/inventory/root/group_vars/all/storages.yml>_**{:target="_blank"}
 
-All storages are defined under the key **all_storages**
+All storages are defined under the key **all_storage_accounts**
 
 1. Storage definition
 
@@ -44,7 +44,7 @@ All storages are defined under the key **all_storages**
 2. File Sample
 
     ``` yaml
-    all_storages:
+    all_storage_accounts:
 
       - name:                  staygo74bootstrap
         resource_group:        rg-francecentral-storage-shared

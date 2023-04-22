@@ -20,6 +20,30 @@ has_children: false
 * <https://learn.microsoft.com/en-us/azure/aks/concepts-storage>
 * <https://learn.microsoft.com/en-us/azure/aks/azure-csi-files-storage-provision>
 
+## Disk
+
+``` powershell
+# Get disk id
+$aksPostgresDiskId = az disk show -n $aksPostgresqlDisk -g $aksStorageResourceGroup --query id --output tsv
+if ($null -eq $aksPostgresDiskId) { throw "Unable to retrieve Disk $aksPostgresqlDisk Id"}
+write-host "Postgresql disk ID : $aksPostgresDiskId"
+
+# Create persistent volume
+(Get-Content .\resources\aks\volumes\disks\postgresql-disk-pv.yml -Raw) `
+  -replace "\`${POSTGRESQL_DISK_ID}", $aksPostgresDiskId `
+  | kubectl apply -f -
+
+# Create persistent volume Claim
+ kubectl apply -f .\resources\aks\volumes\disks\postgresql-disk-pvc.yml
+
+# Check disk bind status
+# $diskBindStatus = kubectl get pvc -o jsonpath="{.items[*].status.phase}"
+$diskBindStatus = kubectl get pvc pvc-postgresql-dyninv -n default -o jsonpath="{.status.phase}" -wait
+if ($diskBindStatus -ne "Bound") { throw "Unable to bind Disk $aksPostgresqlDisk"}
+write-host "Postgresql disk bind status : $diskBindStatus"
+
+```
+
 ## Create and use a volume with Azure Files in Azure Kubernetes Service (AKS) 
 
 ### Create a storage account
@@ -83,7 +107,7 @@ helm repo update
 helm upgrade postgresql bitnami/postgresql `
   --install `
   --namespace default `
-  --set primary.persistence.existingClaim=azure-managed-disk `
+  --set primary.persistence.existingClaim=pvc-postgresql-dyninv `
   --set volumePermissions.enabled=true `
   --set volumePermissions.containerSecurityContext.runAsUser=1001
 

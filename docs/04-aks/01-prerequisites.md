@@ -33,6 +33,7 @@ $aksresourceGroup               = "rg-aks-bootstrap-networking-spoke"
 $aksNodesResourceGroup          = "rg-aks-bootstrap-cluster-nodes"
 $aksStorageResourceGroup        = "rg-francecentral-storage-shared"
 $managedIdentitiesResourceGroup = "rg-francecentral-managed_identities"
+$acrBootstrapResourceGroup      = "rg-acr-bootstrap"
 
 # Virtual network vnet-spoke
 $vnetAddressprefix              = "10.240.0.0/16"
@@ -56,6 +57,7 @@ $aksPublicIpDnsLabel            = "inventory"
 
 # Storage
 $aksStorageName                 = "saygo74bootstrap"
+$aksPostgresqlDisk              = "disk-postgresql-dyninv"
 
 # Managed Identities
 $aksControlPlaneIdentity        = "umi-aks-bootsrap"
@@ -145,14 +147,64 @@ az network vnet subnet create -g $aksresourceGroup --vnet-name $aksVnetName `
 storages used in the deployment are :
 
 * saygo74bootstrap : Storage account which holds file shares for the cluster
-* 
+* disk-postgresql-dyninv : Azure disk to store postgresql data for Dynamic inventory
 
 :point_right: **Hands-on lab**
 {: .text-blue-100 }
 
+1\. Storage account
+
+{% tabs storage_account %}
+
+{% tab storage_account Azure-Cli %}
+
 ``` powershell
 
 ```
+
+{% endtab %}
+
+{% tab storage_account Ansible %}
+
+{% raw %}
+
+``` yaml
+
+```
+
+{% endraw %}
+{% endtab %}
+{% endtabs %}
+
+2\. Azure disks
+
+{% tabs storage_disks %}
+
+{% tab storage_disks Azure-Cli %}
+
+``` powershell
+az disk create `
+  --resource-group $aksStorageResourceGroup `
+  --name $aksPostgresqlDisk `
+  --sku Standard_LRS `
+  --size-gb 5 `
+  --query id --output tsv
+
+```
+
+{% endtab %}
+
+{% tab storage_disks Ansible %}
+
+{% raw %}
+
+``` yaml
+
+```
+
+{% endraw %}
+{% endtab %}
+{% endtabs %}
 
 ### User Managed Identities
 
@@ -239,10 +291,25 @@ Managed identities used in the deployment are :
 
 3. Grant aks Kubelet Identity to required resources
 
-    ```powershell
-    # Get kubelet identity
-    $aksKubeletIdentityPrincipalId =$(az identity show --name $aksKubeletIdentity --resource-group $managedIdentitiesResourceGroup --query "principalId" -o tsv)
-    write-host "Aks Kubelet identity Principal Id : $aksKubeletIdentityPrincipalId"
+    1\. Get Kubelet Identity
 
-    # Todo : Grant access to ACR ?
-    ```
+      ```powershell
+      # Get kubelet identity
+      $aksKubeletIdentityPrincipalId =$(az identity show --name $aksKubeletIdentity --resource-group $managedIdentitiesResourceGroup --query "principalId" -o tsv)
+      write-host "Aks Kubelet identity Principal Id : $aksKubeletIdentityPrincipalId"
+
+      ```
+
+    2\. Assign AcrPull role on ACR bootstrap
+
+      ```powershell
+      # Get ACR Bootstrap Id
+      $acrBootstrapId = az acr show -n $acrName -g $acrBootstrapResourceGroup --query "id" -o tsv
+      if ($null -eq $acrBootstrapId) { throw "Unable to retrieve ACR Bootstrap $acrName Id"}
+      write-host "ACR Bootstrap Id : $acrBootstrapId"
+
+      # Assign AcrPull role to Kubelet Identity on ACR
+      az role assignment list --scope $acrBootstrapId
+      az role assignment create --assignee $aksKubeletIdentityPrincipalId --scope $acrBootstrapId --role "AcrPull"
+
+      ```

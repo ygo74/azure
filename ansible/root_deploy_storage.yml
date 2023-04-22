@@ -42,7 +42,7 @@
           set_fact:
             _storages: >-
               {{
-                  all_storages
+                  all_storage_accounts
                   | selectattr("name", "match", _storages_select_names_filter)
                   | rejectattr("name", "match", _storages_reject_names_filter)
                   | list

@@ -99,7 +99,7 @@ Managed identities can be either system managed identities or user managed ident
 
     ```
 
-2. Create cluster With User Managed identities
+1. Create cluster With User Managed identities
 
     Source : <https://learn.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-create>{:target="_blank"}
 
@@ -140,67 +140,138 @@ az aks create `
 
 {% endtabs %}
 
-
 ## Create Aks with system managed identities
 
 :point_right: **Hands-on lab**
 {: .text-blue-100 }
 
-1. Get Subnet and Identities Id
+### Get Resources dependencies Id
 
-    ``` powershell
-    # Get subnet id
-    $subnetNodeId = $(az network vnet subnet show -g $aksresourceGroup --vnet-name $vnetName -n $nodesSubnetName --query "id" -o tsv)
-    write-host "Subnet node Id : $subnetNodeId"
+Before creating the cluster, It is mandatory to retrieve some dependencies resources id.
 
-    ```
+{% tabs createAKSMI-GetInfo %}
 
-2. Create cluster With System Managed identities
+{% tab createAKSMI-GetInfo Azure-Cli %}
 
-    ``` powershell
-    az aks create `
-        --resource-group $aksresourceGroup `
-        --name $aksName `
-        --kubernetes-version 1.24.9 `
-        --node-resource-group $aksNodesResourceGroup `
-        --node-count 1 `
-        --generate-ssh-keys `
-        --attach-acr $acrName `
-        --load-balancer-sku Standard `
-        --network-plugin azure `
-        --vnet-subnet-id $subnetNodeId `
-        --service-cidr $servicesSubnetAddressprefix `
-        --dns-service-ip 10.240.4.2 `
-        --enable-managed-identity
+``` powershell
+# Get subnet id
+$subnetNodeId = $(az network vnet subnet show -g $aksresourceGroup --vnet-name $vnetName -n $nodesSubnetName --query "id" -o tsv)
+write-host "Subnet node Id : $subnetNodeId"
 
-    ```
+```
 
-3. Apply permissions for cluster System Managed Identity
+{% endtab %}
 
-    For Proof of concept, You can choose to let all resources in the cluster nodes resources groups and no permissions grant are needed.
+{% tab createAKSMI-GetInfo Ansible %}
 
-    The Hands on lab is just to show how retrieve the cluster identity to apply permission if it is required for the Proof of Concept.
+{% raw %}
 
-    :point_right: **Hands-on lab**
-    {: .text-blue-100 }
+``` yaml
+# Retrieve subnet info to retrieve its id
+- name: Get facts of specific subnet
+    azure.azcollection.azure_rm_subnet_info:
+    resource_group:       '{{ resource_group }}'
+    virtual_network_name: '{{ virtual_network_name }}'
+    name:                 '{{ subnet_name }}'
+    register: _subnet_info
 
-    ``` powershell
-    # Get Aks Identity
-    $aksIdentity = $(az aks show --resource-group $aksresourceGroup --name $aksName --query "identity.principalId" -o tsv)
-    if ($null -eq $aksIdentity) { throw "Unable to retrieve aks $aksName identity in resource group $resourceGroup"}
-    write-host "Aks identity : $aksIdentity"
+```
 
-    # Get resource group Id
-    $hubResourceGroupId = $(az group show -n $hubResourceGroup --query "id" -o tsv)
-    if ($null -eq $hubResourceGroupId) { throw "Unable to retrieve hub resource group $hubResourceGroup Id"}
-    write-host "Hub Resource group Id : $hubResourceGroupId"
-    $hubResourceGroupId
+{% endraw %}
 
-    # Assign network contributor to AKS Identity on resource group Hub
-    az role assignment list --scope $hubResourceGroupId
-    az role assignment create --assignee $aksIdentity --scope $hubResourceGroupId --role "Network Contributor"
+{% endtab %}
+{% endtabs %}
 
-    ```
+### Create cluster With System Managed identities
+
+{% tabs createAKSMI %}
+
+{% tab createAKSMI Azure-Cli %}
+
+``` powershell
+az aks create `
+    --resource-group $aksresourceGroup `
+    --name $aksName `
+    --kubernetes-version 1.24.9 `
+    --node-resource-group $aksNodesResourceGroup `
+    --node-count 1 `
+    --generate-ssh-keys `
+    --attach-acr $acrName `
+    --load-balancer-sku Standard `
+    --network-plugin azure `
+    --vnet-subnet-id $subnetNodeId `
+    --service-cidr $servicesSubnetAddressprefix `
+    --dns-service-ip 10.240.4.2 `
+    --enable-managed-identity
+
+```
+
+{% endtab %}
+
+{% tab createAKSMI Ansible %}
+
+{% raw %}
+
+``` yaml
+- name: Create a managed Azure Container Services (AKS) cluster
+    azure.azcollection.azure_rm_aks:
+    name:               '{{ cluster_name }}'
+    location:           '{{ location }}'
+    resource_group:     '{{ resource_group }}'
+    dns_prefix:         '{{ cluster_name }}'
+    kubernetes_version: "{{ _aks_versions_info.azure_aks_versions[-1] }}"
+
+    linux_profile:
+      admin_username: "{{ username }}"
+      ssh_key:        "{{ ssh_key }}"
+
+    agent_pool_profiles:
+        - name: default
+          count: 1
+          vm_size: Standard_D2_v2
+          vnet_subnet_id: '{{ _subnet_info.subnets[0].id }}'
+          mode: System
+    node_resource_group: '{{ nodes_resource_group }}'
+    enable_rbac: yes
+    network_profile:
+      load_balancer_sku: standard
+      network_plugin: azure
+
+    tags: '{{ cluster_tags | default({}) }}'
+
+```
+
+{% endraw %}
+{% endtab %}
+{% endtabs %}
+
+
+### Apply permissions for cluster System Managed Identity
+
+For Proof of concept, You can choose to let all resources in the cluster nodes resources groups and no permissions grant are needed.
+
+The Hands on lab is just to show how retrieve the cluster identity to apply permission if it is required for the Proof of Concept.
+
+:point_right: **Hands-on lab**
+{: .text-blue-100 }
+
+``` powershell
+# Get Aks Identity
+$aksIdentity = $(az aks show --resource-group $aksresourceGroup --name $aksName --query "identity.principalId" -o tsv)
+if ($null -eq $aksIdentity) { throw "Unable to retrieve aks $aksName identity in resource group $resourceGroup"}
+write-host "Aks identity : $aksIdentity"
+
+# Get resource group Id
+$hubResourceGroupId = $(az group show -n $hubResourceGroup --query "id" -o tsv)
+if ($null -eq $hubResourceGroupId) { throw "Unable to retrieve hub resource group $hubResourceGroup Id"}
+write-host "Hub Resource group Id : $hubResourceGroupId"
+$hubResourceGroupId
+
+# Assign network contributor to AKS Identity on resource group Hub
+az role assignment list --scope $hubResourceGroupId
+az role assignment create --assignee $aksIdentity --scope $hubResourceGroupId --role "Network Contributor"
+
+```
 
 ## Connect to AKS Cluster
 
