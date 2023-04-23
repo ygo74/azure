@@ -15,6 +15,12 @@
     storages_reject_names:
       - N/A
 
+    disks_select_names:
+      - .*
+
+    disks_reject_names:
+      - N/A
+
   tasks:
 
 
@@ -28,6 +34,12 @@
 
             _storages_reject_names_filter: >-
               (({{ storages_reject_names | join(")|(") }}))
+
+            _disks_select_names_filter: >-
+              (({{ disks_select_names | join(")|(") }}))
+
+            _disks_reject_names_filter: >-
+              (({{ disks_reject_names | join(")|(") }}))
 
       tags:
         - always
@@ -61,11 +73,55 @@
 
         - name: Deploy storages - include tasks to deploy storages
           include_tasks: ./tasks/storages/storage_deploy.yml
+          vars:
+            _storage: '{{ _storage_item }}'
 
           loop: '{{ _storages }}'
 
           loop_control:
-            loop_var: _storage
-            label: '{{ _storage.name }}'
+            loop_var: _storage_item
+            label: '{{ _storage_item.name }}'
 
+
+    # -----------------------------------------------------------------------------
+    # Deploy disks
+    # -----------------------------------------------------------------------------
+    - name: Deploy disks
+      block:
+
+        - name: "Deploy disks - Apply filter to disks"
+          set_fact:
+            _disks: >-
+              {{
+                  all_managed_disks | default([])
+                  | selectattr("name", "match", _disks_select_names_filter)
+                  | rejectattr("name", "match", _disks_reject_names_filter)
+                  | list
+              }}
+
+
+        - name: "Deploy disks - Assert found filtered disks"
+          assert:
+            that:
+              - _disks | length > 0
+            fail_msg: "Don't find disks with filter {{ _disks_select_names_filter }}"
+
+        - name: Deploy disks - Display found filtered disks
+          debug:
+            var: _disks
+
+        - name: Deploy disks - Deploy disks
+          azure.azcollection.azure_rm_manageddisk:
+              name:                 '{{ _disk_item.name }}'
+              location:             '{{ _disk_item.location | default(location) }}'
+              resource_group:       '{{ _disk_item.resource_group }}'
+              disk_size_gb:         '{{ _disk_item.disk_size_gb }}'
+              storage_account_type: '{{ _disk_item.sku }}'
+              tags:                 '{{ _disk_item.tags | default(omit) }}'
+
+          loop: '{{ _disks }}'
+
+          loop_control:
+            loop_var: _disk_item
+            label: '{{ _disk_item.name }}'
 

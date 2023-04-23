@@ -1,0 +1,70 @@
+---
+# -----------------------------------------------------------------------------
+# Deploy persistent volumes
+# -----------------------------------------------------------------------------
+- name: persistent_volumes_set - Deploy Deploy persistent volumes
+  tags:
+    - persistent_volumes
+  block:
+
+    - name: persistent_volumes_set - Assert Mandatory values
+      assert:
+        that:
+          - _persistent_volume_name is defined
+          - _persistent_volume_size is defined
+          - _persistent_volume_source_kind is defined
+          - _persistent_volume_source_name is defined
+          - _persistent_volume_source_resource_group is defined
+        fail_msg: "Missing mandatory values"
+
+    - name: persistent_volumes_set - Ceate namespace '{{ _persistent_volume_namespace | default("default") }}'
+      kubernetes.core.k8s:
+        name:        '{{ _persistent_volume_namespace | default("default") }}'
+        api_version: 'v1'
+        kind:        'Namespace'
+        state:       'present'
+        kubeconfig:  '{{ _kubeconfig_file_path }}'
+        # definition:
+        #   metadata:
+        #     labels:  '{{ _persistent_volume_labels | default(omit) }}'
+      when:
+        - _persistent_volume_namespace is defined
+        - _persistent_volume_namespace | lower != "default"
+
+
+    - name: 'persistent_volumes_set - Get source disk {{ _persistent_volume_source_name }} info'
+      azure.azcollection.azure_rm_manageddisk_info:
+        name:           '{{ _persistent_volume_source_name }}'
+        resource_group: '{{ _persistent_volume_source_resource_group }}'
+      register: _disk_info_results
+      when:
+        - _persistent_volume_source_kind | lower == "disk"
+
+    - name: 'persistent_volumes_set - Assert disk {{ _persistent_volume_source_name }} exists'
+      ansible.builtin.assert:
+        that:
+          - _disk_info_results.ansible_info.azure_managed_disk | length == 1
+        fail_msg: "Disk {{ _persistent_volume_source_name }} doesn't exist in {{ _persistent_volume_source_resource_group }}"
+      when:
+        - _persistent_volume_source_kind | lower == "disk"
+
+    - name: 'persistent_volumes_set - Set disk {{ _persistent_volume_source_name }} resource id'
+      ansible.builtin.set_fact:
+        _persistent_volume_resource_id: '{{ _disk_info_results.ansible_info.azure_managed_disk[0].id }}'
+      when:
+        - _persistent_volume_source_kind | lower == "disk"
+
+    - name: 'persistent_volumes_set - Deploy persistent volume {{ _persistent_volume_name }}'
+      kubernetes.core.k8s:
+        state:       'present'
+        kubeconfig:  '{{ _kubeconfig_file_path }}'
+        template:    '{{ cluster_name | lower }}/{{ _persistent_volume_name }}.yml.j2'
+
+    - name: 'persistent_volumes_set - Deploy persistent volume claim {{ _persistent_volume_claim_name }}'
+      kubernetes.core.k8s:
+        state:       'present'
+        namespace:   '{{ _persistent_volume_namespace | default(omit) }}'
+        kubeconfig:  '{{ _kubeconfig_file_path }}'
+        template:    '{{ cluster_name | lower }}/{{ _persistent_volume_claim_name }}.yml.j2'
+      when:
+        - _persistent_volume_claim_name is defined

@@ -2,12 +2,6 @@
   hosts: aks
   collections:
     - azure.azcollection
-  vars:
-
-    # Define database users to be deployed
-    postgresql_users:
-      - name:     'XXXXX'
-        password: 'XXXXX'
 
   vars_files:
     - ./vault/applications.yml

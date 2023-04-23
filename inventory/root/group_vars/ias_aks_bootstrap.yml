@@ -32,3 +32,14 @@ registry:
   location:           'francecentral'
   sku:                'Basic'
   admin_user_enabled: true
+
+# Persistent volumes
+persistent_volumes:
+  - name:       pv-postgresql-dyninv
+    size:       5Gi
+    namespace:  postgresql
+    claim_name: pvc-postgresql-dyninv
+    source:
+      kind:           disk
+      name:           disk-postgresql-dyninv
+      resource_group: rg-francecentral-storage-shared

@@ -1,0 +1,62 @@
+- name: Dynamic inventory container
+  hosts: aks
+  collections:
+    - azure.azcollection
+  vars:
+
+    # Define database users to be deployed
+    postgresql_users:
+      - name:     'XXXXX'
+        password: 'XXXXX'
+
+  vars_files:
+    - ./vault/applications.yml
+
+  tasks:
+
+    - name: Get cluster config
+      tags:
+        - always
+      include_tasks: ./tasks/aks/cluster_config_get.yml
+      when:
+        - _kubeconfig_file_path is not defined
+
+    - name: Deploy postgresql - Get a list of all pods from postgresql namespace
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: postgresql
+        kubeconfig: '{{ _kubeconfig_file_path }}'
+      register: _postgresql_pods_list
+
+    - name: Deploy postgresql - Assert pods exist
+      assert:
+        that:
+          - _postgresql_pods_list.resources | length > 0
+        fail_msg: No nopostgresql pod exist in the cluster
+
+    - debug: var=_postgresql_pods_list.resources
+
+    - name: Deploy postgresql - Add pod to inventory
+      ansible.builtin.add_host:
+        name: '{{ pod_item.metadata.name }}'
+        groups:
+          - postgresql-pods
+        kubectl_kubeconfig: '{{ _kubeconfig_file_path }}'
+
+      loop: '{{ _postgresql_pods_list.resources  }}'
+
+      loop_control:
+        loop_var: pod_item
+        label: '{{ pod_item.metadata.name }}'
+
+- name: Deploy postgresql database and objects
+  hosts: postgresql-pods
+  run_once: true
+  gather_facts: false
+  connection: kubectl
+
+  tasks:
+
+    - name: Create a new database with name "acme"
+      community.postgresql.postgresql_db:
+        name: acme

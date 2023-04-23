@@ -1,0 +1,6 @@
+---
+initdbScripts:
+  init.sql: | # <-- Here
+    CREATE USER my_app WITH PASSWORD '12345678';
+    CREATE DATABASE my_db;
+    GRANT ALL PRIVILEGES ON DATABASE my_db TO my_app;

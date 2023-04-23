@@ -16,3 +16,12 @@ all_storage_accounts:
     shares:
       - name: postgresql-aksbootstrap
         quota: 5
+
+all_managed_disks:
+
+  - name:                  disk-postgresql-dyninv
+    resource_group:        rg-francecentral-storage-shared
+    sku:                   Standard_LRS
+    disk_size_gb:          5
+    tags:
+      scope: bootstrap

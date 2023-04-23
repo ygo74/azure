@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ _persistent_volume_claim_name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ _persistent_volume_size }}
+  volumeName: {{ _persistent_volume_name }}
+  storageClassName: managed-csi
