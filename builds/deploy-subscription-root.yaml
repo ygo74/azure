@@ -72,6 +72,8 @@ stages:
               AZURE_SUBSCRIPTION_ID: $(SubscriptionId)
               AZURE_CLIENT_ID: $(Ansible-Automation-ClientId)
               AZURE_SECRET: $(Ansible-Automation)
+              PY_COLORS: '1'
+              ANSIBLE_FORCE_COLOR: '1'
 
   # -----------------------------------------------------------------------------
   # Virtual Networks
