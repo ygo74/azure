@@ -99,6 +99,11 @@ Source : <https://docs.ansible.com/ansible/latest/collections/azure/azcollection
 
 ### Create virtual network peering
 
+{% tabs vnetPeering %}
+{% tab vnetPeering Azure-Cli %}
+
+Source : <https://learn.microsoft.com/fr-fr/cli/azure/network/vnet/peering?view=azure-cli-latest#az-network-vnet-peering-create>{:target="_blank"}
+
 {: .warning-title }
 > Command error
 >
@@ -114,6 +119,41 @@ $hubResourceGroup    = "rg-francecentral-networking-hub"
 az network vnet peering create --name np-to-vnet-hub --vnet-name $vnetName --remote-vnet $vnetHubName  --resource-group $aksresourceGroup --allow-vnet-access --allow-forwarded-traffic 
 
 ```
+
+{% endtab %}
+{% tab vnetPeering Ansible %}
+
+Source : <https://docs.ansible.com/ansible/latest/collections/azure/azcollection/azure_rm_virtualnetworkpeering_module.html#ansible-collections-azure-azcollection-azure-rm-virtualnetworkpeering-module>{:target="_blank"}
+
+{% raw %}
+
+``` yaml
+- name: Create virtual network_peering
+  azure.azcollection.azure_rm_virtualnetworkpeering:
+    name:                         'np-to-{{ _virtual_network_peering.target.name }}'
+    resource_group:               '{{  _virtual_network_peering.source.resource_group }}'
+    virtual_network:              '{{  _virtual_network_peering.source.name }}'
+    allow_virtual_network_access: '{{  _virtual_network_peering.allow_virtual_network_access | default(false) }}'
+    allow_forwarded_traffic:      '{{  _virtual_network_peering.allow_forwarded_traffic | default(false) }}'
+    remote_virtual_network:
+      resource_group: '{{ _virtual_network_peering.target.resource_group }}'
+      name:           '{{ _virtual_network_peering.target.name }}'
+  vars:
+    _virtual_network_peering:
+      allow_virtual_network_access: true
+      allow_forwarded_traffic: true
+      source:
+        name:           'vnet-hub'
+        resource_group: 'rg-francecentral-networking-hub'
+      target:
+        name:           'rg-aks-bootstrap-networking-spoke'
+        resource_group: 'vnet-spoke'
+  
+```
+
+{% endraw %}
+{% endtab %}
+{% endtabs %}
 
 ## Subnet
 
