@@ -159,6 +159,9 @@ Source : <https://docs.ansible.com/ansible/latest/collections/azure/azcollection
 
 ### Create subnet
 
+{% tabs createSubnet %}
+{% tab createSubnet Azure-Cli %}
+
 Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-create>{:target="_blank"}
 
 ``` powershell
@@ -175,18 +178,79 @@ az network vnet subnet create `
 
 ```
 
+{% endtab %}
+{% tab createSubnet Ansible %}
+
+Source : <https://docs.ansible.com/ansible/latest/collections/azure/azcollection/azure_rm_subnet_module.html>{:target="_blank"}
+
+{% raw %}
+
+``` yaml
+- name: Create Subnet
+  azure.azcollection.azure_rm_subnet:
+    resource_group:  '{{ _virtual_network.resource_group }}'
+    name:            '{{ _subnet.name }}'
+    address_prefix:  '{{ _subnet.address_prefix }}'
+    virtual_network: '{{ _virtual_network.name }}'
+    state:           '{{ _subnet.state | default("present") }}'
+  vars:
+    _virtual_network:
+      resource_group: 'rg-aks-bootstrap-networking-spoke'
+      name:           'vnet-spoke' 
+    _subnet:
+      name:           'net-cluster-nodes'
+      address_prefix: '10.240.0.0/22'
+
+```
+
+{% endraw %}
+{% endtab %}
+{% endtabs %}
+
 ### List subnet
+
+{% tabs listSubnet %}
+{% tab listSubnet Azure-Cli %}
 
 Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-list>{:target="_blank"}
 
-```powershell
+``` powershell
 $resourceGroup     = "rg-aks-bootstrap-networking-spoke"
 $vnetName          = "vnet-spoke"
 
 az network vnet subnet list -g $resourceGroup --vnet-name $vnetName
+
 ```
 
+{% endtab %}
+{% tab listSubnet Azure-Cli %}
+
+Source : <https://docs.ansible.com/ansible/latest/collections/azure/azcollection/azure_rm_subnet_info_module.html>{:target="_blank"}
+
+{% raw %}
+
+``` yaml
+- name: List all subnet in virtual networks
+  azure.azcollection.azure_rm_subnet_info:
+    resource_group:       '{{ _virtual_network.resource_group }}'
+    virtual_network_name: '{{ _virtual_network.name }}'
+  vars:
+    _virtual_network:
+      resource_group: 'rg-aks-bootstrap-networking-spoke'
+      name:           'vnet-spoke' 
+
+```
+
+{% endraw %}
+{% endtab %}
+{% endtabs %}
+
 ### Get subnet info
+
+{% tabs subnetInfo %}
+{% tab subnetInfo Azure-Cli %}
+
+Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-show>{:target="_blank"}
 
 ``` powershell
 $resourceGroup       = "rg-aks-bootstrap-networking-spoke"
@@ -197,7 +261,35 @@ az network vnet subnet show -g $aksresourceGroup --vnet-name $vnetName -n $nodes
 
 ```
 
+{% endtab %}
+{% tab subnetInfo Ansible %}
+
+Source : <https://docs.ansible.com/ansible/latest/collections/azure/azcollection/azure_rm_subnet_info_module.html>{:target="_blank"}
+
+{% raw %}
+
+``` yaml
+- name: Get subnet info
+  azure.azcollection.azure_rm_subnet_info:
+    resource_group:       '{{ _virtual_network.resource_group }}'
+    virtual_network_name: '{{ _virtual_network.name }}'
+    name:                 '{{ _subnet_name }}'
+  vars:
+    _virtual_network:
+      resource_group: 'rg-aks-bootstrap-networking-spoke'
+      name:           'vnet-spoke'
+    _subnet_name:     'net-cluster-nodes'
+
+```
+
+{% endraw %}
+{% endtab %}
+{% endtabs %}
+
 ### Get available ip
+
+{% tabs availableIp %}
+{% tab availableIp Azure-Cli %}
 
 Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-list-available-ips>{:target="_blank"}
 
@@ -209,3 +301,14 @@ $subnetName          = "net-cluster-nodes"
 az network vnet subnet list-available-ips --resource-group $aksresourceGroup --vnet-name $vnetName -n $nodesSubnetName
 
 ```
+
+{% endtab %}
+{% tab availableIp Ansible %}
+
+{: .information-title }
+> Get Available IP are not implemented with ansible module
+>
+> It seems that no ansible module exist to retrieve available IP.
+
+{% endtab %}
+{% endtabs %}
