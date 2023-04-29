@@ -19,6 +19,10 @@ has_children: false
 
 ### Create virtual network
 
+{% tabs createVnet %}
+
+{% tab createVnet Azure-Cli %}
+
 Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet?view=azure-cli-latest#az-network-vnet-create>{:target="_blank"}
 
 ``` powershell
@@ -31,7 +35,36 @@ az network vnet create  `
    --address-prefixes $vnetAddressprefix 
 ```
 
+{% endtab %}
+{% tab createVnet Ansible %}
+
+Source : <https://docs.ansible.com/ansible/latest/collections/azure/azcollection/azure_rm_virtualnetwork_module.html>{:target="_blank"}
+
+{% raw %}
+``` yaml
+- name: Create virtual network
+  azure.azcollection.azure_rm_virtualnetwork:
+    resource_group:   '{{ _virtual_network.resource_group }}'
+    name:             '{{ _virtual_network.name }}'
+    address_prefixes: '{{ _virtual_network.address_prefixes }}'
+    tags:             '{{ _virtual_network.tags  | default(omit) }}'
+    state:            '{{ _virtual_network.state | default("present") }}'
+  vars:
+    _virtual_network:
+      resource_group:   "rg-aks-bootstrap-networking-spoke"
+      name:             "vnet-spoke"
+      address_prefixes: "10.240.0.0/16"   
+```
+{% endraw %}
+{% endtab %}
+{% endtabs %}
+
 ### Get virtual network info
+
+{% tabs getVnet %}
+{% tab getVnet Azure-Cli %}
+
+Source : <https://learn.microsoft.com/en-us/cli/azure/network/vnet?view=azure-cli-latest#az-network-vnet-show>{:target="_blank"}
 
 ``` powershell
 $aksresourceGroup    = "rg-aks-bootstrap-networking-spoke"
@@ -40,6 +73,29 @@ $vnetName            = "vnet-spoke"
 az network vnet show -g $aksresourceGroup -n $vnetName --query "id" -o tsv
 
 ```
+
+{% endtab %}
+{% tab getVnet Ansible %}
+
+Source : <https://docs.ansible.com/ansible/latest/collections/azure/azcollection/azure_rm_virtualnetwork_info_module.html#ansible-collections-azure-azcollection-azure-rm-virtualnetwork-info-module>{:target="_blank"}
+
+{% raw %}
+
+``` yaml
+- name: Get Virtual Network info
+  azure.azcollection.azure_rm_virtualnetwork_info:
+    resource_group:   '{{ _virtual_network.resource_group }}'
+    name:             '{{ _virtual_network.name }}'
+  register: __virtual_network_info
+  vars:
+    _virtual_network:
+      resource_group:   "rg-aks-bootstrap-networking-spoke"
+      name:             "vnet-spoke"
+```
+
+{% endraw %}
+{% endtab %}
+{% endtabs %}
 
 ### Create virtual network peering
 
