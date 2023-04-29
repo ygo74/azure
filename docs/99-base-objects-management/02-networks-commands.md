@@ -305,7 +305,7 @@ az network vnet subnet list-available-ips --resource-group $aksresourceGroup --v
 {% endtab %}
 {% tab availableIp Ansible %}
 
-{: .information-title }
+{: .note-title }
 > Get Available IP are not implemented with ansible module
 >
 > It seems that no ansible module exist to retrieve available IP.
