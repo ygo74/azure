@@ -12,7 +12,7 @@
           - _vaul_name is defined
           - tenant_id is defined
           - client_id is defined
-      fail_msg: Missing mandatory values
+        fail_msg: Missing mandatory values
 
     - name: vault_create - Create key vault instance
       azure_rm_keyvault:
