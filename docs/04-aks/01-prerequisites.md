@@ -106,7 +106,7 @@ az group create --name $managedIdentitiesResourceGroup --location $aksLocation
 
 Virtual networks used in the deployment are :
 
-* vnet-spoke : virtual networks dedicated to aks cluster with the followinf subnets :
+* vnet-spoke : virtual networks dedicated to aks cluster with the following subnets :
 
   * net-cluster-nodes : subnet for cluster's nodes with cidr 10.240.0.0/22
   * net-application-gateway : subnet for external cluster access with cidr 10.240.5.0/24
