@@ -23,3 +23,4 @@
       ansible.builtin.copy:
           content: "{{ aks_config_admin.aks[0].kube_config }}"
           dest:    "{{ _kubeconfig_file_path }}"
+      changed_when: false

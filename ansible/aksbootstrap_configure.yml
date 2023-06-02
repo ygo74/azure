@@ -58,6 +58,7 @@
                 --namespace postgresql \
                 --set primary.persistence.existingClaim=pvc-postgresql-dyninv \
                 --set volumePermissions.enabled=true \
+                --set global.postgresql.auth.postgresPassword={{ aksbootstrap_postgresql_admin_password }} \
                 --kubeconfig {{ _kubeconfig_file_path }} \
                 -f ./templates/{{ cluster_name | lower }}/postgres_initdb.yml
 
@@ -86,4 +87,4 @@
       assert:
         that:
           - _postgresql_pods_list.resources | length > 0
-        fail_msg: No nopostgresql pod exist in the cluster
+        fail_msg: No postgresql pod exist in the cluster

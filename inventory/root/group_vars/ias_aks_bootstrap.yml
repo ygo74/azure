@@ -4,10 +4,11 @@
 # -----------------------------------------------------------------------------
 
 # Resource groups
-resource_group:          'rg-aks-bootstrap-networking-spoke'
-nodes_resource_group:    'rg-aks-bootstrap-cluster-nodes'
-resource_group_hub_name: 'rg-francecentral-networking-hub'
-storage_resource_group:  'rg-francecentral-storage-shared'
+resource_group:            'rg-aks-bootstrap-networking-spoke'
+nodes_resource_group:      'rg-aks-bootstrap-cluster-nodes'
+resource_group_hub_name:   'rg-francecentral-networking-hub'
+storage_resource_group:    'rg-francecentral-storage-shared'
+persistent_resource_group: 'rg-aks-bootstrap-networking-spoke'
 
 # cluster information
 cluster_name: aksbootstrap
@@ -43,3 +44,13 @@ persistent_volumes:
       kind:           disk
       name:           disk-postgresql-dyninv
       resource_group: rg-francecentral-storage-shared
+
+
+appl_dynamic_inventory:
+  name: dynamic_inventory
+  vault_name: vault-dynamic-inventory
+  postgresql_admin_username: inventorydb-admin
+
+  databases:
+
+    - name: ConfigurationDB

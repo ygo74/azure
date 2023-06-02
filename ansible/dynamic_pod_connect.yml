@@ -9,10 +9,40 @@
       - name:     'XXXXX'
         password: 'XXXXX'
 
+    tenant_id: '{{ lookup("env","AZURE_TENANT") }}'
+    client_id: '{{ lookup("env","AZURE_CLIENT_ID") }}'
+
   vars_files:
     - ./vault/applications.yml
 
   tasks:
+
+    - name: Create Vault for application
+      ansible.builtin.import_tasks: './tasks/vault/vault_create.yml'
+      vars:
+        _vaul_resource_group: '{{ persistent_resource_group }}'
+        _vaul_name:           '{{ appl_dynamic_inventory.vault_name }}'
+      # when:
+      #   - 1 == 0
+
+    - name: Set secret in application's vault
+      ansible.builtin.import_tasks: './tasks/vault/vault_secret_create.yml'
+      vars:
+        _vaul_resource_group: '{{ persistent_resource_group }}'
+        _vaul_name:           '{{ appl_dynamic_inventory.vault_name }}'
+        _vaul_secret_name:    '{{ appl_dynamic_inventory.postgresql_admin_username }}'
+        _vaul_secret_value:   >-
+          {{
+              lookup("ansible.builtin.password",
+                     "/tmp/inventorydb/" + appl_dynamic_inventory.postgresql_admin_username,
+                     subkey="user")
+          }}
+
+    # - name: test password
+    #   set_fact:
+    #     mypass: '{{ lookup("ansible.builtin.password", "/tmp/example/test", subkey="user") }}'
+
+    # - debug: var=mypass
 
     - name: Get cluster config
       tags:
@@ -34,14 +64,21 @@
           - _postgresql_pods_list.resources | length > 0
         fail_msg: No nopostgresql pod exist in the cluster
 
-    - debug: var=_postgresql_pods_list.resources
+    # - debug: var=_postgresql_pods_list.resources
 
     - name: Deploy postgresql - Add pod to inventory
       ansible.builtin.add_host:
         name: '{{ pod_item.metadata.name }}'
         groups:
-          - postgresql-pods
-        kubectl_kubeconfig: '{{ _kubeconfig_file_path }}'
+          - postgresql_pods
+          - ias_aks_bootstrap
+        ansible_kubectl_kubeconfig: '{{ _kubeconfig_file_path }}'
+        ansible_kubectl_container: 'pgclient'
+        # ansible_kubectl_container: 'postgresql'
+        ansible_kubectl_namespace: postgresql
+        ansible_connection: kubectl
+        # ansible_python_interpreter: /opt/venv/bin/python
+      changed_when: false
 
       loop: '{{ _postgresql_pods_list.resources  }}'
 
@@ -50,13 +87,96 @@
         label: '{{ pod_item.metadata.name }}'
 
 - name: Deploy postgresql database and objects
-  hosts: postgresql-pods
+  hosts: postgresql_pods
   run_once: true
-  gather_facts: false
+  gather_facts: true
   connection: kubectl
+
+  vars_files:
+    - ./vault/applications.yml
+
 
   tasks:
 
-    - name: Create a new database with name "acme"
+    # - debug:
+    #     var: hostvars[inventory_hostname]
+
+    # - command: ps -ef
+    #   register: command_result
+    #   # delegate_to: postgresql-pods
+
+    # - debug: var=command_result
+
+    # - debug:
+    #     var: hostvars[inventory_hostname]
+
+    - name: Create new databases"
       community.postgresql.postgresql_db:
-        name: acme
+        name:       '{{ _database_item.name }}'
+        login_host: postgresql
+        login_user: postgres
+        login_password: '{{ aksbootstrap_postgresql_admin_password }}'
+
+      loop: '{{ appl_dynamic_inventory.databases   }}'
+      # delegate_to: postgresql-pods
+
+      loop_control:
+        loop_var: _database_item
+        label: '{{ _database_item.name }}'
+
+    - name: Create admin user for databases
+      community.postgresql.postgresql_user:
+        # db:   '{{ _database_item.name }}'
+        name: '{{ appl_dynamic_inventory.postgresql_admin_username }}'
+        password: >-
+          {{
+              lookup("ansible.builtin.password",
+                     "/tmp/inventorydb/" + appl_dynamic_inventory.postgresql_admin_username,
+                     subkey="user")
+          }}
+        role_attr_flags: CREATEDB,CREATEROLE
+        login_host: postgresql
+        login_user: postgres
+        login_password: '{{ aksbootstrap_postgresql_admin_password }}'
+
+      # loop: '{{ appl_dynamic_inventory.databases   }}'
+
+      # loop_control:
+      #   loop_var: _database_item
+      #   label: '{{ _database_item.name }}'
+
+    - name: Grant admin user for database
+      community.postgresql.postgresql_privs:
+        type: database
+        database: '{{ _database_item.name }}'
+        roles:    '{{ appl_dynamic_inventory.postgresql_admin_username }}'
+        grant_option: no
+        privs: all
+        login_host: postgresql
+        login_user: postgres
+        login_password: '{{ aksbootstrap_postgresql_admin_password }}'
+
+      loop: '{{ appl_dynamic_inventory.databases   }}'
+      # delegate_to: postgresql-pods
+
+      loop_control:
+        loop_var: _database_item
+        label: '{{ _database_item.name }}'
+
+    - name: Grant admin user for database' schema
+      community.postgresql.postgresql_privs:
+        type: schema
+        database: '{{ _database_item.name }}'
+        roles:    '{{ appl_dynamic_inventory.postgresql_admin_username }}'
+        objs: public
+        privs: all
+        login_host: postgresql
+        login_user: postgres
+        login_password: '{{ aksbootstrap_postgresql_admin_password }}'
+
+      loop: '{{ appl_dynamic_inventory.databases   }}'
+      # delegate_to: postgresql-pods
+
+      loop_control:
+        loop_var: _database_item
+        label: '{{ _database_item.name }}'

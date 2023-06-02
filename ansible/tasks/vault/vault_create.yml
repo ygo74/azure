@@ -24,8 +24,9 @@
           family: A
           name: standard
         access_policies:
-          - tenant_id: "{{ tenant_id }}"
-            object_id: "{{ client_id }}"
+          - tenant_id:      "{{ tenant_id }}"
+            # application_id: "{{ client_id }}"
+            object_id:      "83779404-31d9-4407-b7e1-a6dba8d00c30"
             secrets:
               - get
               - list

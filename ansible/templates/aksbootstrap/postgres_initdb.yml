@@ -1,4 +1,14 @@
 ---
+# For the PostgreSQL primary
+primary:
+  sidecars:
+  - name: pgclient
+    image: aksbootstrap.azurecr.io/pgclient:dev
+    imagePullPolicy: Always
+    # ports:
+    # - name: portname
+    #   containerPort: 1234
+
 initdbScripts:
   init.sql: | # <-- Here
     CREATE USER my_app WITH PASSWORD '12345678';
