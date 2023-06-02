@@ -61,7 +61,7 @@ Managed identities can be either system managed identities or user managed ident
 >
 > As It is not yet supported in Ansible azure.azcollection v1.15.0 and a conflict exist between azure.azcollection v1.15.0 and Azure-cli v2.46.0[^1] :
 >
-> - It is mandatoy to break the provisioning from Ansible
+> - It is mandatory to break the provisioning from Ansible
 > - Use an other execution environment with only Azure-Cli
 > - Wait more time during the cluster update to switch from System Managed Identity to User Managed Identity
 

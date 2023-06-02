@@ -15,9 +15,11 @@ has_children: false
 {:toc}
 </details>
 
-## storage list definition
+## Storage list definition
 
-Storages are defined in a dedicated file saved into the inventory all subfolder : **_<https://github.com/ygo74/azure/blob/master/inventory/root/group_vars/all/storages.yml>_**{:target="_blank"}
+Storages accounts and disks are defined in a dedicated file saved into the inventory all subfolder : **_<https://github.com/ygo74/azure/blob/master/inventory/root/group_vars/all/storages.yml>_**{:target="_blank"}
+
+### Storage accounts
 
 All storages are defined under the key **all_storage_accounts**
 

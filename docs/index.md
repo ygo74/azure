@@ -64,3 +64,4 @@ Some exceptions exist:
 | Storage account           | sa     | Yes, Storage account name must be between 3 and 24 characters in length and use numbers and lower-case letters only Storage account must be unique|
 | Disk                      | disk-  | Yes, internal decision         |
 | User Managed Identity     | umi-   | N/A                            |
+| Vault                     | vault- | Yes, A vault's name must be between 3-24 alphanumeric characters. The name must begin with a letter, end with a letter or digit, and not contain consecutive hyphens |
