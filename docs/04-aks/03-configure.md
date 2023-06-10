@@ -15,11 +15,11 @@ has_children: false
 {:toc}
 </details>
 
-|                                                                                                     |     |
-|:--------------------------------------------------------------------------------------------------- | --- |
-| [ACR deployed](../03-acr/index.md)                                                                  | ✅ |
-| [Hands on lab Variables loaded](02-prerequisites.md#variables-declaration-for-hands-on-lab-scripts) | ✅ |
-| [AKS deployed](./03-create.md)                                                                      | ✅ |
+## Prerequisites
+
+- ✅ [ACR deployed](../03-acr/index.md)
+- ✅ [Hands on lab Variables loaded](01-prerequisites.md#variables-declaration-for-hands-on-lab-scripts)
+- ✅ [AKS deployed](./03-create.md)
 
 ## Standard Kubernetes dashboard
 
@@ -34,7 +34,6 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/a
 >
 > kubectl proxy
 > <http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/>{:target="_blank"}
-
 
 ## Deploy Cert Manager
 
