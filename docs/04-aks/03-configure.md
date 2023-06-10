@@ -29,11 +29,11 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/a
 
 ```
 
-{: .information-title }
+{: .important-title }
 > Access to the standard dashboard
 >
-> kubectl proxy
-> <http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/>{:target="_blank"}
+> - Execute : kubectl proxy
+> - Go to dashboard <http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/>{:target="_blank"}
 
 ## Deploy Cert Manager
 
