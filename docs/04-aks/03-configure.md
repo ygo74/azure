@@ -79,7 +79,7 @@ kubectl label namespace ingress-controller cert-manager.io/disable-validation=tr
 
 ```
 
-### Add jetstack repo
+### Add ingress-nginx repo
 
 ``` powershell
 # Add the  ingress-nginx Helm repository

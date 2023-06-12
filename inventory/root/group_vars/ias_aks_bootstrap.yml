@@ -54,3 +54,4 @@ appl_dynamic_inventory:
   databases:
 
     - name: ConfigurationDB
+    - name: devicesDB

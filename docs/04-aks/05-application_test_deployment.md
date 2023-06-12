@@ -15,8 +15,6 @@ has_children: false
 {:toc}
 </details>
 
-
-
 ## Sanity check cluster creation
 
 1. Deploy test application
@@ -31,7 +29,11 @@ has_children: false
 
     ```
 
-2. Remove test application
+1. Check application access
+
+    <https://inventory.francecentral.cloudapp.azure.com/hello-world-one/>{:target="_blank"}
+
+1. Remove test application
 
     ```powershell
     kubectl delete -f .\aks\resources\application_samples.yml

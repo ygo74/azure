@@ -53,9 +53,9 @@ cd .\cloud\azure\powershell
 
 ## Sources
 
-* <https://learn.microsoft.com/fr-fr/azure/architecture/reference-architectures/containers/aks/baseline-aks>
-* <https://github.com/mspnp/aks-baseline>
-* <https://github.com/mspnp/aks-fabrikam-dronedelivery>
-* <https://stacksimplify.com/azure-aks/azure-kubernetes-service-introduction/>
-* <https://learn.microsoft.com/fr-fr/azure/aks/operator-best-practices-storage>
-* <https://learn.microsoft.com/fr-fr/azure/aks/azure-csi-disk-storage-provision#dynamically-provision-a-volume>
+* <https://learn.microsoft.com/fr-fr/azure/architecture/reference-architectures/containers/aks/baseline-aks>{:target="_blank"}
+* <https://github.com/mspnp/aks-baseline>{:target="_blank"}
+* <https://github.com/mspnp/aks-fabrikam-dronedelivery>{:target="_blank"}
+* <https://stacksimplify.com/azure-aks/azure-kubernetes-service-introduction/>{:target="_blank"}
+* <https://learn.microsoft.com/fr-fr/azure/aks/operator-best-practices-storage>{:target="_blank"}
+* <https://learn.microsoft.com/fr-fr/azure/aks/azure-csi-disk-storage-provision#dynamically-provision-a-volume>{:target="_blank"}
