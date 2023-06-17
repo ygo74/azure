@@ -92,7 +92,7 @@ stages:
                 script: |
                   ansible-playbook aks_cluster_create.yml \
                                    -i ../inventory/root \
-                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   -e ansible_python_interpreter=/opt/venv/bin/python \
                                    --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
             displayName: 'Create cluster'
@@ -110,7 +110,7 @@ stages:
                 script: |
                   ansible-playbook aks_cluster_permissions_assign.yml \
                                    -i ../inventory/root \
-                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   -e ansible_python_interpreter=/opt/venv/bin/python \
                                    --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
             displayName: 'User managed identities permissions'
@@ -232,7 +232,7 @@ stages:
                 script: |
                   ansible-playbook aks_cluster_configure.yml \
                                    -i ../inventory/root \
-                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   -e ansible_python_interpreter=/opt/venv/bin/python \
                                    -t cert_manager \
                                    --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
@@ -286,7 +286,7 @@ stages:
                 script: |
                   ansible-playbook aks_cluster_configure.yml \
                                    -i ../inventory/root \
-                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   -e ansible_python_interpreter=/opt/venv/bin/python \
                                    -t ingress_controller \
                                    --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
@@ -386,7 +386,7 @@ stages:
                 script: |
                   ansible-playbook aksbootstrap_configure.yml \
                                    -i ../inventory/root \
-                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   -e ansible_python_interpreter=/opt/venv/bin/python \
                                    --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
             displayName: 'Deploy postgresql engine'
@@ -404,7 +404,7 @@ stages:
                 script: |
                   ansible-playbook dynamic_pod_connect.yml \
                                    -i ../inventory/root \
-                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   -e ansible_python_interpreter=/opt/venv/bin/python \
                                    --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
             displayName: 'Create databases'
