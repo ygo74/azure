@@ -86,6 +86,8 @@
         wait_timeout: 360
       register: _postgresql_pods_list
       until: _postgresql_pods_list | json_query('resources[*].status.phase') | unique == ["Running"]
+      retries: 5
+      delay: 5
 
     - name: Deploy postgresql - Assert pods exist
       assert:
