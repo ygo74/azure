@@ -81,7 +81,11 @@
         kind: Pod
         namespace: postgresql
         kubeconfig: '{{ _kubeconfig_file_path }}'
+        wait: yes
+        wait_sleep: 10
+        wait_timeout: 360
       register: _postgresql_pods_list
+      until: _postgresql_pods_list | json_query('resources[*].status.phase') | unique == ["Running"]
 
     - name: Deploy postgresql - Assert pods exist
       assert:
