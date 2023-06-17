@@ -36,7 +36,7 @@ stages:
                 script: |
                   ansible-playbook aks_remove_cluster.yml \
                                    -i ../inventory/root \
-                                   -e ansible_python_interpreter=/usr/bin/python3 \
+                                   -e ansible_python_interpreter=/opt/venv/bin/python \
                                    --vault-password-file <(echo $ANSIBLE_VAULT_PASSWORD)
 
             displayName: 'Remove cluster'
