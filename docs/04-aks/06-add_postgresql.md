@@ -106,16 +106,25 @@ helm repo update
 
 helm upgrade postgresql bitnami/postgresql `
   --install `
-  --namespace default `
+  --namespace postgresql `
   --set primary.persistence.existingClaim=pvc-postgresql-dyninv `
-  --set volumePermissions.enabled=true `
-  --set volumePermissions.containerSecurityContext.runAsUser=1001
+  --set volumePermissions.enabled=true 
 
 $postgres_password_base64=$(kubectl get secret --namespace default postgresql -o jsonpath="{.data.postgres-password}")
 $postgres_password=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($postgres_password_base64))  
 
-kubectl run postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:15.2.0-debian-11-r16 --env="PGPASSWORD=$postgres_password" `
+kubectl run postgresql-client --rm --tty -i --restart='Never' --namespace postgresql --image docker.io/bitnami/postgresql:15.2.0-debian-11-r16 --env="PGPASSWORD=$postgres_password" `
       --command -- psql --host postgresql -U postgres -d postgres -p 5432
+```
+
+``` powershell
+helm upgrade postgresql2 bitnami/postgresql `
+  --install `
+  --namespace default `
+  --set primary.persistence.existingClaim=azure-managed-disk `
+  --set volumePermissions.enabled=true `
+  --set global.postgresql.auth.postgresPassword=123456789
+
 ```
 
 ## Ansible Role: PostgreSQL

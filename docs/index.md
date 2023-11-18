@@ -27,12 +27,15 @@ Used tools in this repository are :
 - [Ansible](00-prerequisites/ansible.md)
 - [az-cli](00-prerequisites/azure-cli.md)
 - [az powershell module](00-prerequisites/powershell-az.md)
+- Bicep
 - Azure devops pipeline
 
 ## Sources
 
 - Hub-sopke network topology : <https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli>
 - Azure limits : <https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits>
+- Azure Management groups : <https://learn.microsoft.com/fr-fr/azure/governance/management-groups/overview>
+- Cloud Adoption Framework guidance : <https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/>
 - Inventory API : <https://ygo74.github.io/Inventory.API/>
 
 ## Concepts
@@ -64,4 +67,5 @@ Some exceptions exist:
 | Storage account           | sa     | Yes, Storage account name must be between 3 and 24 characters in length and use numbers and lower-case letters only Storage account must be unique|
 | Disk                      | disk-  | Yes, internal decision         |
 | User Managed Identity     | umi-   | N/A                            |
+| Log analytics             | la-    | N/A                            |
 | Vault                     | vault- | Yes, A vault's name must be between 3-24 alphanumeric characters. The name must begin with a letter, end with a letter or digit, and not contain consecutive hyphens |

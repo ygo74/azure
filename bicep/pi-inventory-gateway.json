@@ -1,0 +1,38 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "publicIPAddresses_pi_inventory_gateway_name": {
+            "defaultValue": "pi-inventory-gateway",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2023-05-01",
+            "name": "[parameters('publicIPAddresses_pi_inventory_gateway_name')]",
+            "location": "francecentral",
+            "tags": {
+                "k8s-azure-dns-label-service": "ingress-controller/ingress-nginx-controller",
+                "scope": "bootstrap"
+            },
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "ipAddress": "20.19.173.35",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "dnsSettings": {
+                    "domainNameLabel": "inventory",
+                    "fqdn": "inventory.francecentral.cloudapp.azure.com"
+                },
+                "ipTags": []
+            }
+        }
+    ]
+}
