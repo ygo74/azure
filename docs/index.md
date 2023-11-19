@@ -32,10 +32,20 @@ Used tools in this repository are :
 
 ## Sources
 
+### General
+
 - Hub-sopke network topology : <https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli>
 - Azure limits : <https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits>
 - Azure Management groups : <https://learn.microsoft.com/fr-fr/azure/governance/management-groups/overview>
+
+### Architectures
+
+- Well Architecture Framework : <https://learn.microsoft.com/fr-fr/azure/well-architected/what-is-well-architected-framework>
 - Cloud Adoption Framework guidance : <https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/>
+- Browse architectures : <https://learn.microsoft.com/fr-fr/azure/architecture/browse/>
+
+### Custom Management services
+
 - Inventory API : <https://ygo74.github.io/Inventory.API/>
 
 ## Concepts
